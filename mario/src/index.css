@@ -30,5 +30,5 @@ code {
 #signature-placeholder {
   position: absolute;
   pointer-events: none;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -50%);
 }

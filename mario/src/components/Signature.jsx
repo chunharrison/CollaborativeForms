@@ -5,7 +5,7 @@ import SignaturePad from 'react-signature-canvas';
 function Signature(props) {
   const sigCanvas = useRef({});
   const clear = () => sigCanvas.current.clear();
-  const save = () => props.setURL(sigCanvas.current.getTrimmedCanvas().toDataURL('image/png'));
+  const save = (e) => props.setURL(sigCanvas.current.getTrimmedCanvas().toDataURL('image/png'), e);
 
   return (
     <div id='signature-canvas-container'>
@@ -20,8 +20,8 @@ function Signature(props) {
             canvasProps={{className: 'signature-canvas'}} />
             <button onClick={close}>Close</button>
             <button onClick={clear}>Clear</button>
-            <button onClick={() => {
-                save();
+            <button onClick={(e) => {
+                save(e);
                 close();
             }}>Done</button>
           </>

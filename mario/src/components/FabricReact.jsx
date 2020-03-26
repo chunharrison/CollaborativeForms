@@ -9,8 +9,8 @@ class FabricReact extends React.Component {
             canvas: null,
             url: null,
             holding: false,
-            clientY: null,
-            clientX: null
+            pageY: null,
+            pageX: null
         }
 
         this.addImage = this.addImage.bind(this);
@@ -41,9 +41,11 @@ class FabricReact extends React.Component {
         this.setState({canvas: fabricCanvases});
     }
 
-    setURL(url){
+    setURL(url, e){
         this.setState({url});
-        this.setState({holding: true});
+        this.setState({holding: true,
+                    pageX: e.pageX,
+                    pageY: e.pageY});
     }
 
     addImage(canvas, url, x, y){
@@ -66,14 +68,24 @@ class FabricReact extends React.Component {
 
     mouseMove(e) {
         if(this.state.holding) {
-            document.getElementById('signature-placeholder').style.top = e.clientY + 'px';
-            document.getElementById('signature-placeholder').style.left = e.clientX + 'px';
+            let image = document.getElementById('signature-placeholder')
+            image.style.top = e.pageY + 'px';
+            image.style.left = e.pageX + 'px';
         }
     }
 
     componentDidMount() {
         document.addEventListener("keydown", this.delObject, false);
         this.convertCanvases();
+        
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.holding === false && this.state.holding === true) {
+            let image = document.getElementById('signature-placeholder')
+            image.style.top = this.state.pageY + 'px';
+            image.style.left = this.state.pageX + 'px';
+        }
         
     }
 
@@ -93,7 +105,6 @@ class FabricReact extends React.Component {
             <div id='space'></div>
             <canvas id='1' width={600} height={400} />
             <Signature
-            addImage={this.addImage}
             setURL={this.setURL}
             canvas={canvas}
             url={url}
