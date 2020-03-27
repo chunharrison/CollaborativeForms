@@ -27,7 +27,7 @@ class PDFViewer extends Component {
                         pageNumber={i}
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
-                        className="1"
+                        className={(i-1).toString()}
                       />)
     }
     return pagesList
