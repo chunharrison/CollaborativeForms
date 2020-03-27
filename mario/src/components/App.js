@@ -1,10 +1,11 @@
 import React from "react";
-import FabricReact from './FabricReact';
+//import FabricReact from './FabricReact';
+import RenderPDF from './RenderPDF';
 
 function App() {
 
   return (
-    <FabricReact></FabricReact>
+    <RenderPDF></RenderPDF>
   );
 }
 
