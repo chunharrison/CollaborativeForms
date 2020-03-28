@@ -1,10 +1,14 @@
 import React from "react";
 import FabricReact from './FabricReact';
+import PDFViewer from './PDFViewer';
 
 function App() {
-
+  
   return (
-    <FabricReact></FabricReact>
+    <div id="main">
+      {/* <PDFViewer></PDFViewer> */}
+      <FabricReact></FabricReact>
+    </div>
   );
 }
 
