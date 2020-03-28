@@ -1,6 +1,7 @@
 import React from "react";
 import { fabric } from 'fabric';
 import Signature from './Signature';
+import PDFViewer from './PDFViewer';
 
 class FabricReact extends React.Component {
     constructor(props){
@@ -10,7 +11,8 @@ class FabricReact extends React.Component {
             url: null,
             holding: false,
             pageY: null,
-            pageX: null
+            pageX: null,
+            imgDatas: null
         }
 
         this.addImage = this.addImage.bind(this);
@@ -18,15 +20,40 @@ class FabricReact extends React.Component {
         this.setURL = this.setURL.bind(this);
         this.convertCanvases = this.convertCanvases.bind(this);
         this.mouseMove = this.mouseMove.bind(this);
+        this.giveIDtoCanvases = this.giveIDtoCanvases.bind(this);
+        this.pagesToDataURL = this.pagesToDataURL.bind(this);
     }
 
-    convertCanvases() {
-        let vanillaCanvases = document.getElementById('fabric-container').getElementsByTagName('canvas');
-        let canvasCount = vanillaCanvases.length;
-        let fabricCanvases = [];
+    giveIDtoCanvases() {
+        let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
+        for (let i = 0; i < canvases.length; i++) {
+            let canvas = canvases[i]
+            canvas.id = i
+        }
+    }
 
+    pagesToDataURL() {
+        let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
+        let imageDatas = [];
+
+        var pdfLength = canvases.length;
+        for (var i = 0; i < pdfLength; i++) {
+            let canvas = canvases[i];
+            imageDatas.push(canvas.toDataURL("image/jpeg", 1.0));
+        };
+
+        this.setState({imgDatas: imageDatas})
+    }
+
+    // Converts all the canvases that are in the DOM into fabric canvases
+    convertCanvases() {
+        let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
+        let canvasCount = canvases.length;
+        let fabricCanvases = [];
         for (let i = 0; i < canvasCount; i++) {
-            let canvas = new fabric.Canvas(i.toString(), {backgroundColor : "white"})
+            let canvas = new fabric.Canvas(i.toString())
+            let currentPage = this.state.imgDatas[i];
+            canvas.setBackgroundImage(currentPage,canvas.renderAll.bind(canvas))
             let self = this;
             canvas.on('mouse:up', function(e) {
                 let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
@@ -41,6 +68,8 @@ class FabricReact extends React.Component {
         this.setState({canvas: fabricCanvases});
     }
 
+    // parent function for the signature component
+    // sets the image url to the current singaure being held by the cursor
     setURL(url, e){
         this.setState({url});
         this.setState({holding: true,
@@ -48,6 +77,7 @@ class FabricReact extends React.Component {
                     pageY: e.pageY});
     }
 
+    // adding the signature onto the canvas
     addImage(canvas, url, x, y){
         fabric.Image.fromURL(url, function(signature) {
             var img = signature.set({ left: x - signature.width / 2, top: y - signature.height / 2});
@@ -56,6 +86,7 @@ class FabricReact extends React.Component {
         this.setState({holding: false});
     }
 
+    // deletes the signatures on the canvas that are selected
     delObject(event) {
         if(event.keyCode === 46) {
             for (let i = 0; i < this.state.canvas.length; i++) {
@@ -66,6 +97,7 @@ class FabricReact extends React.Component {
         }     
     }
 
+    // have the signature follow the cursor
     mouseMove(e) {
         if(this.state.holding) {
             let image = document.getElementById('signature-placeholder')
@@ -76,8 +108,7 @@ class FabricReact extends React.Component {
 
     componentDidMount() {
         document.addEventListener("keydown", this.delObject, false);
-        this.convertCanvases();
-        
+        // this.convertCanvases();
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -86,7 +117,6 @@ class FabricReact extends React.Component {
             image.style.top = this.state.pageY + 'px';
             image.style.left = this.state.pageX + 'px';
         }
-        
     }
 
     componentWillUnmount(){
@@ -100,10 +130,10 @@ class FabricReact extends React.Component {
 
         return (
         <div id='fabric-container' onMouseMove={this.mouseMove}>
-            <div id='space'></div>
+            {/* <div id='space'></div>
             <canvas id='0' width={600} height={400} />
             <div id='space'></div>
-            <canvas id='1' width={600} height={400} />
+            <canvas id='1' width={600} height={400} /> */}
             <Signature
             setURL={this.setURL}
             canvas={canvas}
@@ -111,6 +141,9 @@ class FabricReact extends React.Component {
             >
             </Signature>
             {holding && <img src={url} alt='signature-placeholder' id="signature-placeholder"></img>}
+            <button onClick={ this.giveIDtoCanvases }>Hello1</button>
+            <button onClick={ this.pagesToDataURL }>Hello2</button>
+            <button onClick={ this.convertCanvases }>Hello3</button>
         </div>
         );
     }

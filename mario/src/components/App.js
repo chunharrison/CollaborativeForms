@@ -1,11 +1,14 @@
 import React from "react";
-//import FabricReact from './FabricReact';
-import RenderPDF from './RenderPDF';
+import FabricReact from './FabricReact';
+import PDFViewer from './PDFViewer';
 
 function App() {
-
+  
   return (
-    <RenderPDF></RenderPDF>
+    <div id="main">
+      {/* <PDFViewer></PDFViewer> */}
+      <FabricReact></FabricReact>
+    </div>
   );
 }
 
