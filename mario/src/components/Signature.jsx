@@ -28,7 +28,7 @@ function Signature(props) {
           </>
         )}
       </Popup>
-      <PDFViewer></PDFViewer>
+      
     </div>
   );
 }

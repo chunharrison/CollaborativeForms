@@ -1,13 +1,18 @@
 import React from "react";
-import FabricReact from './FabricReact';
-import PDFViewer from './PDFViewer';
+import PDFSelectPage from './PDFSelectPage';
+import CollabPage from './CollabPage';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 function App() {
-  
+
   return (
     <div id="main">
-      {/* <PDFViewer></PDFViewer> */}
-      <FabricReact></FabricReact>
+      <Router>
+        <Switch>
+          <Route path='/' exact component={PDFSelectPage}/>
+          <Route path='/collab' exact component={CollabPage}/>
+        </Switch>
+      </Router>
     </div>
   );
 }
