@@ -1,7 +1,6 @@
 import React, {useRef} from "react";
 import Popup from "reactjs-popup";
 import SignaturePad from 'react-signature-canvas';
-import PDFViewer from './PDFViewer';
 
 function Signature(props) {
   const sigCanvas = useRef({});

@@ -46,9 +46,6 @@ class PDFSelectPage extends React.Component {
     }
 
     render() {
-        const {canvas} = this.state;
-        const {url} = this.state;
-        const {holding} = this.state;
 
         if (this.state.imgDatas !== null) {
             return <Redirect to={{

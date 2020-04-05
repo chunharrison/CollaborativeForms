@@ -34,7 +34,6 @@ class PDFViewer extends Component {
   }
 
   render() {
-    const { pageNumber, numPages } = this.state;
  
     return (
       <div>
