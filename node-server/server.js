@@ -2,15 +2,12 @@ const express = require('express');
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io');
-const fabric = require('fabric').fabric;
-const nanoid = require('nanoid')
+const CryptoJS = require("crypto-js");
 
-const mongo = require('mongodb');
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
 // 
 var db;
-
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
     if(err) throw err;
@@ -24,9 +21,12 @@ const socket = io(http);
 var usersConnected = 0;
 //store incoming canvas in database and send canvas to users connected
 function initCanvas(currentRoom, currentCanvas, socket) {    
+
+    let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas), 'secret key 123').toString();
+
     let canvasData = {
         room: currentRoom,
-        canvas: currentCanvas.canvas,
+        canvas: cipherObject,
         pageCount: currentCanvas.pageCount,
         pageHeight: currentCanvas.pageHeight,
         pageWidth: currentCanvas.pageWidth
@@ -35,6 +35,8 @@ function initCanvas(currentRoom, currentCanvas, socket) {
     db.collection("canvases").insertOne( canvasData, function(err, res) {
         if (err) throw err;
         console.log("1 document inserted");
+
+        canvasData.canvas = currentCanvas.canvas;
         socket.emit('canvasSetup', canvasData);
     });
 
@@ -54,6 +56,10 @@ socket.on('connection', (socket)=>{
             if (err) throw err;
     
             if (result !== null) {
+                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
+                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                result.canvas = decryptedData
+
                 socket.emit('canvasSetup', result);
             } else {
                 socket.emit('needCanvas');
@@ -72,12 +78,20 @@ socket.on('connection', (socket)=>{
     
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
-            db.collection("canvases").findOne({}, function(err, result) {
+            console.log(db.collection("canvases").find(
+                { room:data.currentRoom }
+             ).explain("executionStats"));
+            db.collection("canvases").findOne({room: data.currentRoom}, function(err, result) {
                 if (err) throw err;
-        
+
+                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
+                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                result.canvas = decryptedData
                 result.canvas[data.canvasData.id] = data.canvasData.json;
     
-                db.collection("canvases").updateOne({}, {$set: {canvas: result.canvas}}, function(err, res) {
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
+
+                db.collection("canvases").updateOne({room: data.currentRoom}, {$set: {canvas: cipherObject}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
