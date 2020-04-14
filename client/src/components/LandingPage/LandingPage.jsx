@@ -17,7 +17,7 @@ import Modal from 'react-bootstrap/Modal';
 // css
 import './LandingPage.css';
 
-class PDFSelectPage extends React.Component {
+class LandingPage extends React.Component {
     constructor(props){
         super(props);
         this.state = {
@@ -55,7 +55,7 @@ class PDFSelectPage extends React.Component {
     pagesToDataURL() {
         let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
         let imageDatas = [];
-
+        console.log(canvases.length);
         var pdfLength = canvases.length;
         for (var i = 0; i < pdfLength; i++) {
             let canvas = canvases[i];
@@ -246,4 +246,4 @@ class PDFSelectPage extends React.Component {
     }
 }
 
-export default PDFSelectPage;
+export default LandingPage;

@@ -70,11 +70,13 @@ class CollabPage extends React.Component {
             let currentPage = this.props.location.state.imgDatas[i];
 
             canvas.on('mouse:up', function(e) {
-                let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
-                if (self.state.holding){
-                    self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
-                    self.setState({holding: false});
-                    self.setState({toSend: true});
+                if (e.e.target.previousElementSibling !== null) {
+                    let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
+                    if (self.state.holding){
+                        self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
+                        self.setState({holding: false});
+                        self.setState({toSend: true});
+                    }
                 }
             });
 
@@ -134,12 +136,14 @@ class CollabPage extends React.Component {
             canvas.loadFromJSON(canvasData.canvas[i], canvas.renderAll.bind(canvas));
 
             canvas.on('mouse:up', function(e) {
-                let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
-                if (self.state.holding){
-                    self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
-                    self.setState({holding: false});
-                    self.setState({toSend: true});
-                    //self.sendEdit(e.e.target.previousElementSibling.id);
+                if (e.e.target.previousElementSibling !== null) {
+                    let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
+                    if (self.state.holding){
+                        self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
+                        self.setState({holding: false});
+                        self.setState({toSend: true});
+                        //self.sendEdit(e.e.target.previousElementSibling.id);
+                    }
                 }
             });
 
