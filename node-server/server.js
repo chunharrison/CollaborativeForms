@@ -44,13 +44,11 @@ function initCanvas(currentRoom, currentCanvas, socket) {
 
 //define socket.io behavior when users connect
 socket.on('connection', (socket)=>{
-    usersConnected++;
-    console.log('user connected');
-    console.log(usersConnected);
     //check if database has canvas if not request it, if it does send it to users
     socket.on('join', ({ name, room }) => {
-        
-        // const user = addUser({ id: socket.id, name, room});
+        console.log(`${name} just joined ${room}`)
+        usersConnected++;
+        console.log(`current number of users in ${room}: ${usersConnected}`);
 
         db.collection("canvases").findOne({ room: room }, function(err, result) {
             if (err) throw err;
@@ -60,8 +58,10 @@ socket.on('connection', (socket)=>{
                 let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 result.canvas = decryptedData
 
+                console.log(`fetching canvas data from room name: ${room}`)
                 socket.emit('canvasSetup', result);
             } else {
+                console.log(`initial setup for room name: ${room}`)
                 socket.emit('needCanvas');
             }
         });
@@ -104,16 +104,24 @@ socket.on('connection', (socket)=>{
             });
         })
 
-        socket.join(room);
+        socket.on("disconnect", ()=>{
+            console.log(`${name} just left ${room}`);
+            usersConnected--;
+            console.log(`current number of users in ${room}: ${usersConnected}`);
+        })
+
+        console.log("------------------------------")
+        // socket.join(room); monkahmm
     })
 
-    socket.on("disconnect", ()=>{
-
-        // const user = removeUser(socket.id);
-        // if (user) {
-        //     socket.to(user.room).emit('message', { user: 'admin', text: `${user.name} has left`})
-        // }
-    })
+    // socket.on("disconnect", ()=>{
+    //     usersConnected--;
+    //     console.log('user connected');
+    //     // const user = removeUser(socket.id);
+    //     // if (user) {
+    //     //     socket.to(user.room).emit('message', { user: 'admin', text: `${user.name} has left`})
+    //     // }
+    // })
 });
 
 http.listen(port, ()=>{

@@ -34,11 +34,11 @@ class PDFViewer extends Component {
   }
 
   render() {
- 
+    
     return (
       <div>
         <Document
-          file="./documents/sample.pdf"
+          file={this.props.selectedFile}
           onLoadSuccess={this.onDocumentLoadSuccess}
           inputRef={ (ref) => { this.wrapperRef = ref; } }
         >

@@ -1,10 +1,13 @@
 import React from "react";
+
+// Components
 import { fabric } from 'fabric';
-import Signature from './Signature';
+import Signature from '../Signature/Signature';
+import InfoBar from '../InfoBar'
+
+// Packages
 import io from "socket.io-client";
 import queryString from 'query-string';
-
-import InfoBar from './InfoBar'
 
 class CollabPage extends React.Component {
     constructor(props){
@@ -12,8 +15,8 @@ class CollabPage extends React.Component {
         this.state = {
             socket: null,
             endpoint: '127.0.0.1:5000',
-            user: null,
-            room: null,
+            username: null,
+            roomKey: null,
 
             canvas: null,
             holding: false,
@@ -37,12 +40,15 @@ class CollabPage extends React.Component {
 
     setSocket() {
         const socket = io(this.state.endpoint); 
-        console.log(socket)
-        const name = this.state.user;
-        const room = this.state.room;
-        // console.log(name, room)  
+        // const username = queryString.parse(this.props.location.search).username
+        // const roomKey = queryString.parse(this.props.location.search).roomKey
+        const name = this.state.username;
+        const room = this.state.roomKey; 
+        console.log(name, room)
         socket.emit('join', { name, room })        
         socket.on("canvasSetup", canvasData => this.getCanvases(canvasData));
+
+        // Send out the data 
         socket.on("editOut", canvasData => this.receiveEdit(canvasData));
 
         // first user to enter the room
@@ -102,7 +108,7 @@ class CollabPage extends React.Component {
             canvas.push(this.state.canvas[i].toJSON());
         }
 
-        let currentRoom = this.state.room;
+        let currentRoom = this.state.roomKey;
         let currentCanvas = {
             canvas: canvas,
             pageCount: this.props.location.state.imgDatas.length,
@@ -198,9 +204,11 @@ class CollabPage extends React.Component {
     }
 
     sendEdit(id) {
-        let currentRoom = this.state.room;
-        let canvasData = {json: this.state.canvas[id].toJSON(),
-                    id: id}
+        let currentRoom = this.state.roomKey;
+        let canvasData = {
+            json: this.state.canvas[id].toJSON(),
+            id: id
+        }
         this.state.socket.emit('editIn', {currentRoom, canvasData});
     }
 
@@ -217,15 +225,22 @@ class CollabPage extends React.Component {
     }  
 
     handleQuery() {
-        // query: ?name=userName&room=roomID
-        const user = queryString.parse(this.props.location.search).name
-        const room = queryString.parse(this.props.location.search).room
+        // query: ?username=username&roomKey=roomKey
+        const username = queryString.parse(this.props.location.search).username
+        const roomKey = queryString.parse(this.props.location.search).roomKey
+        console.log(username, roomKey)
         // console.log(this.props.location.search)
-        this.setState({user, room},
+        this.setState({username, roomKey},
             () => { this.setSocket(); 
         })
     }
 
+    // componentWillReceiveProps(nextProps){
+    //     if (nextProps.location.state === 'desiredState') {
+    //         // do stuffs
+    //     }
+    // }
+    
     componentDidMount(){
         this.handleQuery();
 
@@ -256,9 +271,9 @@ class CollabPage extends React.Component {
 
                 </div>
                 <Signature
-                setURL={this.setURL}
-                canvas={canvas}
-                url={url}
+                    setURL={this.setURL}
+                    canvas={canvas}
+                    url={url}
                 />
                 {holding && <img src={url} alt='signature-placeholder' id="signature-placeholder"></img>}
             </div>

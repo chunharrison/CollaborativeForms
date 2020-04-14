@@ -1,6 +1,6 @@
 import React from "react";
-import PDFSelectPage from './PDFSelectPage';
-import CollabPage from './CollabPageAlt';
+import LandingPage from './LandingPage/LandingPage';
+import CollabPage from './CollabPage/CollabPage';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
     <div id="main">
       <Router>
         <Switch>
-          <Route path='/' exact component={PDFSelectPage}/>
+          <Route path='/' exact component={LandingPage}/>
           <Route path='/collab' exact component={CollabPage}/>
         </Switch>
       </Router>
