@@ -38,10 +38,9 @@ class PDFSelectPage extends React.Component {
             createRoomAlertVisible: false,
             joinRoomAlertVisible: false,
 
-            alertMessage: ''
+            alertMessages: []
         }
 
-        // this.giveIDtoCanvases = this.giveIDtoCanvases.bind(this);
         this.pagesToDataURL = this.pagesToDataURL.bind(this);
         this.onPDFUpload = this.onPDFUpload.bind(this);
         this.onCreateRoomAlert = this.onCreateRoomAlert.bind(this);
@@ -51,15 +50,6 @@ class PDFSelectPage extends React.Component {
 
         // this.setRedirect = this.setRedirect.bind(this); // <Redirect> option
     }
-
-    // // set id=0, 1, 2, ... , n to all the canvases on the screen
-    // giveIDtoCanvases() {
-    //     let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
-    //     for (let i = 0; i < canvases.length; i++) {
-    //         let canvas = canvases[i]
-    //         canvas.id = i
-    //     }
-    // }
 
     // change currently rendered canvases to dataURLs
     pagesToDataURL() {
@@ -89,36 +79,44 @@ class PDFSelectPage extends React.Component {
             })
         }
 
-        this.setState ({
-            selectedFile: event.target.files[0],
-            selectedFileName: event.target.files[0].name,
-            pdfViewer: <PDFViewer selectedFile={event.target.files[0]}></PDFViewer>,
-            showPDFModal: true
-        }, () => {
-            this.handleShowPDFModal();
-        })
-
-        
+        if (event.target.files[0]) {
+            this.setState ({
+                selectedFile: event.target.files[0],
+                selectedFileName: event.target.files[0].name,
+                pdfViewer: <PDFViewer selectedFile={event.target.files[0]}></PDFViewer>,
+                showPDFModal: true
+            }, () => {
+                this.handleShowPDFModal();
+            })
+    
+        }
     }
 
     // triggers when a person tries to create a new room without giving required info
-    // it shows an alert for 3 seconds indicating which info is needed
+    // it shows an alert for few seconds indicating which info is needed
     onCreateRoomAlert = (event) => {
         event.preventDefault()
 
-        // let message = [];
-        // if (!this.state.usernameCreate) {
-        //     message.push('Make sure to provide your name so other people can recognize you')
-        // } else if (!this.state.)
+        let messages = [];
+        if (!this.state.usernameCreate) {
+            messages.push('- Make sure to provide a name that other people will recognize you by')
+        } 
+        if (!this.state.selectedFile) {
+            messages.push('- Upload the PDF you wish to collborate with others')
+        }
+
+        console.log(this.state.alertMessages)
 
         this.setState({
+            alertMessages: messages,
             createRoomAlertVisible: true
         },()=>{
             window.setTimeout(()=>{
                 this.setState({
-                    createRoomAlertVisible: false
+                    createRoomAlertVisible: false,
+                    alertMessages: []
                 })
-            },3000)
+            }, 5000)
         });
     }
 
@@ -150,6 +148,15 @@ class PDFSelectPage extends React.Component {
             pageWidth: 0,
             showPDFModal: true
         })
+    }
+
+    generateAlertMessages() {
+        console.log(this.state.alertMessages)
+        return this.state.alertMessages.map((msg) =>
+            <p>
+                {msg}
+            </p>
+        )
     }
 
     // <Redirect> option
@@ -215,8 +222,10 @@ class PDFSelectPage extends React.Component {
 
                             </Col>
                         </Row>
-                        <Alert variant='danger' show={this.state.createRoomAlertVisible}>No PDF file has been uploaded</Alert>
-                        <Alert variant='danger' show={this.state.joinRoomAlertVisible}>No Room Key has been given</Alert>
+                        <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
+                            ERROR
+                        </Alert>
+                        {/* <Alert variant='danger' show={this.state.joinRoomAlertVisible}>No Room Key has been given</Alert> */}
                     </Container>
                 </div>
                 <Modal show={this.state.showPDFModal} onHide={this.handleClosePDFModal} size="lg" onEntered={() => this.pagesToDataURL()}>
