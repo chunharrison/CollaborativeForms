@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express()
 const http = require('http').Server(app)
-const io = require('socket.io');
+const socketio = require('socket.io');
 const CryptoJS = require("crypto-js");
 
 var url = "mongodb://localhost:27017";
@@ -16,7 +16,7 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
 
 const port = 5000;
 //Bind socket.io socket to http server
-const socket = io(http);
+const io = socketio(http);
 
 var usersConnected = 0;
 //store incoming canvas in database and send canvas to users connected
@@ -43,10 +43,11 @@ function initCanvas(roomKey, currentCanvas, socket) {
 }
 
 //define socket.io behavior when users connect
-socket.on('connection', (socket)=>{
+io.on('connection', (socket)=>{
     //check if database has canvas if not request it, if it does send it to users
-    socket.on('join', ({ name, roomKey }) => {
-        console.log(`${name} just joined ${roomKey}`)
+    socket.on('join', ({ username, roomKey }) => {
+        socket.join(roomKey);
+        console.log(`${username} just joined ${roomKey}`)
         usersConnected++;
         console.log(`current number of users in ${roomKey}: ${usersConnected}`);
 
@@ -78,9 +79,7 @@ socket.on('connection', (socket)=>{
     
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
-            console.log(db.collection("canvases").find(
-                { room: roomKey }
-             ).explain("executionStats"));
+            console.log(data);
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
@@ -91,8 +90,6 @@ socket.on('connection', (socket)=>{
     
                 let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
 
-                console.log("canvasdb found")
-
                 db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: cipherObject}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
@@ -101,8 +98,7 @@ socket.on('connection', (socket)=>{
                         json: data.canvasData.json,
                         id: data.canvasData.id
                     };
-                    console.log(roomKey)
-                    socket.to(roomKey).emit('editOut', dataOut); 
+                    socket.broadcast.to(roomKey).emit('editOut', dataOut);
                 });
             });
         })
@@ -127,13 +123,12 @@ socket.on('connection', (socket)=>{
         // })
 
         socket.on("disconnect", ()=>{
-            console.log(`${name} just left ${roomKey}`);
+            console.log(`${username} just left ${roomKey}`);
             usersConnected--;
             console.log(`current number of users in ${roomKey}: ${usersConnected}`);
         })
 
         console.log("------------------------------")
-        // socket.join(room); monkahmm
     })
 
     // socket.on("disconnect", ()=>{
@@ -144,6 +139,10 @@ socket.on('connection', (socket)=>{
     //     //     socket.to(user.room).emit('message', { user: 'admin', text: `${user.name} has left`})
     //     // }
     // })
+
+    socket.on('error', function (err) {
+        console.log(err);
+    });
 });
 
 http.listen(port, ()=>{
