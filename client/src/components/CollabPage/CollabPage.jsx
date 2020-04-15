@@ -207,7 +207,6 @@ class CollabPage extends React.Component {
     }
 
     sendEdit(id) {
-        console.log('sendEdit')
         let roomKey = this.state.roomKey;
         let canvasData = {
             json: this.state.canvas[id].toJSON(),
@@ -230,6 +229,7 @@ class CollabPage extends React.Component {
     }  
 
     handleQuery() {
+        console.log(this.props.location);
         // query: ?username=username&roomKey=roomKey
         const username = queryString.parse(this.props.location.search).username
         const roomKey = queryString.parse(this.props.location.search).roomKey
@@ -245,6 +245,7 @@ class CollabPage extends React.Component {
     // }
     
     componentDidMount(){
+        console.log('hi');
         this.handleQuery();
 
         document.addEventListener("keydown", this.delObject, false);

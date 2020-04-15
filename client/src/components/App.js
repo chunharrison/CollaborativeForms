@@ -9,8 +9,8 @@ function App() {
     <div id="main">
       <Router>
         <Switch>
-          <Route path='/' exact component={LandingPage}/>
-          <Route path='/collab' exact component={CollabPage}/>
+          <Route exact path='/' component={LandingPage}/>
+          <Route path='/collab' component={CollabPage}/>
         </Switch>
       </Router>
     </div>

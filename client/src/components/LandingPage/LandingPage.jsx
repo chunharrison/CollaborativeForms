@@ -211,7 +211,8 @@ class LandingPage extends React.Component {
                                     </Card.Body>
                                     <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
                                         to={{
-                                            pathname: `/collab?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
+                                            pathname: `/collab`,
+                                            search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
                                             state: {
                                                 imgDatas: this.state.imgDatas,
                                                 pageHeight: this.state.pageHeight,
@@ -231,7 +232,8 @@ class LandingPage extends React.Component {
                                         <input placeholder="Name..." className="joinInput" type="text" onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
                                     </Card.Body>
                                     <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
-                                        to={{ pathname: `/collab?username=${this.state.usernameJoin}&roomKey=${this.state.roomKey}` }}>
+                                        to={{ pathname: `/collab`,
+                                            search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
                                         <Button variant="primary" type="submit">Enter Room</Button>
                                     </Link>
                                     {/* <Redirect> option */}
