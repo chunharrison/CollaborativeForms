@@ -20,12 +20,12 @@ const socket = io(http);
 
 var usersConnected = 0;
 //store incoming canvas in database and send canvas to users connected
-function initCanvas(currentRoom, currentCanvas, socket) {    
+function initCanvas(roomKey, currentCanvas, socket) {    
 
     let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas), 'secret key 123').toString();
 
     let canvasData = {
-        room: currentRoom,
+        room: roomKey,
         canvas: cipherObject,
         pageCount: currentCanvas.pageCount,
         pageHeight: currentCanvas.pageHeight,
@@ -45,12 +45,12 @@ function initCanvas(currentRoom, currentCanvas, socket) {
 //define socket.io behavior when users connect
 socket.on('connection', (socket)=>{
     //check if database has canvas if not request it, if it does send it to users
-    socket.on('join', ({ name, room }) => {
-        console.log(`${name} just joined ${room}`)
+    socket.on('join', ({ name, roomKey }) => {
+        console.log(`${name} just joined ${roomKey}`)
         usersConnected++;
-        console.log(`current number of users in ${room}: ${usersConnected}`);
+        console.log(`current number of users in ${roomKey}: ${usersConnected}`);
 
-        db.collection("canvases").findOne({ room: room }, function(err, result) {
+        db.collection("canvases").findOne({ room: roomKey }, function(err, result) {
             if (err) throw err;
     
             if (result !== null) {
@@ -58,17 +58,17 @@ socket.on('connection', (socket)=>{
                 let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 result.canvas = decryptedData
 
-                console.log(`fetching canvas data from room name: ${room}`)
+                console.log(`fetching canvas data from room name: ${roomKey}`)
                 socket.emit('canvasSetup', result);
             } else {
-                console.log(`initial setup for room name: ${room}`)
+                console.log(`initial setup for room name: ${roomKey}`)
                 socket.emit('needCanvas');
             }
         });
     
         //force reset canvas, only gets called when 'needCanvas' gets emitted
         socket.on('initCanvas', (data) => {
-            initCanvas(data.currentRoom, data.currentCanvas, socket);
+            initCanvas(roomKey, data.currentCanvas, socket);
         })
     
         //force send clients canvas that are missing it
@@ -79,9 +79,9 @@ socket.on('connection', (socket)=>{
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
             console.log(db.collection("canvases").find(
-                { room:data.currentRoom }
+                { room: roomKey }
              ).explain("executionStats"));
-            db.collection("canvases").findOne({room: data.currentRoom}, function(err, result) {
+            db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
                 let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
@@ -91,7 +91,9 @@ socket.on('connection', (socket)=>{
     
                 let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
 
-                db.collection("canvases").updateOne({room: data.currentRoom}, {$set: {canvas: cipherObject}}, function(err, res) {
+                console.log("canvasdb found")
+
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: cipherObject}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
@@ -99,15 +101,35 @@ socket.on('connection', (socket)=>{
                         json: data.canvasData.json,
                         id: data.canvasData.id
                     };
-                    socket.to(data.currentRoom).emit('editOut', dataOut); 
+                    console.log(roomKey)
+                    socket.to(roomKey).emit('editOut', dataOut); 
                 });
             });
         })
 
+        // socket.on('editIn', (data) => {
+        //     db.collection("canvases").findOne({}, function(err, result) {
+        //         if (err) throw err;
+        
+        //         result.canvas[data.canvasData.id] = data.canvasData.json;
+    
+        //         db.collection("canvases").updateOne({}, {$set: {canvas: result.canvas}}, function(err, res) {
+        //             if (err) throw err;
+        //             console.log("1 document updated");
+    
+        //             let dataOut = {
+        //                 json: data.canvasData.json,
+        //                 id: data.canvasData.id
+        //             };
+        //             socket.to(data.roomKey).emit('editOut', dataOut); 
+        //         });
+        //     });
+        // })
+
         socket.on("disconnect", ()=>{
-            console.log(`${name} just left ${room}`);
+            console.log(`${name} just left ${roomKey}`);
             usersConnected--;
-            console.log(`current number of users in ${room}: ${usersConnected}`);
+            console.log(`current number of users in ${roomKey}: ${usersConnected}`);
         })
 
         console.log("------------------------------")

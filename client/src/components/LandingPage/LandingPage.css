@@ -11,3 +11,14 @@
 .enter-option-col-2 {
     margin: 5rem;
 }
+
+#accept-pdf {
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
+    width: 100%;
+    z-index: 999; 
+}
+
+.modal-backdrop {
+    z-index: 99; 
+}

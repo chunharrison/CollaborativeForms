@@ -23,8 +23,8 @@ class LandingPage extends React.Component {
         this.state = {
             canvas: null,
             imgDatas: null,
-            pageHeight: 0,
-            pageWidth: 0,
+            pageHeight: null,
+            pageWidth: null,
             selectedFile: null,
             selectedFileName: 'PDF File',
             pdfViewer: null,
@@ -51,11 +51,10 @@ class LandingPage extends React.Component {
         // this.setRedirect = this.setRedirect.bind(this); // <Redirect> option
     }
 
-    // change currently rendered canvases to dataURLs
+    // change currently rendered canvases to dataURLs 
     pagesToDataURL() {
         let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
         let imageDatas = [];
-        console.log(canvases.length);
         var pdfLength = canvases.length;
         for (var i = 0; i < pdfLength; i++) {
             let canvas = canvases[i];
@@ -132,11 +131,18 @@ class LandingPage extends React.Component {
     }
 
     // closes the PDF viewer modal
-    handleClosePDFModal = () => {
-        if (this.state.imgDatas !== null) { // makes sure that we acquired imgDatas before closing the modal
+    handleClosePDFModal = (event, accepted) => {
+        // event.preventDefault();
+        if (accepted) {
+            this.pagesToDataURL()
+        } else {
             this.setState({
+                selectedFile: null,
+                selectedFileName: null,
+                pdfViewer: null,
                 showPDFModal: false
             })
+            document.getElementById("pdf-file-input").value = "";
         }
     }
 
@@ -157,6 +163,18 @@ class LandingPage extends React.Component {
                 {msg}
             </p>
         )
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.imgDatas === null && prevState.imgDatas !== this.state.imgDatas) {
+            this.setState({
+                showPDFModal: false
+            })
+        }
+    }
+
+    toDataUrlsButtonToggle() {
+
     }
 
     // <Redirect> option
@@ -183,11 +201,12 @@ class LandingPage extends React.Component {
                 <div className='enter-options'>
                     <Container className="row-col-container">
                         <Row>
+
                             <Col className="enter-option-col-1">
                                 <Card>
                                     <Card.Header as="h5">Create a New Room</Card.Header>
                                     <Card.Body>
-                                        <input type="file" name="file" onChange={this.onPDFUpload}/>
+                                        <input id="pdf-file-input" type="file" name="file" onChange={this.onPDFUpload}/>
                                         <input placeholder="Name..." className="joinInput" type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
                                     </Card.Body>
                                     <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
@@ -228,7 +247,8 @@ class LandingPage extends React.Component {
                         {/* <Alert variant='danger' show={this.state.joinRoomAlertVisible}>No Room Key has been given</Alert> */}
                     </Container>
                 </div>
-                <Modal show={this.state.showPDFModal} onHide={this.handleClosePDFModal} size="lg" onEntered={() => this.pagesToDataURL()}>
+                {/* <Button id='accept-pdf'>Accept</Button> */}
+                <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title>{this.state.selectedFileName}</Modal.Title>
                     </Modal.Header>
@@ -236,7 +256,8 @@ class LandingPage extends React.Component {
                         {this.state.pdfViewer}
                     </Modal.Body>
                     <Modal.Footer>
-                    <Button variant="primary" onClick={this.handleClosePDFModal}>
+                        {/* {this.handleClosePDFModal} */}
+                    <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
                         Okay
                     </Button>
                     </Modal.Footer>
