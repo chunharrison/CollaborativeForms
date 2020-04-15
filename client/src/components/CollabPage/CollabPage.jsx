@@ -44,7 +44,7 @@ class CollabPage extends React.Component {
         // const roomKey = queryString.parse(this.props.location.search).roomKey
         const username = this.state.username;
         const roomKey = this.state.roomKey; 
-        socket.emit('join', { username, roomKey })        
+        socket.on('join', canvasData => socket.emit('join', { username, roomKey }));     
         socket.on("canvasSetup", canvasData => this.getCanvases(canvasData));
 
         // Send out the data 
@@ -125,6 +125,9 @@ class CollabPage extends React.Component {
         let fabricCanvases = [];
         let self = this;
         console.log('getCanvases')
+        while (container.firstChild) {
+            container.removeChild(container.lastChild);
+        }
         for (let i = 0; i < canvasData.pageCount; i++) {
             let newCanvas = document.createElement('canvas');
             newCanvas.id = i.toString();
@@ -216,7 +219,6 @@ class CollabPage extends React.Component {
     }
 
     receiveEdit(canvasData) {
-        console.log("receiving edit")
         this.state.canvas[canvasData.id].loadFromJSON(canvasData.json, this.state.canvas[canvasData.id].renderAll.bind(this.state.canvas[canvasData.id]));
     }
 

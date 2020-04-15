@@ -45,6 +45,7 @@ function initCanvas(roomKey, currentCanvas, socket) {
 //define socket.io behavior when users connect
 io.on('connection', (socket)=>{
     //check if database has canvas if not request it, if it does send it to users
+    socket.emit('join');
     socket.on('join', ({ username, roomKey }) => {
         socket.join(roomKey);
         console.log(`${username} just joined ${roomKey}`)
