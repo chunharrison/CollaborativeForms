@@ -87,8 +87,9 @@ class CollabPage extends React.Component {
                 }
             });
 
-            canvas.on('selection:created', function(e) {
-                console.log(e);
+            canvas.on('object:modified', function(e) {
+                self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                
             });
 
             canvas.setBackgroundImage(currentPage, function() {
@@ -124,7 +125,6 @@ class CollabPage extends React.Component {
         let container = document.getElementById("canvas-container");
         let fabricCanvases = [];
         let self = this;
-        console.log('getCanvases')
         while (container.firstChild) {
             container.removeChild(container.lastChild);
         }
@@ -154,6 +154,11 @@ class CollabPage extends React.Component {
                     self.sendEdit(e.target.canvas.lowerCanvasEl.id);
                     self.setState({toSend:false});
                 }
+                
+            });
+
+            canvas.on('object:modified', function(e) {
+                self.sendEdit(e.target.canvas.lowerCanvasEl.id);
                 
             });
 
@@ -231,7 +236,6 @@ class CollabPage extends React.Component {
     }  
 
     handleQuery() {
-        console.log(this.props.location);
         // query: ?username=username&roomKey=roomKey
         const username = queryString.parse(this.props.location.search).username
         const roomKey = queryString.parse(this.props.location.search).roomKey
@@ -247,7 +251,6 @@ class CollabPage extends React.Component {
     // }
     
     componentDidMount(){
-        console.log('hi');
         this.handleQuery();
 
         document.addEventListener("keydown", this.delObject, false);
