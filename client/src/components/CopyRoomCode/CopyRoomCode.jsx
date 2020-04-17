@@ -7,9 +7,8 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
 class CopyRoomCode extends React.Component {
-    constructor(...props) {
-        super(...props)
-        this.attachRef = target => this.setState({ target });
+    constructor(props) {
+        super(props)
         this.state = {
             copied: false,
             showOverlay: false
@@ -17,8 +16,7 @@ class CopyRoomCode extends React.Component {
     }
     render() {
 
-        const popover = <Popover><Popover.Content>Room Code Copied!</Popover.Content></Popover>
-        const {showOverlay, target} = this.state
+        const popover = <Popover><Popover.Content>Copied!</Popover.Content></Popover>
         return (
             <div>
                 <h3>Room Code: {this.props.roomCode}</h3>
@@ -29,32 +27,11 @@ class CopyRoomCode extends React.Component {
                             this.setState({copied: false})
                         }, 3000)
                     })}>
-                        <Button
-                            variant="danger"
-                            ref={this.attachRef}
-                            onClick={() => this.setState({ showOverlay: !showOverlay }, () => {
-                                window.setTimeout(() => {
-                                    this.setState({showOverlay: false})
-                                }, 3000)})}
-                        >
-                            Copy Room Code
-                        </Button>
-                        <Overlay target={target} show={showOverlay} placement="right">
-                            {({ placement, scheduleUpdate, arrowProps, ...props }) => (
-                                <div
-                                    {...props}
-                                    style={{
-                                        backgroundColor: 'rgba(255, 100, 100, 0.85)',
-                                        padding: '2px 10px',
-                                        color: 'white',
-                                        borderRadius: 3,
-                                        ...props.style,
-                                    }}
-                                >
-                                    Simple tooltip
-                                </div>
-                            )}
-                            </Overlay>
+                        <OverlayTrigger trigger="click" placement="right" overlay={popover}>
+                            <Button>
+                                Copy Room Code
+                            </Button>
+                        </OverlayTrigger>
                 </CopyToClipboard>
             </div>
         )
