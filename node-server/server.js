@@ -66,7 +66,6 @@ io.on('connection', (socket)=>{
 
         db.collection("canvases").findOne({ room: roomKey }, function(err, result) {
             if (err) throw err;
-            console.log(result)
             if (result !== null) {
                 let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
                 let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));

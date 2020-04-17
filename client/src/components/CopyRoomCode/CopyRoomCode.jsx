@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
+import Tooltip from 'react-bootstrap/Tooltip'
 
 class CopyRoomCode extends React.Component {
     constructor(props) {
@@ -13,6 +14,8 @@ class CopyRoomCode extends React.Component {
             copied: false,
             showOverlay: false
         }
+
+        this.copyButton = React.createRef();
     }
     render() {
 
@@ -25,14 +28,15 @@ class CopyRoomCode extends React.Component {
                     onCopy={() => this.setState({copied: true}, () => {
                         window.setTimeout(() => {
                             this.setState({copied: false})
-                        }, 3000)
+                        }, 2000)
                     })}>
-                        {/* <OverlayTrigger trigger="click" placement="right" overlay={popover}> */}
-                            <Button>
-                                Copy Room Code
-                            </Button>
-                        {/* </OverlayTrigger> */}
+                        <Button ref={this.copyButton}>
+                            Copy Room Code to Clipboard
+                        </Button>
                 </CopyToClipboard>
+                <Overlay target={this.copyButton.current} show={this.state.copied} placement='right'>
+                    <Tooltip>Copied!</Tooltip>
+                </Overlay>
             </div>
         )
     }
