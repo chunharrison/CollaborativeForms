@@ -4,10 +4,6 @@ import { nanoid } from 'nanoid';
 import PDFViewer from '../PDFViewer/PDFViewer';
 
 // Components
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 // import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
@@ -40,6 +36,8 @@ class LandingPage extends React.Component {
 
             alertMessages: []
         }
+
+        this.fileInputRef = React.createRef();
 
         this.pagesToDataURL = this.pagesToDataURL.bind(this);
         this.onPDFUpload = this.onPDFUpload.bind(this);
@@ -171,6 +169,7 @@ class LandingPage extends React.Component {
                 showPDFModal: false
             })
         }
+        console.log(this.fileInputRef);
     }
 
     toDataUrlsButtonToggle() {
@@ -196,17 +195,24 @@ class LandingPage extends React.Component {
 
     render() {
 
+        let fileValue = ''
+        if (this.fileInputRef.current === null || typeof this.fileInputRef.current.files[0] === 'undefined') {
+            fileValue = 'File...';
+        } else {
+            fileValue = this.fileInputRef.current.files[0].name;
+        }
+
         return (
             <div className='grid-container'>
                 <div className='create-room-container'>
                     <div className='create-room'>
                         <p className='room-header'>CREATE ROOM</p>
                         <div className='file-input-container'>
-                            <input type="text" className='selected-file' disabled></input>
+                            <input type="text" className='selected-file' value={fileValue} disabled></input>
                             <label for="pdf-file-input" className="custom-file-upload">
                                 Browse
                             </label>
-                            <input id="pdf-file-input" type="file" name="file" onChange={this.onPDFUpload}/>
+                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} onChange={this.onPDFUpload}/>
                         </div>
                         <input placeholder="Name..." className="name-input" type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
                         <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
