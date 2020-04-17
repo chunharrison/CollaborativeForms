@@ -45,16 +45,6 @@ function initCanvas(roomKey, currentCanvas, socket) {
 //define socket.io behavior when users connect
 io.on('connection', (socket)=>{
 
-    // check if the room corresponding to the given room code exists.
-    // socket.on('checkRoomCode', ({roomCode}) => {
-    //     db.collection('canvases').findOne({ room: roomCode }, function(err, result) {
-    //         if (err) throw err;
-
-    //         if (!result)
-    //     })
-    // })
-
-
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
     socket.on('join', ({ username, roomKey, joining }) => {

@@ -2,9 +2,7 @@ import React from 'react';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 import Button from 'react-bootstrap/Button';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Overlay from 'react-bootstrap/Overlay';
-import Popover from 'react-bootstrap/Popover';
 import Tooltip from 'react-bootstrap/Tooltip'
 
 class CopyRoomCode extends React.Component {
@@ -18,8 +16,7 @@ class CopyRoomCode extends React.Component {
         this.copyButton = React.createRef();
     }
     render() {
-
-        const popover = <Popover><Popover.Content>Copied!</Popover.Content></Popover>
+        
         return (
             <div>
                 <h3>Room Code: {this.props.roomCode}</h3>

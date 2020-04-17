@@ -4,8 +4,6 @@ import React from "react";
 import { fabric } from 'fabric';
 import Signature from '../Signature/Signature';
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
-import InfoBar from '../InfoBar'
-import InvalidRoomCodePage from '../InvalidRoomCodePage/InvalidRoomCodePage'
 
 // Packages
 import io from "socket.io-client";
