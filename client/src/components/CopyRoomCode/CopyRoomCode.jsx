@@ -27,11 +27,11 @@ class CopyRoomCode extends React.Component {
                             this.setState({copied: false})
                         }, 3000)
                     })}>
-                        <OverlayTrigger trigger="click" placement="right" overlay={popover}>
+                        {/* <OverlayTrigger trigger="click" placement="right" overlay={popover}> */}
                             <Button>
                                 Copy Room Code
                             </Button>
-                        </OverlayTrigger>
+                        {/* </OverlayTrigger> */}
                 </CopyToClipboard>
             </div>
         )
