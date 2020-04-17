@@ -3,6 +3,7 @@ import React from "react";
 // Components
 import { fabric } from 'fabric';
 import Signature from '../Signature/Signature';
+import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import InfoBar from '../InfoBar'
 
 // Packages
@@ -274,8 +275,14 @@ class CollabPage extends React.Component {
         const {url} = this.state;
         const {holding} = this.state;
 
+        let roomCodeCopy;
+        if (this.state.roomKey !== null) {
+            roomCodeCopy = <CopyRoomCode roomCode={this.state.roomKey}></CopyRoomCode>
+        }
+
         return (
             <div onMouseMove={this.mouseMove}>
+                {roomCodeCopy}
                 <div id='canvas-container'>
 
                 </div>
