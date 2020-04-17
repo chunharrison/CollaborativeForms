@@ -18,7 +18,7 @@ class CopyRoomCode extends React.Component {
     render() {
         
         return (
-            <div>
+            <div className='clipboard-container'>
                 <h3>Room Code: {this.props.roomCode}</h3>
                 <CopyToClipboard 
                     text={this.props.roomCode}
@@ -27,8 +27,8 @@ class CopyRoomCode extends React.Component {
                             this.setState({copied: false})
                         }, 2000)
                     })}>
-                        <Button ref={this.copyButton}>
-                            Copy Room Code to Clipboard
+                        <Button className='clipboard-button' ref={this.copyButton}>
+                            <img className='clipboard-button-icon' src='/clipboard.png'></img>
                         </Button>
                 </CopyToClipboard>
                 <Overlay target={this.copyButton.current} show={this.state.copied} placement='right'>

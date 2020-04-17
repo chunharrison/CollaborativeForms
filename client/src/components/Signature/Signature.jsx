@@ -9,21 +9,24 @@ function Signature(props) {
 
   return (
     <div id='signature-canvas-container'>
-      <Popup
+      <Popup contentStyle={{width: "700px", height:'250px', padding: "0px"}}
       modal 
-      trigger={<button>Open Signature Pad</button>}
+      trigger={<button className='signature-button'><img className='signature-button-icon' src='/signature.png'></img><p>Signature</p></button>}
       closeOnDocumentClick={false}
       >
         {close => (
           <>
+            <p className='text-popup'>Draw Signature</p>
             <SignaturePad ref={sigCanvas} id='signature-canvas' 
             canvasProps={{className: 'signature-canvas'}} />
-            <button onClick={close}>Close</button>
-            <button onClick={clear}>Clear</button>
-            <button onClick={(e) => {
-                save(e);
-                close();
-            }}>Done</button>
+            <div className='popup-button-container'>
+              <button className='popup-button' onClick={close}>Close</button>
+              <button className='popup-button' onClick={clear}>Clear</button>
+              <button className='popup-button' onClick={(e) => {
+                  save(e);
+                  close();
+              }}>Done</button>
+            </div>
           </>
         )}
       </Popup>

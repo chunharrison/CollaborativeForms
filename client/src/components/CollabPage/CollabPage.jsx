@@ -10,6 +10,9 @@ import io from "socket.io-client";
 import queryString from 'query-string';
 import { Redirect } from 'react-router-dom';
 
+//CSS
+import './CollabPage.css';
+
 class CollabPage extends React.Component {
     constructor(props){
         super(props);
@@ -305,16 +308,26 @@ class CollabPage extends React.Component {
         }
 
         return (
-            <div onMouseMove={this.mouseMove}>
-                {roomCodeCopy}
+            <div className='collab-page' onMouseMove={this.mouseMove}>
+                <div className='header'>
+                    <p className='cosign-header-text'>Cosign</p>
+                    <div className='tools'>
+                        <Signature
+                            setURL={this.setURL}
+                            canvas={canvas}
+                            url={url}
+                        />
+                    </div>
+                    {roomCodeCopy}
+                </div>
                 <div id='canvas-container'>
 
                 </div>
-                <Signature
-                    setURL={this.setURL}
-                    canvas={canvas}
-                    url={url}
-                />
+                <div className='header'>
+                    <div className='tools'>
+                        
+                    </div>
+                </div>
                 {holding && <img src={url} alt='signature-placeholder' id="signature-placeholder"></img>}
             </div>
         );

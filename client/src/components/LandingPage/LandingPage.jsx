@@ -141,6 +141,19 @@ class LandingPage extends React.Component {
         })
     }
 
+    generateAlertMessages() {
+        console.log(this.state.alertMessages)
+        return this.state.alertMessages.map((msg) =>
+            <p>
+                {msg}
+            </p>
+        )
+    }
+
+    componentDidMount() {
+        this.setState({mounted: true});
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (prevState.imgDatas === null && prevState.imgDatas !== this.state.imgDatas) {
             this.setState({
@@ -151,7 +164,6 @@ class LandingPage extends React.Component {
     }
 
     render() {
-
         let fileValue = ''
         if (this.fileInputRef.current === null || typeof this.fileInputRef.current.files[0] === 'undefined') {
             fileValue = 'File...';
