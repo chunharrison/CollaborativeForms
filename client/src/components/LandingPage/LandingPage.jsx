@@ -34,19 +34,21 @@ class LandingPage extends React.Component {
             createRoomAlertVisible: false,
             joinRoomAlertVisible: false,
 
-            alertMessages: []
+            endpoint: '127.0.0.1:5000'
         }
 
         this.fileInputRef = React.createRef();
 
         this.pagesToDataURL = this.pagesToDataURL.bind(this);
         this.onPDFUpload = this.onPDFUpload.bind(this);
+
+        // Alert messages
         this.onCreateRoomAlert = this.onCreateRoomAlert.bind(this);
         this.onJoinRoomAlert = this.onJoinRoomAlert.bind(this);
+
+        // PDF preview Modal
         this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
         this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
-
-        // this.setRedirect = this.setRedirect.bind(this); // <Redirect> option
     }
 
     // change currently rendered canvases to dataURLs 
@@ -94,25 +96,9 @@ class LandingPage extends React.Component {
     onCreateRoomAlert = (event) => {
         event.preventDefault()
 
-        let messages = [];
-        if (!this.state.usernameCreate) {
-            messages.push('- Make sure to provide a name that other people will recognize you by')
-        } 
-        if (!this.state.selectedFile) {
-            messages.push('- Upload the PDF you wish to collborate with others')
-        }
-
-        console.log(this.state.alertMessages)
-
-        this.setState({
-            alertMessages: messages,
-            createRoomAlertVisible: true
-        },()=>{
+        this.setState({ createRoomAlertVisible: true }, () => { 
             window.setTimeout(()=>{
-                this.setState({
-                    createRoomAlertVisible: false,
-                    alertMessages: []
-                })
+                this.setState({ createRoomAlertVisible: false })
             }, 5000)
         });
     }
@@ -121,9 +107,10 @@ class LandingPage extends React.Component {
     // it shows an alert for 3 seconds indicating which info is needed
     onJoinRoomAlert = (event) => {
         event.preventDefault()
-        this.setState({joinRoomAlertVisible: true},()=>{
-            window.setTimeout(()=>{
-                this.setState({joinRoomAlertVisible: false})
+
+        this.setState({ joinRoomAlertVisible: true }, () => {
+            window.setTimeout(() => {
+                this.setState({ joinRoomAlertVisible: false })
             },3000)
         });
     }
@@ -172,27 +159,6 @@ class LandingPage extends React.Component {
         console.log(this.fileInputRef);
     }
 
-    toDataUrlsButtonToggle() {
-
-    }
-
-    // <Redirect> option
-    // setRedirect = (event) => {
-    //     event.preventDefault()
-    //     this.setState({
-    //         redirect: true
-    //     })
-    // }
-
-    // <Redirect> option
-    // joinRoom() {
-    //     if (this.state.redirect && 
-    //         this.state.username !== null && 
-    //         this.state.roomKey !== null) {
-    //         return <Redirect to={{ pathname: `/collab?username=${this.state.username}&roomKey=${this.state.roomKey}` }}/>
-    //     }
-    // }
-
     render() {
 
         let fileValue = ''
@@ -239,13 +205,10 @@ class LandingPage extends React.Component {
                                 search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
                             <Button variant="primary" className='create-room-button' type="submit">Enter Room</Button>
                         </Link>
-                        {/* <Redirect> option */}
-                        {/* {this.joinRoom()}
-                        <Button variant="primary" onClick={(event) => this.setRedirect(event)}>Enter Room</Button> */}
                     </div>
                 </div>
                 <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
-                    ERROR
+                    Make sure you included all the required information. 
                 </Alert>
                 {/* <Button id='accept-pdf'>Accept</Button> */}
                 <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="lg">

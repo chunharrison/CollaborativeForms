@@ -44,17 +44,29 @@ function initCanvas(roomKey, currentCanvas, socket) {
 
 //define socket.io behavior when users connect
 io.on('connection', (socket)=>{
+
+    // check if the room corresponding to the given room code exists.
+    // socket.on('checkRoomCode', ({roomCode}) => {
+    //     db.collection('canvases').findOne({ room: roomCode }, function(err, result) {
+    //         if (err) throw err;
+
+    //         if (!result)
+    //     })
+    // })
+
+
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
-    socket.on('join', ({ username, roomKey }) => {
+    socket.on('join', ({ username, roomKey, joining }) => {
         socket.join(roomKey);
+        console.log(socket.rooms)
         console.log(`${username} just joined ${roomKey}`)
         usersConnected++;
         console.log(`current number of users in ${roomKey}: ${usersConnected}`);
 
         db.collection("canvases").findOne({ room: roomKey }, function(err, result) {
             if (err) throw err;
-    
+            console.log(result)
             if (result !== null) {
                 let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
                 let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -62,9 +74,11 @@ io.on('connection', (socket)=>{
 
                 console.log(`fetching canvas data from room name: ${roomKey}`)
                 socket.emit('canvasSetup', result);
-            } else {
+            } else if (!joining) {
                 console.log(`initial setup for room name: ${roomKey}`)
                 socket.emit('needCanvas');
+            } else {
+                socket.emit('invalidRoomCode')
             }
         });
     

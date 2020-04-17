@@ -5,10 +5,12 @@ import { fabric } from 'fabric';
 import Signature from '../Signature/Signature';
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import InfoBar from '../InfoBar'
+import InvalidRoomCodePage from '../InvalidRoomCodePage/InvalidRoomCodePage'
 
 // Packages
 import io from "socket.io-client";
 import queryString from 'query-string';
+import { Redirect } from 'react-router-dom';
 
 class CollabPage extends React.Component {
     constructor(props){
@@ -23,7 +25,9 @@ class CollabPage extends React.Component {
             holding: false,
             toSend: false,
             pageX: 0,
-            pageY: 0
+            pageY: 0,
+
+            invalidRoomCodeProc: false
         }
         
         this.createCanvases = this.createCanvases.bind(this);
@@ -37,6 +41,7 @@ class CollabPage extends React.Component {
         this.sendEdit = this.sendEdit.bind(this);
         this.receiveEdit = this.receiveEdit.bind(this);
         this.handleQuery = this.handleQuery.bind(this);
+        this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
     }
 
     setSocket() {
@@ -44,9 +49,18 @@ class CollabPage extends React.Component {
         // const username = queryString.parse(this.props.location.search).username
         // const roomKey = queryString.parse(this.props.location.search).roomKey
         const username = this.state.username;
-        const roomKey = this.state.roomKey; 
-        socket.on('join', canvasData => socket.emit('join', { username, roomKey }));     
+        const roomKey = this.state.roomKey;
+
+        // if imgDatas is null, the person is joining the room not creating
+        // find out if the given room code is valid or not
+        // if (this.props.location.state.imgDatas === null) {
+        //     socket.emit('checkRoomCode', {roomKey})
+        // }
+        const joining = this.props.location.state === undefined
+
+        socket.on('join', canvasData => socket.emit('join', { username, roomKey, joining}));     
         socket.on("canvasSetup", canvasData => this.getCanvases(canvasData));
+        socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
 
         // Send out the data 
         socket.on("editOut", canvasData => this.receiveEdit(canvasData));
@@ -56,6 +70,13 @@ class CollabPage extends React.Component {
         socket.on("needCanvas", () => { this.createCanvases(); });
 
         this.setState({socket: socket});
+    }
+
+    invalidRoomCodeProc() {
+        this.setState({
+            invalidRoomCodeGiven: true
+        })
+
     }
 
     // creates the FIRST instace of canvases
@@ -240,8 +261,8 @@ class CollabPage extends React.Component {
         // query: ?username=username&roomKey=roomKey
         const username = queryString.parse(this.props.location.search).username
         const roomKey = queryString.parse(this.props.location.search).roomKey
-        this.setState({username, roomKey},
-            () => { this.setSocket(); 
+        this.setState({username, roomKey}, () => { 
+            this.setSocket(); 
         })
     }
 
@@ -271,6 +292,11 @@ class CollabPage extends React.Component {
     }
 
     render() {
+
+        if (this.state.invalidRoomCodeGiven) {
+            return <Redirect to={{pathname: '/invalid-room-code'}}></Redirect>
+        }
+
         const {canvas} = this.state;
         const {url} = this.state;
         const {holding} = this.state;
