@@ -211,11 +211,11 @@ class LandingPage extends React.Component {
                     Make sure you included all the required information. 
                 </Alert>
                 {/* <Button id='accept-pdf'>Accept</Button> */}
-                <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="lg">
+                <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="xl">
                     <Modal.Header closeButton>
-                        <Modal.Title>{this.state.selectedFileName}</Modal.Title>
+                        <Modal.Title>{this.state.selectedFileName} - Preview</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
+                    <Modal.Body className='modal-body'>
                         {this.state.pdfViewer}
                     </Modal.Body>
                     <Modal.Footer>
