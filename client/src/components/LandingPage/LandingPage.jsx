@@ -197,58 +197,50 @@ class LandingPage extends React.Component {
     render() {
 
         return (
-            <div className='enter-options-container'>
-                <div className='enter-options'>
-                    <Container className="row-col-container">
-                        <Row>
-
-                            <Col className="enter-option-col-1">
-                                <Card>
-                                    <Card.Header as="h5">Create a New Room</Card.Header>
-                                    <Card.Body>
-                                        <input id="pdf-file-input" type="file" name="file" onChange={this.onPDFUpload}/>
-                                        <input placeholder="Name..." className="joinInput" type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
-                                    </Card.Body>
-                                    <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
-                                        to={{
-                                            pathname: `/collab`,
-                                            search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
-                                            state: {
-                                                imgDatas: this.state.imgDatas,
-                                                pageHeight: this.state.pageHeight,
-                                                pageWidth: this.state.pageWidth
-                                            }
-                                        }}>
-                                        <Button variant="primary" type="submit">Create Room</Button>
-                                    </Link>
-                                </Card>
-
-                            </Col>
-                            <Col className="enter-option-col-2">
-                                <Card>
-                                    <Card.Header as="h5">Join an Existing Room</Card.Header>
-                                    <Card.Body>
-                                        <input placeholder="Room Key" className="joinInput" type="text" onChange={(event) => this.setState({ roomKey: event.target.value })}></input>
-                                        <input placeholder="Name..." className="joinInput" type="text" onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
-                                    </Card.Body>
-                                    <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
-                                        to={{ pathname: `/collab`,
-                                            search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
-                                        <Button variant="primary" type="submit">Enter Room</Button>
-                                    </Link>
-                                    {/* <Redirect> option */}
-                                    {/* {this.joinRoom()}
-                                    <Button variant="primary" onClick={(event) => this.setRedirect(event)}>Enter Room</Button> */}
-                                </Card>
-
-                            </Col>
-                        </Row>
-                        <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
-                            ERROR
-                        </Alert>
-                        {/* <Alert variant='danger' show={this.state.joinRoomAlertVisible}>No Room Key has been given</Alert> */}
-                    </Container>
+            <div className='grid-container'>
+                <div className='create-room-container'>
+                    <div className='create-room'>
+                        <p className='room-header'>CREATE ROOM</p>
+                        <div className='file-input-container'>
+                            <input type="text" className='selected-file' disabled></input>
+                            <label for="pdf-file-input" className="custom-file-upload">
+                                Browse
+                            </label>
+                            <input id="pdf-file-input" type="file" name="file" onChange={this.onPDFUpload}/>
+                        </div>
+                        <input placeholder="Name..." className="name-input" type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
+                        <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
+                            to={{
+                                pathname: `/collab`,
+                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
+                                state: {
+                                    imgDatas: this.state.imgDatas,
+                                    pageHeight: this.state.pageHeight,
+                                    pageWidth: this.state.pageWidth
+                                }
+                            }}>
+                            <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>
+                        </Link>
+                    </div>
                 </div>
+                <div className='join-room-container'>
+                    <div className='join-room'>
+                        <p className='join-room-header'>JOIN ROOM</p>
+                        <input placeholder="Room Code..." className="join-room-input" type="text" onChange={(event) => this.setState({ roomKey: event.target.value })}></input>
+                        <input placeholder="Name..." className="join-name-input" type="text" onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
+                        <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
+                            to={{ pathname: `/collab`,
+                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
+                            <Button variant="primary" className='create-room-button' type="submit">Enter Room</Button>
+                        </Link>
+                        {/* <Redirect> option */}
+                        {/* {this.joinRoom()}
+                        <Button variant="primary" onClick={(event) => this.setRedirect(event)}>Enter Room</Button> */}
+                    </div>
+                </div>
+                <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
+                    ERROR
+                </Alert>
                 {/* <Button id='accept-pdf'>Accept</Button> */}
                 <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="lg">
                     <Modal.Header closeButton>
