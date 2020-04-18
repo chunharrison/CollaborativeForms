@@ -83,14 +83,13 @@ io.on('connection', (socket)=>{
     
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
-            console.log(data);
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
                 let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
                 let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 result.canvas = decryptedData
-                result.canvas[data.canvasData.id] = data.canvasData.json;
+                result.canvas[data.canvasData.id] = data.canvasData.canvasJson;
     
                 let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
 
@@ -100,9 +99,37 @@ io.on('connection', (socket)=>{
     
                     let dataOut = {
                         json: data.canvasData.json,
-                        id: data.canvasData.id
+                        id: data.canvasData.id,
+                        action: data.canvasData.action
                     };
+
                     socket.broadcast.to(roomKey).emit('editOut', dataOut);
+                });
+            });
+        })
+
+        socket.on('deleteIn', (data) => {
+            db.collection("canvases").findOne({room: roomKey}, function(err, result) {
+                if (err) throw err;
+
+                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
+                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                result.canvas = decryptedData
+                result.canvas[data.canvasData.id] = data.canvasData.canvasJson;
+    
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
+
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: cipherObject}}, function(err, res) {
+                    if (err) throw err;
+                    console.log("1 document updated");
+    
+                    let dataOut = {
+                        objectId: data.canvasData.objectId,
+                        id: data.canvasData.id,
+                        action: data.canvasData.action
+                    };
+
+                    socket.broadcast.to(roomKey).emit('deleteOut', dataOut);
                 });
             });
         })

@@ -9,6 +9,7 @@ import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import { Redirect } from 'react-router-dom';
+import { nanoid } from 'nanoid';
 
 //CSS
 import './CollabPage.css';
@@ -40,7 +41,9 @@ class CollabPage extends React.Component {
         this.mouseMove = this.mouseMove.bind(this);
         this.setSocket = this.setSocket.bind(this);
         this.sendEdit = this.sendEdit.bind(this);
+        this.sendDelete = this.sendDelete.bind(this);
         this.receiveEdit = this.receiveEdit.bind(this);
+        this.receiveDelete = this.receiveDelete.bind(this);
         this.handleQuery = this.handleQuery.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
     }
@@ -65,6 +68,7 @@ class CollabPage extends React.Component {
 
         // Send out the data 
         socket.on("editOut", canvasData => this.receiveEdit(canvasData));
+        socket.on("deleteOut", canvasData => this.receiveDelete(canvasData));
 
         // first user to enter the room
         // so the server needs the canvas data to store in database
@@ -104,15 +108,41 @@ class CollabPage extends React.Component {
 
             canvas.on('object:added', function(e) {
                 if (self.state.toSend) {
-                    self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                    self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'add');
                     self.setState({toSend:false});
                     self.state.canvas[e.target.canvas.lowerCanvasEl.id].renderAll.bind(self.state.canvas[e.target.canvas.lowerCanvasEl.id]);
                 }
             });
 
             canvas.on('object:modified', function(e) {
-                self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'modify');
                 
+            });
+
+            canvas.on('object:moving', function (e) {
+                let obj = e.target;
+                 // if object is too big ignore
+                if(obj.currentHeight > obj.canvas.height || obj.currentWidth > obj.canvas.width){
+                    return;
+                }
+        
+                let halfw = obj.currentWidth/2;
+                let halfh = obj.currentHeight/2;
+                let bounds = {tl: {x: halfw, y:halfh},
+                    br: {x: obj.canvas.width-halfw, y: obj.canvas.height-halfh}
+                };
+        
+                // top-left  corner
+                if(obj.top < bounds.tl.y || obj.left < bounds.tl.x){
+                    obj.top = Math.max(obj.top, bounds.tl.y);
+                    obj.left = Math.max(obj.left, bounds.tl.x)
+                }
+        
+                // bot-right corner
+                if(obj.top > bounds.br.y || obj.left > bounds.br.x){
+                    obj.top = Math.min(obj.top, bounds.br.y);
+                    obj.left = Math.min(obj.left, bounds.br.x)
+                }
             });
 
             canvas.setBackgroundImage(currentPage, function() {
@@ -130,7 +160,7 @@ class CollabPage extends React.Component {
     sendCanvases() {
         let canvas = [];
         for (let i = 0; i < this.state.canvas.length; i++) {
-            canvas.push(this.state.canvas[i].toJSON());
+            canvas.push(this.state.canvas[i].toJSON(['id']));
         }
 
         let roomKey = this.state.roomKey;
@@ -174,20 +204,40 @@ class CollabPage extends React.Component {
 
             canvas.on('object:added', function(e) {
                 if (self.state.toSend) {
-                    self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                    self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'add');
                     self.setState({toSend:false});
                 }
                 
             });
 
             canvas.on('object:modified', function(e) {
-                self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'modify');
                 
             });
 
+            canvas.on('object:moving', function (e) {
+                var obj = e.target;
+            
+                 // if object is too big ignore
+                if(obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width){
+                    return;
+                }        
+                obj.setCoords();        
+                // top-left  corner
+                if(obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0){
+                    obj.top = Math.max(obj.top, obj.top-obj.getBoundingRect().top);
+                    obj.left = Math.max(obj.left, obj.left-obj.getBoundingRect().left);
+                }
+                // bot-right corner
+                if(obj.getBoundingRect().top+obj.getBoundingRect().height  > obj.canvas.height || obj.getBoundingRect().left+obj.getBoundingRect().width  > obj.canvas.width){
+                    obj.top = Math.min(obj.top, obj.canvas.height-obj.getBoundingRect().height+obj.top-obj.getBoundingRect().top);
+                    obj.left = Math.min(obj.left, obj.canvas.width-obj.getBoundingRect().width+obj.left-obj.getBoundingRect().left);
+            }});
+
             canvas.on('object:removed', function(e) {
+                console.log(e.target.id);
                 if (self.state.toSend) {
-                    self.sendEdit(e.target.canvas.lowerCanvasEl.id);
+                    self.sendDelete(e.target.canvas.lowerCanvasEl.id, e.target.id, 'remove');
                     self.setState({toSend:false});
                 }
                 
@@ -219,7 +269,7 @@ class CollabPage extends React.Component {
     // adding the signature onto the canvas
     addImage(canvas, url, x, y){
         fabric.Image.fromURL(url, function(signature) {
-            var img = signature.set({ left: x - signature.width / 2, top: y - signature.height / 2});
+            var img = signature.set({ id: nanoid(), left: x - signature.width / 2, top: y - signature.height / 2});
             canvas.add(img);
         });
         this.setState({holding: false});
@@ -228,27 +278,94 @@ class CollabPage extends React.Component {
     // deletes the signatures on the canvas that are selected
     delObject(event) {
         if(event.keyCode === 46) {
-            this.setState({toSend: true});
+            this.setState({holding: false});
             for (let i = 0; i < this.state.canvas.length; i++) {
                 var activeObject = this.state.canvas[i].getActiveObjects();
-                this.state.canvas[i].discardActiveObject();
-                this.state.canvas[i].remove(...activeObject);
+                if (activeObject.length > 0) {
+                    this.setState({toSend: true}, () => {
+                        this.state.canvas[i].discardActiveObject();
+                        this.state.canvas[i].remove(...activeObject);
+                    });
+                }                
             }
         }     
     }
 
-    sendEdit(id) {
+    sendEdit(id, objectId, action) {
         let roomKey = this.state.roomKey;
+        let canvasObject;
+
+        this.state.canvas[id].getObjects().forEach(function(o) {
+            if(o.id === objectId) {
+                canvasObject = o;
+            }
+        })
+
         let canvasData = {
-            json: this.state.canvas[id].toJSON(),
-            id: id
+            canvasJson: this.state.canvas[id].toJSON(['id']),
+            json: JSON.parse(JSON.stringify(canvasObject.toObject(['id']))),
+            id: id,
+            action: action
         }
+
         this.state.socket.emit('editIn', {roomKey, canvasData});
     }
 
-    receiveEdit(canvasData) {
-        this.state.canvas[canvasData.id].loadFromJSON(canvasData.json, this.state.canvas[canvasData.id].renderAll.bind(this.state.canvas[canvasData.id]));
+    sendDelete(id, objectId, action) {
+        let roomKey = this.state.roomKey;
+        let canvasObject;
+
+        this.state.canvas[id].getObjects().forEach(function(o) {
+            if(o.id === objectId) {
+                canvasObject = o;
+            }
+        })
+
+        let canvasData = {
+            canvasJson: this.state.canvas[id].toJSON(['id']),
+            objectId: objectId,
+            id: id,
+            action: action
+        }
+
+        this.state.socket.emit('deleteIn', {roomKey, canvasData});
     }
+
+    receiveEdit(canvasData) {
+        let self = this;
+        fabric.util.enlivenObjects([canvasData.json], function(objects) {
+            var origRenderOnAddRemove = self.state.canvas[canvasData.id].renderOnAddRemove;
+            self.state.canvas[canvasData.id].renderOnAddRemove = false;
+          
+            objects.forEach(function(o) {
+                if (canvasData.action === 'add') {
+                    self.state.canvas[canvasData.id].add(o);
+                } else if (canvasData.action === 'modify') {
+                    self.state.canvas[canvasData.id].getObjects().forEach(function(co) {
+                        if(o.id === co.id) {
+                            self.state.canvas[canvasData.id].remove(co);
+                            self.state.canvas[canvasData.id].add(o);
+                        }
+                    })
+                }
+            });
+          
+            self.state.canvas[canvasData.id].renderOnAddRemove = origRenderOnAddRemove;
+            self.state.canvas[canvasData.id].renderAll();
+        });
+    }
+
+    receiveDelete(canvasData) {
+        let self = this;
+        this.state.canvas[canvasData.id].getObjects().forEach(function(co) {
+            if(co.id === canvasData.objectId) {
+                self.state.canvas[canvasData.id].remove(co);
+            }
+        })
+
+        this.state.canvas[canvasData.id].discardActiveObject().renderAll();
+    }
+
 
     mouseMove(e) {
         if(this.state.holding) {

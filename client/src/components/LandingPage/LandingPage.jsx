@@ -142,7 +142,6 @@ class LandingPage extends React.Component {
     }
 
     generateAlertMessages() {
-        console.log(this.state.alertMessages)
         return this.state.alertMessages.map((msg) =>
             <p>
                 {msg}
@@ -160,7 +159,6 @@ class LandingPage extends React.Component {
                 showPDFModal: false
             })
         }
-        console.log(this.fileInputRef);
     }
 
     render() {
