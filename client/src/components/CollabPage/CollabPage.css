@@ -19,7 +19,7 @@ body {
 .header {
     position:relative;
     display: grid;
-    grid-template-columns: 1fr minmax(700px, auto) 1fr;
+    grid-template-columns: 1fr minmax(auto, 700px) 1fr;
     height:50px;
     background-image: white;
     box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);

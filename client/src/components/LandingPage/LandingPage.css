@@ -8,6 +8,7 @@ body {
 }
 
 .grid-container {
+    position:relative;
     height:100%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
@@ -213,6 +214,14 @@ body {
     max-height: calc(100vh - 210px);
     overflow-y: auto;
     text-align: center;
+}
+
+.alert {
+    position: absolute;
+    grid-column-start: 5;
+    top: 10%;
+    width: 45%;
+    left: -25%;
 }
 
 canvas {
