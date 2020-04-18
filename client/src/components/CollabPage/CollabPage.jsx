@@ -4,6 +4,7 @@ import React from "react";
 import { fabric } from 'fabric';
 import Signature from '../Signature/Signature';
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
+import Alert from 'react-bootstrap/Alert';
 
 // Packages
 import io from "socket.io-client";
@@ -19,6 +20,7 @@ class CollabPage extends React.Component {
         super(props);
         this.state = {
             socket: null,
+            disconnected: false,
             endpoint: '127.0.0.1:5000',
             username: null,
             roomKey: null,
@@ -73,6 +75,12 @@ class CollabPage extends React.Component {
         // first user to enter the room
         // so the server needs the canvas data to store in database
         socket.on("needCanvas", () => { this.createCanvases(); });
+
+        //on user disconnect
+        socket.on('disconnect', () => {this.setState({disconnected: true});});
+
+        socket.on('reconnect', () => {this.setState({disconnected: false});});
+
 
         this.setState({socket: socket});
     }
@@ -182,11 +190,15 @@ class CollabPage extends React.Component {
             container.removeChild(container.lastChild);
         }
         for (let i = 0; i < canvasData.pageCount; i++) {
+            let textPageNumber = document.createElement("p");   // Create a <button> element
+            textPageNumber.innerHTML = `${i + 1}`;
+            textPageNumber.className = 'page-number';
             let newCanvas = document.createElement('canvas');
             newCanvas.id = i.toString();
             newCanvas.width = canvasData.pageWidth;
             newCanvas.height = canvasData.pageHeight;
             container.appendChild(newCanvas);
+            container.appendChild(textPageNumber);
             let canvas = new fabric.Canvas(i.toString());
             canvas.loadFromJSON(canvasData.canvas[i], canvas.renderAll.bind(canvas));
 
@@ -446,6 +458,9 @@ class CollabPage extends React.Component {
                     </div>
                 </div>
                 {holding && <img src={url} alt='signature-placeholder' id="signature-placeholder"></img>}
+                <Alert variant='danger' show={this.state.disconnected}>
+                    You are currently disconnected. The changes you make might not be saved. 
+                </Alert>
             </div>
         );
     }
