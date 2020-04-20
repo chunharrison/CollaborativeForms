@@ -554,7 +554,7 @@ class CollabPage extends React.Component {
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
                 <div className='header'>
-                    <p className='cosign-header-text'>Cosign</p>
+                    <a className='cosign-header-text' href="/">Cosign</a>
                     <div className='tools'>
                         <Signature
                             setURL={this.setURL}
