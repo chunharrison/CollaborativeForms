@@ -32,6 +32,8 @@ body {
     margin: auto;
     font-family: roboto-light;
     font-size: 30px;
+    color: black !important;
+    text-decoration: none !important;
 }
 
 .tools {
