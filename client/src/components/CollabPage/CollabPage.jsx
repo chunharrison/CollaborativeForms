@@ -32,6 +32,9 @@ class CollabPage extends React.Component {
             toSend: false,
             pageX: 0,
             pageY: 0,
+            originalHeight: [],
+            originalWidth: [],
+            currentZoom: 1,
 
             invalidRoomCodeProc: false
         }
@@ -48,9 +51,13 @@ class CollabPage extends React.Component {
         this.sendDelete = this.sendDelete.bind(this);
         this.receiveEdit = this.receiveEdit.bind(this);
         this.receiveDelete = this.receiveDelete.bind(this);
+        this.zoomIn = this.zoomIn.bind(this);
+        this.zoomOut = this.zoomOut.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
         this.handleQuery = this.handleQuery.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
         this.downloadPDF = this.downloadPDF.bind(this);
+        this.createPageBrowser = this.createPageBrowser.bind(this);
     }
 
     setSocket() {
@@ -156,12 +163,18 @@ class CollabPage extends React.Component {
                 }
             });
 
-            canvas.setBackgroundImage(currentPage, function() {
-                canvas.renderAll.bind(canvas);
-                fabricCanvases.push(canvas);
-                if (i === self.props.location.state.imgDatas.length - 1) {
-                    self.sendCanvases();
-                }
+            fabric.Image.fromURL(currentPage, function(img) {
+                img.resizeFilter = new fabric.Image.filters.Resize({
+                  resizeType: 'sliceHack'
+                });
+                img.applyResizeFilters();;
+                canvas.setBackgroundImage(img, function() {
+                    canvas.renderAll.bind(canvas);
+                    fabricCanvases.push(canvas);
+                    if (i === self.props.location.state.imgDatas.length - 1) {
+                        self.sendCanvases();
+                    }
+                });
             });
         }
 
@@ -189,6 +202,8 @@ class CollabPage extends React.Component {
         let container = document.getElementById("canvas-container");
         let fabricCanvases = [];
         let self = this;
+        this.setState({originalHeight: [],
+                        originalWidth: []});
         while (container.firstChild) {
             container.removeChild(container.lastChild);
         }
@@ -202,8 +217,18 @@ class CollabPage extends React.Component {
             newCanvas.height = canvasData.pageHeight;
             container.appendChild(newCanvas);
             container.appendChild(textPageNumber);
-            let canvas = new fabric.Canvas(i.toString());
+            let canvas = new fabric.Canvas(i.toString(), {
+                objectCaching: false
+            });
             canvas.loadFromJSON(canvasData.canvas[i], canvas.renderAll.bind(canvas));
+
+            let heightList = this.state.originalHeight;
+            let widthList = this.state.originalWidth;
+            heightList.push(canvas.getHeight());
+            widthList.push(canvas.getWidth());
+
+            this.setState({originalHeight: heightList,
+                            originalWidth: widthList});
 
             canvas.on('mouse:up', function(e) {
                 if (e.e.target.previousElementSibling !== null) {
@@ -250,7 +275,6 @@ class CollabPage extends React.Component {
             }});
 
             canvas.on('object:removed', function(e) {
-                console.log(e.target.id);
                 if (self.state.toSend) {
                     self.sendDelete(e.target.canvas.lowerCanvasEl.id, e.target.id, 'remove');
                     self.setState({toSend:false});
@@ -267,24 +291,68 @@ class CollabPage extends React.Component {
 
                 }
             });
-
             fabricCanvases.push(canvas);
         }
 
-        this.setState({canvas: fabricCanvases});
+        this.setState({canvas: fabricCanvases}, this.createPageBrowser(canvasData));
+    }
+
+    createPageBrowser(canvasData) {
+        let container = document.getElementById("browser-canvas-container");
+        
+        while (container.firstChild) {
+            container.removeChild(container.lastChild);
+        }
+
+        for (let i = 0; i < canvasData.pageCount; i++) {
+            let textPageNumber = document.createElement("p");
+            textPageNumber.innerHTML = `${i + 1}`;
+            textPageNumber.className = 'browser-page-number';
+            let newCanvas = document.createElement('canvas');
+            newCanvas.id = `browser${i.toString()}`;
+            newCanvas.width = canvasData.pageWidth;
+            newCanvas.height = canvasData.pageHeight;
+            container.appendChild(newCanvas);
+            container.appendChild(textPageNumber);
+            let canvas = new fabric.Canvas(`browser${i.toString()}`);
+            canvas.loadFromJSON(canvasData.canvas[i], () => {
+                canvas.remove(...canvas.getObjects());
+                canvas.renderAll.bind(canvas);
+            });
+            canvas.selection = false;
+            canvas.hasControls = false; 
+            canvas.hasBorders = false;
+            canvas.lockMovementX = true;
+            canvas.lockMovementY = true;
+            canvas.setZoom(300 / this.state.originalWidth[i]);
+            canvas.setWidth(this.state.originalWidth[i] * canvas.getZoom());
+            canvas.setHeight(this.state.originalHeight[i] * canvas.getZoom());
+
+            canvas.on('mouse:up', function(e) {
+                console.log(e.e.target.previousElementSibling.id)
+                let browserElement = document.getElementById(`${e.e.target.previousElementSibling.id}`).parentElement.nextSibling;
+                browserElement.classList.add('light-up');
+                setTimeout(function(){ browserElement.classList.remove('light-up'); }, 1000);
+                let element = document.getElementById(e.e.target.previousElementSibling.id.split('er')[1]);
+                element.scrollIntoView();
+            });
+        }
     }
 
     setURL(url, e){
-        this.setState({url});
-        this.setState({holding: true,
-                    pageX: e.pageX,
-                    pageY: e.pageY});
+        if (url !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=') {
+            this.setState({url});
+            this.setState({holding: true,
+                        pageX: e.pageX,
+                        pageY: e.pageY});
+        }
     }
 
     // adding the signature onto the canvas
     addImage(canvas, url, x, y){
+        let self = this;
         fabric.Image.fromURL(url, function(signature) {
-            var img = signature.set({ id: nanoid(), left: x - signature.width / 2, top: y - signature.height / 2});
+            var img = signature.set({ id: nanoid(), left: (x - signature.width / 2) / self.state.currentZoom, top: (y - signature.height / 2) / self.state.currentZoom});
             canvas.add(img);
         });
         this.setState({holding: false});
@@ -381,6 +449,30 @@ class CollabPage extends React.Component {
         this.state.canvas[canvasData.id].discardActiveObject().renderAll();
     }
 
+    zoomIn() {
+        if (this.state.canvas !== null) {
+            for (let i = 0; i < this.state.canvas.length; i++) {
+                let zoom = this.state.currentZoom + this.state.currentZoom * 0.1;
+                this.setState({currentZoom: zoom});
+                this.state.canvas[i].setZoom(zoom);
+                this.state.canvas[i].setWidth(this.state.originalWidth[i] * this.state.canvas[i].getZoom());
+                this.state.canvas[i].setHeight(this.state.originalHeight[i] * this.state.canvas[i].getZoom());
+            }
+        }
+    }
+
+    zoomOut() {
+        if (this.state.canvas !== null) {
+            for (let i = 0; i < this.state.canvas.length; i++) {
+                let zoom = this.state.currentZoom - this.state.currentZoom * 0.1;
+                this.setState({currentZoom: zoom});
+                this.state.canvas[i].setZoom(zoom);
+                this.state.canvas[i].setWidth(this.state.originalWidth[i] * this.state.canvas[i].getZoom());
+                this.state.canvas[i].setHeight(this.state.originalHeight[i] * this.state.canvas[i].getZoom());
+            }
+        }
+    }
+
 
     mouseMove(e) {
         if(this.state.holding) {
@@ -389,6 +481,10 @@ class CollabPage extends React.Component {
             image.style.left = e.pageX + 'px';
         }
     }  
+
+    handleScroll(e) {
+        console.log(e);
+    }
 
     handleQuery() {
         // query: ?username=username&roomKey=roomKey
@@ -465,11 +561,17 @@ class CollabPage extends React.Component {
                             canvas={canvas}
                             url={url}
                         />
+                        
                     </div>
                     {roomCodeCopy}
                 </div>
-                <div id='canvas-container'>
+                <div className='body-container'>
+                    <div id='browser-canvas-container'>
 
+                    </div>
+                    <div id='canvas-container'>
+
+                    </div>
                 </div>
                 <div className='header'> 
                     <div className='tools'>

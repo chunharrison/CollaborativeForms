@@ -22,6 +22,7 @@ class PDFViewer extends Component {
 
     for (let i = 1; i <= this.state.numPages; i++) {
       pagesList.push(<Page 
+                        scale={1.5}
                         pageNumber={i}
                         renderTextLayer={false}
                         renderAnnotationLayer={false}

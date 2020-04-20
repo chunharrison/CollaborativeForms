@@ -88,10 +88,11 @@ body {
 
 #canvas-container {
     display:flex;
+    width: 100%;
     align-items: center;
     flex-direction: column;
     background-color: #E9EBEF;
-    height: calc(100% - 100px);
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
     z-index: 1;
@@ -147,7 +148,7 @@ body {
     position: absolute;
     top: 10%;
     width: 30%;
-    left: 35%;
+    left: 34.7%;
 }
 
 .page-number {
@@ -173,4 +174,35 @@ body {
 
 .download-button:hover {
     background-color: #29977c;
+}
+
+.browser-page-number {
+    font-family: sans-serif;
+    padding: 0.3em 0.6em 0.3em 0.6em;
+    background-color: rgb(182, 182, 182);
+    border-radius: 5px;
+    color: white;
+    transition: 0.2s linear;
+}
+
+.light-up {
+    background-color: rgb(51, 185, 134);
+    transition: 0s linear;
+}
+
+.body-container {
+    display: flex;
+    height: calc(100% - 100px);
+    z-index: 1;
+}
+
+#browser-canvas-container {
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: #E9EBEF;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    z-index: 1;
 }
