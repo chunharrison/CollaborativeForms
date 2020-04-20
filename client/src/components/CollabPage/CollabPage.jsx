@@ -213,6 +213,7 @@ class CollabPage extends React.Component {
             textPageNumber.className = 'page-number';
             let newCanvas = document.createElement('canvas');
             newCanvas.id = i.toString();
+            newCanvas.classList.add("main-canvas")
             newCanvas.width = canvasData.pageWidth;
             newCanvas.height = canvasData.pageHeight;
             container.appendChild(newCanvas);
@@ -496,7 +497,8 @@ class CollabPage extends React.Component {
     }
 
     downloadPDF() {
-        const canvases = document.getElementsByClassName('lower-canvas');
+        const canvases = document.getElementsByClassName('main-canvas lower-canvas');
+        console.log(canvases)
         const canvasWidth = canvases[0].width
         const canvasHeight = canvases[0].height
         const jsPDF = new JSPDF({
