@@ -26,6 +26,7 @@ class PDFViewer extends Component {
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
                         className={(i-1).toString()}
+                        scale={1.5}
                       />)
       
     }

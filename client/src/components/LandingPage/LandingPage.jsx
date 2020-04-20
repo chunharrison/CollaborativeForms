@@ -189,7 +189,8 @@ class LandingPage extends React.Component {
                                 state: {
                                     imgDatas: this.state.imgDatas,
                                     pageHeight: this.state.pageHeight,
-                                    pageWidth: this.state.pageWidth
+                                    pageWidth: this.state.pageWidth,
+                                    fileName: this.state.selectedFileName
                                 }
                             }}>
                             <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>

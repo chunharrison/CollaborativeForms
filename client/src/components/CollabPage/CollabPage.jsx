@@ -5,12 +5,14 @@ import { fabric } from 'fabric';
 import Signature from '../Signature/Signature';
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
 
 // Packages
 import io from "socket.io-client";
 import queryString from 'query-string';
 import { Redirect } from 'react-router-dom';
 import { nanoid } from 'nanoid';
+import JSPDF from 'jspdf';
 
 //CSS
 import './CollabPage.css';
@@ -48,6 +50,7 @@ class CollabPage extends React.Component {
         this.receiveDelete = this.receiveDelete.bind(this);
         this.handleQuery = this.handleQuery.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
+        this.downloadPDF = this.downloadPDF.bind(this);
     }
 
     setSocket() {
@@ -396,11 +399,27 @@ class CollabPage extends React.Component {
         })
     }
 
-    // componentWillReceiveProps(nextProps){
-    //     if (nextProps.location.state === 'desiredState') {
-    //         // do stuffs
-    //     }
-    // }
+    downloadPDF() {
+        const canvases = document.getElementsByClassName('lower-canvas');
+        const canvasWidth = canvases[0].width
+        const canvasHeight = canvases[0].height
+        const jsPDF = new JSPDF({
+            orientation: 'p',
+            unit: 'px', 
+            format: [canvasWidth, canvasHeight]
+        });
+        var pageWidth = jsPDF.internal.pageSize.getWidth();
+        var pageHeight = jsPDF.internal.pageSize.getHeight();
+        for (let i = 0; i < canvases.length; i++) {
+            const canvas = canvases[i];
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            if (i > 0) {
+                jsPDF.addPage();
+            }
+            jsPDF.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+        }
+        jsPDF.save('download.pdf');
+    }
     
     componentDidMount(){
         this.handleQuery();
@@ -452,9 +471,14 @@ class CollabPage extends React.Component {
                 <div id='canvas-container'>
 
                 </div>
-                <div className='header'>
+                <div className='header'> 
                     <div className='tools'>
                         
+                    </div>
+                    <div className='download-button-container'>
+                        <Button className='download-button' onClick={this.downloadPDF}>
+                            Download
+                        </Button>
                     </div>
                 </div>
                 {holding && <img src={url} alt='signature-placeholder' id="signature-placeholder"></img>}

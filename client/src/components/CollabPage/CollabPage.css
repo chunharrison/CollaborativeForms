@@ -157,3 +157,20 @@ body {
     border-radius: 5px;
     color: white;
 }
+
+.download-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.download-button {
+    border: none;
+    padding: 0.5em 1.5em 0.5em 1.5em;
+    background-color: #33c4a0;
+    font-family:roboto-light;
+}
+
+.download-button:hover {
+    background-color: #29977c;
+}
