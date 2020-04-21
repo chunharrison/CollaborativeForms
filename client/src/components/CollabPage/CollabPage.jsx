@@ -504,7 +504,8 @@ class CollabPage extends React.Component {
         const jsPDF = new JSPDF({
             orientation: 'p',
             unit: 'px', 
-            format: [canvasWidth, canvasHeight]
+            format: [canvasWidth, canvasHeight],
+            compress: true
         });
         var pageWidth = jsPDF.internal.pageSize.getWidth();
         var pageHeight = jsPDF.internal.pageSize.getHeight();
