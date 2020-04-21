@@ -32,7 +32,12 @@ class LandingPage extends React.Component {
             redirect: null,
 
             createRoomAlertVisible: false,
+            createRoomFileAlertOutline: '',
+            createRoomNameAlertOutline: '',
             joinRoomAlertVisible: false,
+            joinRoomRoomCodeAlertOutline: '',
+            joinRoomNameAlertOutline: '',
+            invalidPDFAlertVisible: false,
 
             endpoint: '127.0.0.1:5000'
         }
@@ -45,6 +50,7 @@ class LandingPage extends React.Component {
         // Alert messages
         this.onCreateRoomAlert = this.onCreateRoomAlert.bind(this);
         this.onJoinRoomAlert = this.onJoinRoomAlert.bind(this);
+        this.onInvalidPDFAlert = this.onInvalidPDFAlert.bind(this);
 
         // PDF preview Modal
         this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
@@ -101,6 +107,26 @@ class LandingPage extends React.Component {
                 this.setState({ createRoomAlertVisible: false })
             }, 5000)
         });
+
+        if (this.state.selectedFile === null) {
+            this.setState({ 
+                createRoomFileAlertOutline: 'alert-outline-createroomfile'
+            }, () => { 
+                window.setTimeout(()=>{
+                    this.setState({ 
+                        createRoomFileAlertOutline: ''
+                    })
+                }, 5000)
+            });
+        }
+
+        if (this.state.usernameCreate === null || this.state.usernameCreate === '') {
+            this.setState({ createRoomNameAlertOutline: 'alert-outline-createroomname' }, () => { 
+                window.setTimeout(()=>{
+                    this.setState({ createRoomNameAlertOutline: '' })
+                }, 5000)
+            });
+        }
     }
 
     // triggers when a person tries to enter an existing room without giving required info
@@ -111,16 +137,48 @@ class LandingPage extends React.Component {
         this.setState({ joinRoomAlertVisible: true }, () => {
             window.setTimeout(() => {
                 this.setState({ joinRoomAlertVisible: false })
-            },3000)
+            },5000)
         });
+
+        if (this.state.roomKey === null || this.state.roomKey === '') {
+            this.setState({ joinRoomRoomCodeAlertOutline: 'alert-outline-joinroomfile' }, () => { 
+                window.setTimeout(()=>{
+                    this.setState({ joinRoomRoomCodeAlertOutline: '' })
+                }, 5000)
+            });
+        }
+
+        if (this.state.usernameJoin === null || this.state.usernameJoin === '') {
+            this.setState({ joinRoomNameAlertOutline: 'alert-outline-joinroomname' }, () => { 
+                window.setTimeout(()=>{
+                    this.setState({ joinRoomNameAlertOutline: '' })
+                }, 5000)
+            });
+        }
+    }
+
+    onInvalidPDFAlert = () => {
+        this.setState({ invalidPDFAlertVisible: true }, () => {
+            window.setTimeout(() => {
+                this.setState({ invalidPDFAlertVisible: false})
+            }, 5000)
+        })
     }
 
     // closes the PDF viewer modal
     handleClosePDFModal = (event, accepted) => {
         // event.preventDefault();
-        if (accepted) {
+        // the error message shows whenever a person uploads any file other than PDF
+        const errorMessage = document.getElementsByClassName('react-pdf__message react-pdf__message--error') 
+        console.log(errorMessage)
+        if (accepted && errorMessage.length === 0) {
             this.pagesToDataURL()
         } else {
+
+            if (errorMessage.length !== 0) {
+                this.onInvalidPDFAlert();
+            }
+
             this.setState({
                 selectedFile: null,
                 selectedFileName: null,
@@ -174,14 +232,15 @@ class LandingPage extends React.Component {
                 <div className='create-room-container'>
                     <div className='create-room'>
                         <p className='room-header'>CREATE ROOM</p>
-                        <div className='file-input-container'>
+                        <div className={`file-input-container ${this.state.createRoomFileAlertOutline}`}>
                             <input type="text" className='selected-file' value={fileValue} disabled></input>
-                            <label for="pdf-file-input" className="custom-file-upload">
+                            <label for="pdf-file-input" className='custom-file-upload'>
                                 Browse
                             </label>
-                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} onChange={this.onPDFUpload}/>
+                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} 
+                                onChange={this.onPDFUpload}/>
                         </div>
-                        <input placeholder="Name..." className="name-input" type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
+                        <input placeholder="Name..." className={`name-input ${this.state.createRoomNameAlertOutline}`} type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
                         <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
                             to={{
                                 pathname: `/collab`,
@@ -200,8 +259,10 @@ class LandingPage extends React.Component {
                 <div className='join-room-container'>
                     <div className='join-room'>
                         <p className='join-room-header'>JOIN ROOM</p>
-                        <input placeholder="Room Code..." className="join-room-input" type="text" onChange={(event) => this.setState({ roomKey: event.target.value })}></input>
-                        <input placeholder="Name..." className="join-name-input" type="text" onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
+                        <input placeholder="Room Code..." className={`join-room-input ${this.state.joinRoomRoomCodeAlertOutline}`} type="text" 
+                            onChange={(event) => this.setState({ roomKey: event.target.value })}></input>
+                        <input placeholder="Name..." className={`join-name-input ${this.state.joinRoomNameAlertOutline}`} type="text" 
+                            onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
                         <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
                             to={{ pathname: `/collab`,
                                 search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
@@ -211,6 +272,9 @@ class LandingPage extends React.Component {
                 </div>
                 <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
                     Make sure you included all the required information. 
+                </Alert>
+                <Alert variant='danger' show={this.state.invalidPDFAlertVisible}>
+                    Make sure the provided file is a PDF document.
                 </Alert>
                 <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="xl">
                     <Modal.Header closeButton>
