@@ -34,15 +34,24 @@ class LandingPage extends React.Component {
             createRoomAlertVisible: false,
             createRoomFileAlertOutline: '',
             createRoomNameAlertOutline: '',
+
             joinRoomAlertVisible: false,
             joinRoomRoomCodeAlertOutline: '',
             joinRoomNameAlertOutline: '',
+            joinRoomAlertTimeout: null,
+
             invalidPDFAlertVisible: false,
 
             endpoint: '127.0.0.1:5000'
         }
 
         this.fileInputRef = React.createRef();
+        this.createRoomAlertTimeout = null;
+        this.createRoomAlertTimeoutSF = null;
+        this.createRoomAlertTimeoutUN = null;
+        this.joinRoomAlertTimeout = null;
+        this.joinRoomAlertTimeoutRC = null;
+        this.joinRoomAlertTimeoutUN = null;
 
         this.pagesToDataURL = this.pagesToDataURL.bind(this);
         this.onPDFUpload = this.onPDFUpload.bind(this);
@@ -102,58 +111,73 @@ class LandingPage extends React.Component {
     onCreateRoomAlert = (event) => {
         event.preventDefault()
 
+        clearTimeout(this.createRoomAlertTimeout)
         this.setState({ createRoomAlertVisible: true }, () => { 
-            window.setTimeout(()=>{
+            this.createRoomAlertTimeout = window.setTimeout(()=>{
                 this.setState({ createRoomAlertVisible: false })
-            }, 5000)
+            }, 3500)
         });
 
         if (this.state.selectedFile === null) {
+            clearTimeout(this.createRoomAlertTimeoutSF)
             this.setState({ 
                 createRoomFileAlertOutline: 'alert-outline-createroomfile'
             }, () => { 
-                window.setTimeout(()=>{
+                this.createRoomAlertTimeoutSF = this.createRoomAlertTimeoutwindow.setTimeout(()=>{
                     this.setState({ 
                         createRoomFileAlertOutline: ''
                     })
-                }, 5000)
+                }, 3500)
             });
+        } else {
+            this.setState({ createRoomFileAlertOutline: '' })
         }
 
         if (this.state.usernameCreate === null || this.state.usernameCreate === '') {
+            clearTimeout(this.createRoomAlertTimeoutUN)
             this.setState({ createRoomNameAlertOutline: 'alert-outline-createroomname' }, () => { 
-                window.setTimeout(()=>{
+                this.createRoomAlertTimeoutUN = window.setTimeout(()=>{
                     this.setState({ createRoomNameAlertOutline: '' })
-                }, 5000)
+                }, 3500)
             });
+        } else {
+            this.setState({ createRoomNameAlertOutline: '' })
         }
     }
 
     // triggers when a person tries to enter an existing room without giving required info
     // it shows an alert for 3 seconds indicating which info is needed
+    // this is maybe retarded way of doing this idk aha
     onJoinRoomAlert = (event) => {
         event.preventDefault()
 
+        clearTimeout(this.joinRoomAlertTimeout)
         this.setState({ joinRoomAlertVisible: true }, () => {
-            window.setTimeout(() => {
+            this.joinRoomAlertTimeout = window.setTimeout(() => {
                 this.setState({ joinRoomAlertVisible: false })
-            },5000)
+            }, 3500)
         });
 
         if (this.state.roomKey === null || this.state.roomKey === '') {
-            this.setState({ joinRoomRoomCodeAlertOutline: 'alert-outline-joinroomfile' }, () => { 
-                window.setTimeout(()=>{
+            clearTimeout(this.joinRoomAlertTimeoutRC)
+            this.setState({ joinRoomRoomCodeAlertOutline: 'alert-outline-joinroomcode' }, () => { 
+                this.joinRoomAlertTimeoutRC = window.setTimeout(()=>{
                     this.setState({ joinRoomRoomCodeAlertOutline: '' })
-                }, 5000)
+                }, 3500)
             });
+        } else {
+            this.setState({ joinRoomRoomCodeAlertOutline: '' })
         }
 
         if (this.state.usernameJoin === null || this.state.usernameJoin === '') {
+            clearTimeout(this.joinRoomAlertTimeoutUN)
             this.setState({ joinRoomNameAlertOutline: 'alert-outline-joinroomname' }, () => { 
-                window.setTimeout(()=>{
+                this.joinRoomAlertTimeoutUN = window.setTimeout(()=>{
                     this.setState({ joinRoomNameAlertOutline: '' })
-                }, 5000)
+                }, 3500)
             });
+        } else {
+            this.setState({ joinRoomNameAlertOutline: '' })
         }
     }
 

@@ -225,6 +225,6 @@ canvas {
     display: inline !important;
 }
 
-.alert-outline-createroomname, .alert-outline-joinroomfile, .alert-outline-joinroomname, .alert-outline-createroomfile {
+.alert-outline-createroomname, .alert-outline-joinroomcode, .alert-outline-joinroomname, .alert-outline-createroomfile {
     box-shadow: 0 0 10px red;
 }
