@@ -100,6 +100,18 @@ body {
     z-index: 1;
 }
 
+.wrapper {
+    flex-shrink: 0;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    z-index: 1;
+    height:100%;
+}
+
 .popup-content {
     display: flex;
     flex-direction: column;
@@ -196,6 +208,13 @@ body {
     display: flex;
     height: calc(100% - 100px);
     z-index: 1;
+}
+
+.browser-page-container {
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: #E9EBEF;
 }
 
 #browser-canvas-container {

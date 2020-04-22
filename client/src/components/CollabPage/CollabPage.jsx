@@ -13,6 +13,7 @@ import queryString from 'query-string';
 import { Redirect } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 import JSPDF from 'jspdf';
+import { InView } from 'react-intersection-observer'
 
 //CSS
 import './CollabPage.css';
@@ -27,6 +28,7 @@ class CollabPage extends React.Component {
             username: null,
             roomKey: null,
 
+            canvasData: null,
             canvas: null,
             holding: false,
             toSend: false,
@@ -42,6 +44,7 @@ class CollabPage extends React.Component {
         this.createCanvases = this.createCanvases.bind(this);
         this.sendCanvases = this.sendCanvases.bind(this);
         this.getCanvases = this.getCanvases.bind(this);
+        this.renderPage = this.renderPage.bind(this);
         this.setURL = this.setURL.bind(this);
         this.addImage = this.addImage.bind(this);
         this.delObject = this.delObject.bind(this);
@@ -53,11 +56,11 @@ class CollabPage extends React.Component {
         this.receiveDelete = this.receiveDelete.bind(this);
         this.zoomIn = this.zoomIn.bind(this);
         this.zoomOut = this.zoomOut.bind(this);
-        this.handleScroll = this.handleScroll.bind(this);
         this.handleQuery = this.handleQuery.bind(this);
+        this.handleInView = this.handleInView.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
         this.downloadPDF = this.downloadPDF.bind(this);
-        this.createPageBrowser = this.createPageBrowser.bind(this);
+        this.scrollToPage = this.scrollToPage.bind(this);
     }
 
     setSocket() {
@@ -85,6 +88,7 @@ class CollabPage extends React.Component {
         // first user to enter the room
         // so the server needs the canvas data to store in database
         socket.on("needCanvas", () => { this.createCanvases(); });
+        socket.on('sendPage', pageData => this.renderPage(pageData))
 
         //on user disconnect
         socket.on('disconnect', () => {this.setState({disconnected: true});});
@@ -112,56 +116,6 @@ class CollabPage extends React.Component {
 
             let canvas = new fabric.StaticCanvas(null, { width: this.props.location.state.pageWidth, height: this.props.location.state.pageHeight });
             let currentPage = this.props.location.state.imgDatas[i];
-
-            canvas.on('mouse:up', function(e) {
-                if (e.e.target.previousElementSibling !== null) {
-                    let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
-                    if (self.state.holding){
-                        self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
-                        self.setState({holding: false});
-                        self.setState({toSend: true});
-                    }
-                }
-            });
-
-            canvas.on('object:added', function(e) {
-                if (self.state.toSend) {
-                    self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'add');
-                    self.setState({toSend:false});
-                    self.state.canvas[e.target.canvas.lowerCanvasEl.id].renderAll.bind(self.state.canvas[e.target.canvas.lowerCanvasEl.id]);
-                }
-            });
-
-            canvas.on('object:modified', function(e) {
-                self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'modify');
-                
-            });
-
-            canvas.on('object:moving', function (e) {
-                let obj = e.target;
-                 // if object is too big ignore
-                if(obj.currentHeight > obj.canvas.height || obj.currentWidth > obj.canvas.width){
-                    return;
-                }
-        
-                let halfw = obj.currentWidth/2;
-                let halfh = obj.currentHeight/2;
-                let bounds = {tl: {x: halfw, y:halfh},
-                    br: {x: obj.canvas.width-halfw, y: obj.canvas.height-halfh}
-                };
-        
-                // top-left  corner
-                if(obj.top < bounds.tl.y || obj.left < bounds.tl.x){
-                    obj.top = Math.max(obj.top, bounds.tl.y);
-                    obj.left = Math.max(obj.left, bounds.tl.x)
-                }
-        
-                // bot-right corner
-                if(obj.top > bounds.br.y || obj.left > bounds.br.x){
-                    obj.top = Math.min(obj.top, bounds.br.y);
-                    obj.left = Math.min(obj.left, bounds.br.x)
-                }
-            });
 
             fabric.Image.fromURL(currentPage, function(img) {
                 img.resizeFilter = new fabric.Image.filters.Resize({
@@ -199,145 +153,119 @@ class CollabPage extends React.Component {
     }
     
     getCanvases(canvasData) {
-        let container = document.getElementById("canvas-container");
         let fabricCanvases = [];
-        let self = this;
-        this.setState({originalHeight: [],
+        this.setState({canvasData: canvasData,
+                        originalHeight: [],
                         originalWidth: []});
-        while (container.firstChild) {
-            container.removeChild(container.lastChild);
-        }
+
         for (let i = 0; i < canvasData.pageCount; i++) {
-            let textPageNumber = document.createElement("p");   // Create a <button> element
-            textPageNumber.innerHTML = `${i + 1}`;
-            textPageNumber.className = 'page-number';
-            let newCanvas = document.createElement('canvas');
-            newCanvas.id = i.toString();
-            newCanvas.classList.add("main-canvas")
-            newCanvas.width = canvasData.pageWidth;
-            newCanvas.height = canvasData.pageHeight;
-            container.appendChild(newCanvas);
-            container.appendChild(textPageNumber);
-            let canvas = new fabric.Canvas(i.toString(), {
-                objectCaching: false
-            });
-            canvas.loadFromJSON(canvasData.canvas[i], canvas.renderAll.bind(canvas));
-
-            let heightList = this.state.originalHeight;
-            let widthList = this.state.originalWidth;
-            heightList.push(canvas.getHeight());
-            widthList.push(canvas.getWidth());
-
-            this.setState({originalHeight: heightList,
-                            originalWidth: widthList});
-
-            canvas.on('mouse:up', function(e) {
-                if (e.e.target.previousElementSibling !== null) {
-                    let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
-                    if (self.state.holding){
-                        self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
-                        self.setState({holding: false});
-                        self.setState({toSend: true});
-                        //self.sendEdit(e.e.target.previousElementSibling.id);
-                    }
-                }
-            });
-
-            canvas.on('object:added', function(e) {
-                if (self.state.toSend) {
-                    self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'add');
-                    self.setState({toSend:false});
-                }
-                
-            });
-
-            canvas.on('object:modified', function(e) {
-                self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'modify');
-                
-            });
-
-            canvas.on('object:moving', function (e) {
-                var obj = e.target;
-            
-                 // if object is too big ignore
-                if(obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width){
-                    return;
-                }        
-                obj.setCoords();        
-                // top-left  corner
-                if(obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0){
-                    obj.top = Math.max(obj.top, obj.top-obj.getBoundingRect().top);
-                    obj.left = Math.max(obj.left, obj.left-obj.getBoundingRect().left);
-                }
-                // bot-right corner
-                if(obj.getBoundingRect().top+obj.getBoundingRect().height  > obj.canvas.height || obj.getBoundingRect().left+obj.getBoundingRect().width  > obj.canvas.width){
-                    obj.top = Math.min(obj.top, obj.canvas.height-obj.getBoundingRect().height+obj.top-obj.getBoundingRect().top);
-                    obj.left = Math.min(obj.left, obj.canvas.width-obj.getBoundingRect().width+obj.left-obj.getBoundingRect().left);
-            }});
-
-            canvas.on('object:removed', function(e) {
-                if (self.state.toSend) {
-                    self.sendDelete(e.target.canvas.lowerCanvasEl.id, e.target.id, 'remove');
-                    self.setState({toSend:false});
-                }
-                
-            });
-
-            canvas.on('selection:created', function(e) {
-                for (let i = 0; i < self.state.canvas.length; i++) {
-                    if (i === parseInt(e.target.canvas.lowerCanvasEl.id)) {
-                        continue;
-                    }
-                    self.state.canvas[i].discardActiveObject().renderAll();
-
-                }
-            });
-            fabricCanvases.push(canvas);
+            fabricCanvases.push(i);
         }
 
-        this.setState({canvas: fabricCanvases}, this.createPageBrowser(canvasData));
+        this.setState({canvas: fabricCanvases});
     }
 
-    createPageBrowser(canvasData) {
-        let container = document.getElementById("browser-canvas-container");
+    renderPage(pageData) {
+        let self = this;
+        let id = pageData.id;
+        let element = document.getElementById(`wrapper-${id}`);
+        let browserElement = document.getElementById(`browser-${id}`);
+        let canvasData = this.state.canvasData;
+        let textPageNumber = document.createElement("p");
+        textPageNumber.innerHTML = `${id + 1}`;
+        textPageNumber.className = 'page-number';
+        let newCanvas = document.createElement('canvas');
+        newCanvas.id = id.toString();
+        newCanvas.width = canvasData.pageWidth;
+        newCanvas.height = canvasData.pageHeight;
+        element.appendChild(newCanvas);
+        element.appendChild(textPageNumber);
+        let canvas = new fabric.Canvas(id.toString());
+        canvas.loadFromJSON(pageData.canvas, () => {
+            element.style.minHeight = canvas.getHeight();
+            element.style.width = canvas.getHeight();
+            canvas.renderAll.bind(canvas);
+            browserElement.style.backgroundImage = `url(${canvas.toDataURL({format: 'png'})})`;
+        });
+
+        let heightList = this.state.originalHeight;
+        let widthList = this.state.originalWidth;
+        heightList.push(canvas.getHeight());
+        widthList.push(canvas.getWidth());
+
+        this.setState({originalHeight: heightList,
+                        originalWidth: widthList});
+
+        canvas.on('mouse:up', function(e) {
+            if (e.e.target.previousElementSibling !== null) {
+                let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
+                if (self.state.holding){
+                    self.addImage(currentCanvas, self.state.url, e.pointer.x, e.pointer.y);
+                    self.setState({holding: false});
+                    self.setState({toSend: true});
+                    //self.sendEdit(e.e.target.previousElementSibling.id);
+                }
+            }
+        });
+
+        canvas.on('object:added', function(e) {
+            if (self.state.toSend) {
+                self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'add');
+                self.setState({toSend:false});
+            }
+            
+        });
+
+        canvas.on('object:modified', function(e) {
+            self.sendEdit(e.target.canvas.lowerCanvasEl.id, e.target.id, 'modify');
+            
+        });
+
+        canvas.on('object:moving', function (e) {
+            var obj = e.target;
         
-        while (container.firstChild) {
-            container.removeChild(container.lastChild);
-        }
+                // if object is too big ignore
+            if(obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width){
+                return;
+            }        
+            obj.setCoords();        
+            // top-left  corner
+            if(obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0){
+                obj.top = Math.max(obj.top, obj.top-obj.getBoundingRect().top);
+                obj.left = Math.max(obj.left, obj.left-obj.getBoundingRect().left);
+            }
+            // bot-right corner
+            if(obj.getBoundingRect().top+obj.getBoundingRect().height  > obj.canvas.height || obj.getBoundingRect().left+obj.getBoundingRect().width  > obj.canvas.width){
+                obj.top = Math.min(obj.top, obj.canvas.height-obj.getBoundingRect().height+obj.top-obj.getBoundingRect().top);
+                obj.left = Math.min(obj.left, obj.canvas.width-obj.getBoundingRect().width+obj.left-obj.getBoundingRect().left);
+        }});
 
-        for (let i = 0; i < canvasData.pageCount; i++) {
-            let textPageNumber = document.createElement("p");
-            textPageNumber.innerHTML = `${i + 1}`;
-            textPageNumber.className = 'browser-page-number';
-            let newCanvas = document.createElement('canvas');
-            newCanvas.id = `browser${i.toString()}`;
-            newCanvas.width = canvasData.pageWidth;
-            newCanvas.height = canvasData.pageHeight;
-            container.appendChild(newCanvas);
-            container.appendChild(textPageNumber);
-            let canvas = new fabric.Canvas(`browser${i.toString()}`);
-            canvas.loadFromJSON(canvasData.canvas[i], () => {
-                canvas.remove(...canvas.getObjects());
-                canvas.renderAll.bind(canvas);
-            });
-            canvas.selection = false;
-            canvas.hasControls = false; 
-            canvas.hasBorders = false;
-            canvas.lockMovementX = true;
-            canvas.lockMovementY = true;
-            canvas.setZoom(300 / this.state.originalWidth[i]);
-            canvas.setWidth(this.state.originalWidth[i] * canvas.getZoom());
-            canvas.setHeight(this.state.originalHeight[i] * canvas.getZoom());
+        canvas.on('object:removed', function(e) {
+            if (self.state.toSend) {
+                self.sendDelete(e.target.canvas.lowerCanvasEl.id, e.target.id, 'remove');
+                self.setState({toSend:false});
+            }
+            
+        });
 
-            canvas.on('mouse:up', function(e) {
-                console.log(e.e.target.previousElementSibling.id)
-                let browserElement = document.getElementById(`${e.e.target.previousElementSibling.id}`).parentElement.nextSibling;
-                browserElement.classList.add('light-up');
-                setTimeout(function(){ browserElement.classList.remove('light-up'); }, 1000);
-                let element = document.getElementById(e.e.target.previousElementSibling.id.split('er')[1]);
-                element.scrollIntoView();
-            });
-        }
+        canvas.on('selection:created', function(e) {
+            for (let i = 0; i < self.state.canvas.length; i++) {
+                if (typeof self.state.canvas[i] !== 'object' || i === parseInt(e.target.canvas.lowerCanvasEl.id)) {
+                    continue;
+                }
+                self.state.canvas[i].discardActiveObject().renderAll();
+
+            }
+        });
+
+        const newCanvasArr = [
+            ...this.state.canvas.slice(0, id),
+            canvas,
+            ...this.state.canvas.slice(id + 1)
+        ]
+
+        this.setState({canvas: newCanvasArr});
+        
     }
 
     setURL(url, e){
@@ -364,13 +292,15 @@ class CollabPage extends React.Component {
         if(event.keyCode === 46) {
             this.setState({holding: false});
             for (let i = 0; i < this.state.canvas.length; i++) {
-                var activeObject = this.state.canvas[i].getActiveObjects();
-                if (activeObject.length > 0) {
-                    this.setState({toSend: true}, () => {
-                        this.state.canvas[i].discardActiveObject();
-                        this.state.canvas[i].remove(...activeObject);
-                    });
-                }                
+                if (typeof this.state.canvas[i] === 'object') {
+                    var activeObject = this.state.canvas[i].getActiveObjects();
+                    if (activeObject.length > 0) {
+                        this.setState({toSend: true}, () => {
+                            this.state.canvas[i].discardActiveObject();
+                            this.state.canvas[i].remove(...activeObject);
+                        });
+                    }  
+                }              
             }
         }     
     }
@@ -393,6 +323,7 @@ class CollabPage extends React.Component {
         }
 
         this.state.socket.emit('editIn', {roomKey, canvasData});
+        console.log('sendingedit');
     }
 
     sendDelete(id, objectId, action) {
@@ -417,37 +348,41 @@ class CollabPage extends React.Component {
 
     receiveEdit(canvasData) {
         let self = this;
-        fabric.util.enlivenObjects([canvasData.json], function(objects) {
-            var origRenderOnAddRemove = self.state.canvas[canvasData.id].renderOnAddRemove;
-            self.state.canvas[canvasData.id].renderOnAddRemove = false;
-          
-            objects.forEach(function(o) {
-                if (canvasData.action === 'add') {
-                    self.state.canvas[canvasData.id].add(o);
-                } else if (canvasData.action === 'modify') {
-                    self.state.canvas[canvasData.id].getObjects().forEach(function(co) {
-                        if(o.id === co.id) {
-                            self.state.canvas[canvasData.id].remove(co);
-                            self.state.canvas[canvasData.id].add(o);
-                        }
-                    })
-                }
+        if (typeof this.state.canvas[canvasData.id] === 'object') {
+            fabric.util.enlivenObjects([canvasData.json], function(objects) {
+                var origRenderOnAddRemove = self.state.canvas[canvasData.id].renderOnAddRemove;
+                self.state.canvas[canvasData.id].renderOnAddRemove = false;
+            
+                objects.forEach(function(o) {
+                    if (canvasData.action === 'add') {
+                        self.state.canvas[canvasData.id].add(o);
+                    } else if (canvasData.action === 'modify') {
+                        self.state.canvas[canvasData.id].getObjects().forEach(function(co) {
+                            if(o.id === co.id) {
+                                self.state.canvas[canvasData.id].remove(co);
+                                self.state.canvas[canvasData.id].add(o);
+                            }
+                        })
+                    }
+                });
+            
+                self.state.canvas[canvasData.id].renderOnAddRemove = origRenderOnAddRemove;
+                self.state.canvas[canvasData.id].renderAll();
             });
-          
-            self.state.canvas[canvasData.id].renderOnAddRemove = origRenderOnAddRemove;
-            self.state.canvas[canvasData.id].renderAll();
-        });
+        }
     }
 
     receiveDelete(canvasData) {
         let self = this;
-        this.state.canvas[canvasData.id].getObjects().forEach(function(co) {
-            if(co.id === canvasData.objectId) {
-                self.state.canvas[canvasData.id].remove(co);
-            }
-        })
+        if (typeof this.state.canvas[canvasData.id] === 'object') {
+            this.state.canvas[canvasData.id].getObjects().forEach(function(co) {
+                if(co.id === canvasData.objectId) {
+                    self.state.canvas[canvasData.id].remove(co);
+                }
+            })
 
         this.state.canvas[canvasData.id].discardActiveObject().renderAll();
+        }
     }
 
     zoomIn() {
@@ -482,10 +417,6 @@ class CollabPage extends React.Component {
             image.style.left = e.pageX + 'px';
         }
     }  
-
-    handleScroll(e) {
-        console.log(e);
-    }
 
     handleQuery() {
         // query: ?username=username&roomKey=roomKey
@@ -527,6 +458,24 @@ class CollabPage extends React.Component {
         // this.setSocket();
     }
 
+    handleInView(inView, entry) {
+        let self = this;
+        entry.target.dataset.visible = inView;
+        if (inView && !entry.target.firstChild) {
+            setTimeout(function(){ 
+                if (entry.target.dataset.visible === 'true') {
+                    self.state.socket.emit('requestPage', parseInt(entry.target.id.split('-')[1]));
+                }
+            }, 1000);
+        }
+    }
+
+    scrollToPage(e) {
+        console.log(e.target);
+        let element = document.getElementById(`wrapper-${e.target.id.split('-')[1]}`);
+        element.scrollIntoView();
+    }
+
     componentDidUpdate(prevProps, prevState) {
         if (prevState.holding === false && this.state.holding === true) {
             let image = document.getElementById('signature-placeholder')
@@ -554,6 +503,25 @@ class CollabPage extends React.Component {
             roomCodeCopy = <CopyRoomCode roomCode={this.state.roomKey}></CopyRoomCode>
         }
 
+        var pageBrowser = <p></p>
+        if (this.state.canvas !== null) {
+            pageBrowser = this.state.canvas.map((canvas, index) =>
+                                <div className='browser-page-container'>
+                                    <div id={`browser-${index}`} style={{'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize':'cover'}} onClick={this.scrollToPage}>
+                                    </div>
+                                    <p className='browser-page-number'>{index}</p>
+                                </div>
+                            )
+        }
+
+        var inViewElement = <p></p>
+        if (this.state.canvas !== null) {
+            inViewElement = this.state.canvas.map((canvas, index) =>
+                                <InView className='wrapper' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} onChange={(inView, entry) => this.handleInView(inView, entry)} >
+                                </InView>
+                            )
+        }
+        
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
                 <div className='header'>
@@ -570,10 +538,10 @@ class CollabPage extends React.Component {
                 </div>
                 <div className='body-container'>
                     <div id='browser-canvas-container'>
-
+                        {pageBrowser}
                     </div>
                     <div id='canvas-container'>
-
+                        {inViewElement}
                     </div>
                 </div>
                 <div className='header'> 

@@ -22,11 +22,15 @@ var usersConnected = 0;
 //store incoming canvas in database and send canvas to users connected
 function initCanvas(roomKey, currentCanvas, socket) {    
 
-    let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas), 'secret key 123').toString();
+    let cipherCanvases = [];
+    for (let i = 0; i < currentCanvas.canvas.length; i++) {
+        let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas[i]), 'secret key 123').toString();
+        cipherCanvases.push(cipherObject);
+    }
 
     let canvasData = {
         room: roomKey,
-        canvas: cipherObject,
+        canvas: cipherCanvases,
         pageCount: currentCanvas.pageCount,
         pageHeight: currentCanvas.pageHeight,
         pageWidth: currentCanvas.pageWidth
@@ -57,9 +61,11 @@ io.on('connection', (socket)=>{
         db.collection("canvases").findOne({ room: roomKey }, function(err, result) {
             if (err) throw err;
             if (result !== null) {
-                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
-                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                result.canvas = decryptedData
+
+                for (let i = 0; i < result.canvas.length; i++) {
+                    let bytes  = CryptoJS.AES.decrypt(result.canvas[i], 'secret key 123');
+                    result.canvas[i] = (JSON.parse(bytes.toString(CryptoJS.enc.Utf8)));
+                }
 
                 console.log(`fetching canvas data from room name: ${roomKey}`)
                 socket.emit('canvasSetup', result);
@@ -80,20 +86,32 @@ io.on('connection', (socket)=>{
         socket.on('missingCanvas', (data) => {
             socket.emit('canvasSetup', canvasData);
         })
+
+        socket.on('requestPage', (id) => {
+            db.collection("canvases").findOne({room: roomKey}, function(err, result) {
+                if (err) throw err;
+
+                let bytes  = CryptoJS.AES.decrypt(result.canvas[id], 'secret key 123');
+
+                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+                let pageData = {
+                    id: id,
+                    canvas: decryptedData
+                }
+                socket.emit('sendPage', pageData);
+            });
+        })
     
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
-                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
-                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                result.canvas = decryptedData
-                result.canvas[data.canvasData.id] = data.canvasData.canvasJson;
-    
-                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
+                result.canvas[data.canvasData.id] = cipherObject;
 
-                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: cipherObject}}, function(err, res) {
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
@@ -112,14 +130,10 @@ io.on('connection', (socket)=>{
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
-                let bytes  = CryptoJS.AES.decrypt(result.canvas, 'secret key 123');
-                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                result.canvas = decryptedData
-                result.canvas[data.canvasData.id] = data.canvasData.canvasJson;
-    
-                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(result.canvas), 'secret key 123').toString();
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
+                result.canvas[data.canvasData.id] = cipherObject;
 
-                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: cipherObject}}, function(err, res) {
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
