@@ -509,7 +509,7 @@ class CollabPage extends React.Component {
                                 <div className='browser-page-container'>
                                     <div id={`browser-${index}`} style={{'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize':'cover'}} onClick={this.scrollToPage}>
                                     </div>
-                                    <p className='browser-page-number'>{index}</p>
+                                    <p className='browser-page-number'>{index + 1}</p>
                                 </div>
                             )
         }

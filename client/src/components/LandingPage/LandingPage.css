@@ -226,5 +226,6 @@ canvas {
 }
 
 .alert-outline-createroomname, .alert-outline-joinroomcode, .alert-outline-joinroomname, .alert-outline-createroomfile {
-    box-shadow: 0 0 10px red;
+    box-shadow: 0 0 10px rgb(228, 38, 38);
+    border-radius: 5px;
 }
