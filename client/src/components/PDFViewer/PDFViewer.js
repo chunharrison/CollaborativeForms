@@ -36,17 +36,24 @@ class PDFViewer extends Component {
   }
 
   render() {
-    
-    return (
-      <div>
-        <Document
+
+    let output
+    if (this.state.numPages <= 50) {
+      output = <Document
           file={this.props.selectedFile}
           onLoadSuccess={this.onDocumentLoadSuccess}
           inputRef={ (ref) => { this.wrapperRef = ref; } }
-          loading={<Spinner animation="border" variant="primary" />}
+          loading={<Spinner animation="border" variant="primary"/>}
         >
           { this.renderPages() }
         </Document>
+    } else {
+      output = <h3>You can't upload a PDF document that has more than 50 pages.</h3>
+    }
+    
+    return (
+      <div>
+        {output}
       </div>
     );
   }

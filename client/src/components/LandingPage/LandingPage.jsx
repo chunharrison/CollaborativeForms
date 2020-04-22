@@ -93,6 +93,8 @@ class LandingPage extends React.Component {
             })
         }
 
+        console.log(event.target.files[0])
+
         if (event.target.files[0]) {
             this.setState ({
                 selectedFile: event.target.files[0],
