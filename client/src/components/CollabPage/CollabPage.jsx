@@ -171,15 +171,11 @@ class CollabPage extends React.Component {
         let element = document.getElementById(`wrapper-${id}`);
         let browserElement = document.getElementById(`browser-${id}`);
         let canvasData = this.state.canvasData;
-        let textPageNumber = document.createElement("p");
-        textPageNumber.innerHTML = `${id + 1}`;
-        textPageNumber.className = 'page-number';
         let newCanvas = document.createElement('canvas');
         newCanvas.id = id.toString();
         newCanvas.width = canvasData.pageWidth;
         newCanvas.height = canvasData.pageHeight;
         element.appendChild(newCanvas);
-        element.appendChild(textPageNumber);
         let canvas = new fabric.Canvas(id.toString());
         canvas.loadFromJSON(pageData.canvas, () => {
             element.style.minHeight = canvas.getHeight();
@@ -506,7 +502,7 @@ class CollabPage extends React.Component {
         var pageBrowser = <p></p>
         if (this.state.canvas !== null) {
             pageBrowser = this.state.canvas.map((canvas, index) =>
-                                <div className='browser-page-container'>
+                                <div className='browser-page-and-number-container'>
                                     <div id={`browser-${index}`} style={{'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize':'cover'}} onClick={this.scrollToPage}>
                                     </div>
                                     <p className='browser-page-number'>{index + 1}</p>
@@ -517,8 +513,12 @@ class CollabPage extends React.Component {
         var inViewElement = <p></p>
         if (this.state.canvas !== null) {
             inViewElement = this.state.canvas.map((canvas, index) =>
-                                <InView className='wrapper' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} onChange={(inView, entry) => this.handleInView(inView, entry)} >
-                                </InView>
+                                <div className='page-and-number-container' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}}>
+                                    <InView className='page-wrapper' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} onChange={(inView, entry) => this.handleInView(inView, entry)} >
+                                    </InView>
+                                    <p className='page-number'>{index + 1}</p>
+                                </div>
+                                
                             )
         }
         

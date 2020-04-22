@@ -100,14 +100,23 @@ body {
     z-index: 1;
 }
 
-.wrapper {
+.page-wrapper {
+    flex-shrink: 0;
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    z-index: 1;
+    height:100%;
+}
+
+.page-and-number-container {
     flex-shrink: 0;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
     display:flex;
     align-items: center;
     flex-direction: column;
-    background-color: white;
     z-index: 1;
     height:100%;
 }
@@ -167,6 +176,7 @@ body {
 
 .page-number {
     font-family: sans-serif;
+    margin: 0.5em;
     padding: 0.3em 0.6em 0.3em 0.6em;
     background-color: rgb(182, 182, 182);
     border-radius: 5px;
@@ -210,7 +220,7 @@ body {
     z-index: 1;
 }
 
-.browser-page-container {
+.browser-page-and-number-container {
     display:flex;
     align-items: center;
     flex-direction: column;
