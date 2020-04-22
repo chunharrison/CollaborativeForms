@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import Spinner from 'react-bootstrap/Spinner';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
  
 class PDFViewer extends Component {
@@ -27,7 +28,6 @@ class PDFViewer extends Component {
                         renderTextLayer={false}
                         renderAnnotationLayer={false}
                         className={(i-1).toString()}
-                        scale={1.5}
                       />)
       
     }
@@ -43,6 +43,7 @@ class PDFViewer extends Component {
           file={this.props.selectedFile}
           onLoadSuccess={this.onDocumentLoadSuccess}
           inputRef={ (ref) => { this.wrapperRef = ref; } }
+          loading={<Spinner animation="border" variant="primary" />}
         >
           { this.renderPages() }
         </Document>

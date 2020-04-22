@@ -123,7 +123,7 @@ class LandingPage extends React.Component {
             this.setState({ 
                 createRoomFileAlertOutline: 'alert-outline-createroomfile'
             }, () => { 
-                this.createRoomAlertTimeoutSF = this.createRoomAlertTimeoutwindow.setTimeout(()=>{
+                this.createRoomAlertTimeoutSF = window.setTimeout(()=>{
                     this.setState({ 
                         createRoomFileAlertOutline: ''
                     })
@@ -261,11 +261,11 @@ class LandingPage extends React.Component {
                             <label for="pdf-file-input" className='custom-file-upload'>
                                 Browse
                             </label>
-                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} 
-                                onChange={this.onPDFUpload}/>
+                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} onChange={this.onPDFUpload}/>
                         </div>
                         <input placeholder="Name..." className={`name-input ${this.state.createRoomNameAlertOutline}`} type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
-                        <Link onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
+                        <Link 
+                            onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
                             to={{
                                 pathname: `/collab`,
                                 search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
