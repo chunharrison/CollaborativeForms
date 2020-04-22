@@ -196,8 +196,9 @@ class LandingPage extends React.Component {
         // event.preventDefault();
         // the error message shows whenever a person uploads any file other than PDF
         const errorMessage = document.getElementsByClassName('react-pdf__message react-pdf__message--error') 
-        console.log(errorMessage)
-        if (accepted && errorMessage.length === 0) {
+        const largePDFMessage = document.getElementsByClassName('too-large-pdf')
+        
+        if (accepted && errorMessage.length === 0 && largePDFMessage.length === 0) {
             this.pagesToDataURL()
         } else {
 

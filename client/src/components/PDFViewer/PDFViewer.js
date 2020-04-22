@@ -48,7 +48,7 @@ class PDFViewer extends Component {
           { this.renderPages() }
         </Document>
     } else {
-      output = <h3>You can't upload a PDF document that has more than 50 pages.</h3>
+      output = <h3 className="too-large-pdf">You can't upload a PDF document that has more than 50 pages.</h3>
     }
     
     return (
