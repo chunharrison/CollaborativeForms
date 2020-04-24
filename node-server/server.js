@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const app = express()
 const http = require('http').Server(app)
@@ -6,8 +7,8 @@ const CryptoJS = require("crypto-js");
 
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
-// 
 var db;
+
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
     if(err) throw err;
@@ -24,7 +25,7 @@ function initCanvas(roomKey, currentCanvas, socket) {
 
     let cipherCanvases = [];
     for (let i = 0; i < currentCanvas.canvas.length; i++) {
-        let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas[i]), 'secret key 123').toString();
+        let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(currentCanvas.canvas[i]), process.env.ENCRYPT_KEY).toString();
         cipherCanvases.push(cipherObject);
     }
 
@@ -45,7 +46,6 @@ function initCanvas(roomKey, currentCanvas, socket) {
         canvasData.canvas = currentCanvas.canvas;
         socket.emit('canvasSetup', canvasData);
 
-        db.collection("canvases").createIndex( { "createdAt": 1 }, { expireAfterSeconds: 86400 } )
     });
 
 }
@@ -67,7 +67,7 @@ io.on('connection', (socket)=>{
             if (result !== null) {
 
                 for (let i = 0; i < result.canvas.length; i++) {
-                    let bytes  = CryptoJS.AES.decrypt(result.canvas[i], 'secret key 123');
+                    let bytes  = CryptoJS.AES.decrypt(result.canvas[i], process.env.ENCRYPT_KEY);
                     result.canvas[i] = (JSON.parse(bytes.toString(CryptoJS.enc.Utf8)));
                 }
 
@@ -99,7 +99,7 @@ io.on('connection', (socket)=>{
                 if (result === null) {
                     socket.emit('invalidRoomCode');
                 } else {
-                    let bytes  = CryptoJS.AES.decrypt(result.canvas[id], 'secret key 123');
+                    let bytes  = CryptoJS.AES.decrypt(result.canvas[id], process.env.ENCRYPT_KEY);
 
                     let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
@@ -119,7 +119,7 @@ io.on('connection', (socket)=>{
                 if (err) throw err;
 
                 for (let i = 0; i < result.pageCount; i++) {
-                    const bytes = CryptoJS.AES.decrypt(result.canvas[i], 'secret key 123');
+                    const bytes = CryptoJS.AES.decrypt(result.canvas[i], process.env.ENCRYPT_KEY);
                     result.canvas[i] = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 }
                 socket.emit('sendCanvasData', {
@@ -137,7 +137,7 @@ io.on('connection', (socket)=>{
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
-                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), process.env.ENCRYPT_KEY).toString();
                 result.canvas[data.canvasData.id] = cipherObject;
                 result.lowerCanvasDataURLs[data.canvasData.id] = data.canvasData.canvasDataURL;
 
@@ -160,7 +160,7 @@ io.on('connection', (socket)=>{
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
-                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
+                let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), process.env.ENCRYPT_KEY).toString();
                 result.canvas[data.canvasData.id] = cipherObject;
                 result.lowerCanvasDataURLs[data.canvasData.id] = data.canvasData.canvasDataURL
 
