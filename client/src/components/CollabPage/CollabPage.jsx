@@ -28,7 +28,6 @@ class CollabPage extends React.Component {
             username: null,
             roomKey: null,
 
-            canvasData: null,
             canvas: null,
             holding: false,
             toSend: false,
@@ -38,7 +37,7 @@ class CollabPage extends React.Component {
             originalWidth: [],
             currentZoom: 1,
 
-            invalidRoomCodeProc: false
+            invalidRoomCodeProc: false,
         }
         
         this.createCanvases = this.createCanvases.bind(this);
@@ -61,6 +60,7 @@ class CollabPage extends React.Component {
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
         this.downloadPDF = this.downloadPDF.bind(this);
         this.scrollToPage = this.scrollToPage.bind(this);
+        this.downloadProc = this.downloadProc.bind(this);
     }
 
     setSocket() {
@@ -92,9 +92,9 @@ class CollabPage extends React.Component {
 
         //on user disconnect
         socket.on('disconnect', () => {this.setState({disconnected: true});});
-
         socket.on('reconnect', () => {this.setState({disconnected: false});});
 
+        socket.on('sendCanvasData', downloadData => {this.downloadPDF(downloadData)});
 
         this.setState({socket: socket});
     }
@@ -103,7 +103,6 @@ class CollabPage extends React.Component {
         this.setState({
             invalidRoomCodeGiven: true
         })
-
     }
 
     // creates the FIRST instace of canvases
@@ -111,7 +110,6 @@ class CollabPage extends React.Component {
     createCanvases() {
         let fabricCanvases = [];
         let self = this;
-
         for (let i = 0; i < this.props.location.state.imgDatas.length; i++) {
 
             let canvas = new fabric.StaticCanvas(null, { width: this.props.location.state.pageWidth, height: this.props.location.state.pageHeight });
@@ -144,6 +142,7 @@ class CollabPage extends React.Component {
         let roomKey = this.state.roomKey;
         let currentCanvas = {
             canvas: canvas,
+            lowerCanvasDataURLs: this.props.location.state.imgDatas,
             pageCount: this.props.location.state.imgDatas.length,
             pageHeight: this.props.location.state.pageHeight,
             pageWidth: this.props.location.state.pageWidth
@@ -161,7 +160,6 @@ class CollabPage extends React.Component {
         for (let i = 0; i < canvasData.pageCount; i++) {
             fabricCanvases.push(i);
         }
-
         this.setState({canvas: fabricCanvases});
     }
 
@@ -170,12 +168,15 @@ class CollabPage extends React.Component {
         let id = pageData.id;
         let element = document.getElementById(`wrapper-${id}`);
         let browserElement = document.getElementById(`browser-${id}`);
-        let canvasData = this.state.canvasData;
+        let textPageNumber = document.createElement("p");
+        textPageNumber.innerHTML = `${id + 1}`;
+        textPageNumber.className = 'page-number';
         let newCanvas = document.createElement('canvas');
         newCanvas.id = id.toString();
-        newCanvas.width = canvasData.pageWidth;
-        newCanvas.height = canvasData.pageHeight;
+        newCanvas.width = pageData.canvas.backgroundImage.width;
+        newCanvas.height = pageData.canvas.backgroundImage.height;
         element.appendChild(newCanvas);
+        element.appendChild(textPageNumber);
         let canvas = new fabric.Canvas(id.toString());
         canvas.loadFromJSON(pageData.canvas, () => {
             element.style.minHeight = canvas.getHeight();
@@ -304,7 +305,6 @@ class CollabPage extends React.Component {
     sendEdit(id, objectId, action) {
         let roomKey = this.state.roomKey;
         let canvasObject;
-
         this.state.canvas[id].getObjects().forEach(function(o) {
             if(o.id === objectId) {
                 canvasObject = o;
@@ -313,13 +313,13 @@ class CollabPage extends React.Component {
 
         let canvasData = {
             canvasJson: this.state.canvas[id].toJSON(['id']),
+            canvasDataURL: this.state.canvas[id].toDataURL('img/png', 1.0),
             json: JSON.parse(JSON.stringify(canvasObject.toObject(['id']))),
             id: id,
             action: action
         }
 
         this.state.socket.emit('editIn', {roomKey, canvasData});
-        console.log('sendingedit');
     }
 
     sendDelete(id, objectId, action) {
@@ -334,6 +334,7 @@ class CollabPage extends React.Component {
 
         let canvasData = {
             canvasJson: this.state.canvas[id].toJSON(['id']),
+            canvasDataURL: this.state.canvas[id].toDataURL('img/png', 1.0),
             objectId: objectId,
             id: id,
             action: action
@@ -343,6 +344,7 @@ class CollabPage extends React.Component {
     }
 
     receiveEdit(canvasData) {
+        
         let self = this;
         if (typeof this.state.canvas[canvasData.id] === 'object') {
             fabric.util.enlivenObjects([canvasData.json], function(objects) {
@@ -423,26 +425,28 @@ class CollabPage extends React.Component {
         })
     }
 
-    downloadPDF() {
-        const canvases = document.getElementsByClassName('main-canvas lower-canvas');
-        console.log(canvases)
-        const canvasWidth = canvases[0].width
-        const canvasHeight = canvases[0].height
+    downloadProc(event) {
+        event.preventDefault();
+        this.state.socket.emit('requestCanvasData')
+    }
+    
+    downloadPDF(downloadData) {
+        const canvasWidth = downloadData.pageWidth
+        const canvasHeight = downloadData.pageHeight
         const jsPDF = new JSPDF({
             orientation: 'p',
             unit: 'px', 
             format: [canvasWidth, canvasHeight],
             compress: true
         });
-        var pageWidth = jsPDF.internal.pageSize.getWidth();
-        var pageHeight = jsPDF.internal.pageSize.getHeight();
-        for (let i = 0; i < canvases.length; i++) {
-            const canvas = canvases[i];
-            const imgData = canvas.toDataURL('image/png', 1.0);
+        var PDFpageWidth = jsPDF.internal.pageSize.getWidth();
+        var PDFpageHeight = jsPDF.internal.pageSize.getHeight();
+        for (let i = 0; i < downloadData.pageCount; i++) {
+            const canvas = downloadData.lowerCanvasDataURLs[i];
             if (i > 0) {
                 jsPDF.addPage();
             }
-            jsPDF.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+            jsPDF.addImage(canvas, 'PNG', 0, 0, PDFpageWidth, PDFpageHeight);
         }
         jsPDF.save('download.pdf');
     }
@@ -467,7 +471,6 @@ class CollabPage extends React.Component {
     }
 
     scrollToPage(e) {
-        console.log(e.target);
         let element = document.getElementById(`wrapper-${e.target.id.split('-')[1]}`);
         element.scrollIntoView();
     }
@@ -502,7 +505,7 @@ class CollabPage extends React.Component {
         var pageBrowser = <p></p>
         if (this.state.canvas !== null) {
             pageBrowser = this.state.canvas.map((canvas, index) =>
-                                <div className='browser-page-and-number-container'>
+                                <div className='browser-page-container'>
                                     <div id={`browser-${index}`} style={{'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize':'cover'}} onClick={this.scrollToPage}>
                                     </div>
                                     <p className='browser-page-number'>{index + 1}</p>
@@ -513,12 +516,12 @@ class CollabPage extends React.Component {
         var inViewElement = <p></p>
         if (this.state.canvas !== null) {
             inViewElement = this.state.canvas.map((canvas, index) =>
-                                <div className='page-and-number-container' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}}>
-                                    <InView className='page-wrapper' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} onChange={(inView, entry) => this.handleInView(inView, entry)} >
-                                    </InView>
-                                    <p className='page-number'>{index + 1}</p>
-                                </div>
-                                
+                                <InView 
+                                    className='wrapper' 
+                                    style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} 
+                                    as="div" id={`wrapper-${index}`} 
+                                    onChange={(inView, entry) => this.handleInView(inView, entry)} >
+                                </InView>
                             )
         }
         
@@ -549,7 +552,7 @@ class CollabPage extends React.Component {
                         
                     </div>
                     <div className='download-button-container'>
-                        <Button className='download-button' onClick={this.downloadPDF}>
+                        <Button className='download-button' onClick={event => this.downloadProc(event)}>
                             Download
                         </Button>
                     </div>

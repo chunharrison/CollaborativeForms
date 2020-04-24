@@ -31,6 +31,7 @@ function initCanvas(roomKey, currentCanvas, socket) {
     let canvasData = {
         room: roomKey,
         canvas: cipherCanvases,
+        lowerCanvasDataURLs: currentCanvas.lowerCanvasDataURLs,
         pageCount: currentCanvas.pageCount,
         pageHeight: currentCanvas.pageHeight,
         pageWidth: currentCanvas.pageWidth
@@ -102,7 +103,27 @@ io.on('connection', (socket)=>{
                 socket.emit('sendPage', pageData);
             });
         })
-    
+
+        // for Downloads only (currently)
+        socket.on('requestCanvasData', () => {
+            console.log("PERFORMING requestCanvasData")
+            db.collection("canvases").findOne({room: roomKey}, function(err, result) {
+                if (err) throw err;
+
+                for (let i = 0; i < result.pageCount; i++) {
+                    const bytes = CryptoJS.AES.decrypt(result.canvas[i], 'secret key 123');
+                    result.canvas[i] = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                }
+                socket.emit('sendCanvasData', {
+                    canvas: result.canvas,
+                    lowerCanvasDataURLs: result.lowerCanvasDataURLs, 
+                    pageCount: result.pageCount,
+                    pageWidth: result.pageWidth,
+                    pageHeight: result.pageHeight
+                })
+            })
+        })
+
         //receive incoming changes to the canvases and save the changes in the database. after saving, send edited canvas to users who did not send changes
         socket.on('editIn', (data) => {
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
@@ -110,8 +131,9 @@ io.on('connection', (socket)=>{
 
                 let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
                 result.canvas[data.canvasData.id] = cipherObject;
+                result.lowerCanvasDataURLs[data.canvasData.id] = data.canvasData.canvasDataURL;
 
-                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas}}, function(err, res) {
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas, lowerCanvasDataURLs: result.lowerCanvasDataURLs}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
@@ -132,8 +154,9 @@ io.on('connection', (socket)=>{
 
                 let cipherObject = CryptoJS.AES.encrypt(JSON.stringify(data.canvasData.canvasJson), 'secret key 123').toString();
                 result.canvas[data.canvasData.id] = cipherObject;
+                result.lowerCanvasDataURLs[data.canvasData.id] = data.canvasData.canvasDataURL
 
-                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas}}, function(err, res) {
+                db.collection("canvases").updateOne({room: roomKey}, {$set: {canvas: result.canvas, lowerCanvasDataURLs: result.lowerCanvasDataURLs}}, function(err, res) {
                     if (err) throw err;
                     console.log("1 document updated");
     
