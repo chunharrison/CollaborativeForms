@@ -29,6 +29,7 @@ function initCanvas(roomKey, currentCanvas, socket) {
     }
 
     let canvasData = {
+        createdAt: new Date(),
         room: roomKey,
         canvas: cipherCanvases,
         lowerCanvasDataURLs: currentCanvas.lowerCanvasDataURLs,
@@ -43,6 +44,8 @@ function initCanvas(roomKey, currentCanvas, socket) {
 
         canvasData.canvas = currentCanvas.canvas;
         socket.emit('canvasSetup', canvasData);
+
+        db.collection("canvases").createIndex( { "createdAt": 1 }, { expireAfterSeconds: 86400 } )
     });
 
 }
@@ -79,9 +82,10 @@ io.on('connection', (socket)=>{
         });
     
         //force reset canvas, only gets called when 'needCanvas' gets emitted
-        socket.on('initCanvas', (data) => {
+        socket.on('initCanvas', function(data, callback) {
             initCanvas(roomKey, data.currentCanvas, socket);
-        })
+            callback();
+        });
     
         //force send clients canvas that are missing it
         socket.on('missingCanvas', (data) => {
@@ -92,15 +96,19 @@ io.on('connection', (socket)=>{
             db.collection("canvases").findOne({room: roomKey}, function(err, result) {
                 if (err) throw err;
 
-                let bytes  = CryptoJS.AES.decrypt(result.canvas[id], 'secret key 123');
+                if (result === null) {
+                    socket.emit('invalidRoomCode');
+                } else {
+                    let bytes  = CryptoJS.AES.decrypt(result.canvas[id], 'secret key 123');
 
-                let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                    let decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
-                let pageData = {
-                    id: id,
-                    canvas: decryptedData
+                    let pageData = {
+                        id: id,
+                        canvas: decryptedData
+                    }
+                    socket.emit('sendPage', pageData);
                 }
-                socket.emit('sendPage', pageData);
             });
         })
 

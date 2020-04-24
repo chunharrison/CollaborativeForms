@@ -108,33 +108,39 @@ class CollabPage extends React.Component {
     // creates the FIRST instace of canvases
     // receives data from PDFSelectPage.jsx in props
     createCanvases() {
-        let fabricCanvases = [];
-        let self = this;
-        for (let i = 0; i < this.props.location.state.imgDatas.length; i++) {
+        if (typeof this.props.location.state.imgDatas !== 'undefined') {
+            let fabricCanvases = [];
+            let self = this;
+            for (let i = 0; i < this.props.location.state.imgDatas.length; i++) {
 
-            let canvas = new fabric.StaticCanvas(null, { width: this.props.location.state.pageWidth, height: this.props.location.state.pageHeight });
-            let currentPage = this.props.location.state.imgDatas[i];
+                let canvas = new fabric.StaticCanvas(null, { width: this.props.location.state.pageWidth, height: this.props.location.state.pageHeight });
+                let currentPage = this.props.location.state.imgDatas[i];
 
-            fabric.Image.fromURL(currentPage, function(img) {
-                img.resizeFilter = new fabric.Image.filters.Resize({
-                  resizeType: 'sliceHack'
+                fabric.Image.fromURL(currentPage, function(img) {
+                    img.resizeFilter = new fabric.Image.filters.Resize({
+                    resizeType: 'sliceHack'
+                    });
+                    img.applyResizeFilters();;
+                    canvas.setBackgroundImage(img, function() {
+                        canvas.renderAll.bind(canvas);
+                        fabricCanvases.push(canvas);
+                        if (i === self.props.location.state.imgDatas.length - 1) {
+                            self.sendCanvases();
+                        }
+                    });
                 });
-                img.applyResizeFilters();;
-                canvas.setBackgroundImage(img, function() {
-                    canvas.renderAll.bind(canvas);
-                    fabricCanvases.push(canvas);
-                    if (i === self.props.location.state.imgDatas.length - 1) {
-                        self.sendCanvases();
-                    }
-                });
-            });
+            }
+
+            this.setState({canvas:fabricCanvases});
+
+        } else {
+            this.setState({invalidRoomCodeGiven: true});
         }
-
-        this.setState({canvas:fabricCanvases});
     }
 
     sendCanvases() {
         let canvas = [];
+        let self = this;
         for (let i = 0; i < this.state.canvas.length; i++) {
             canvas.push(this.state.canvas[i].toJSON(['id']));
         }
@@ -148,7 +154,10 @@ class CollabPage extends React.Component {
             pageWidth: this.props.location.state.pageWidth
         }
 
-        this.state.socket.emit('initCanvas', {roomKey, currentCanvas});
+        console.log(this.props.history);
+        this.state.socket.emit('initCanvas', {roomKey, currentCanvas}, function(){
+            self.props.history.replace({ search: self.props.history.location.search, state: {} });
+        });
     }
     
     getCanvases(canvasData) {
@@ -414,8 +423,8 @@ class CollabPage extends React.Component {
 
     handleQuery() {
         // query: ?username=username&roomKey=roomKey
-        const username = queryString.parse(this.props.location.search).username
-        const roomKey = queryString.parse(this.props.location.search).roomKey
+        const username = '' + queryString.parse(this.props.location.search).username
+        const roomKey = '' + queryString.parse(this.props.location.search).roomKey
         this.setState({username, roomKey}, () => { 
             this.setSocket(); 
         })
