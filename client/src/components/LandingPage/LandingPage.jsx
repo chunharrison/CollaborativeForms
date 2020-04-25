@@ -86,14 +86,11 @@ class LandingPage extends React.Component {
     // triggers when PDF file is uploaded, 
     // generates a unique room key if there isn't one
     onPDFUpload = event => {
-        // console.log(event.target.files[0])
         if (this.state.roomKey === null) {
             this.setState ( {
                 roomKey: nanoid()
             })
         }
-
-        console.log(event.target.files[0])
 
         if (event.target.files[0]) {
             this.setState ({
@@ -292,7 +289,7 @@ class LandingPage extends React.Component {
                             onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
                         <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
                             to={{ pathname: `/collab`,
-                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`, }}>
+                                search: `?username=${this.state.usernameJoin}&roomKey=${this.state.roomKey}`, }}>
                             <Button variant="primary" className='create-room-button' type="submit">Enter Room</Button>
                         </Link>
                     </div>

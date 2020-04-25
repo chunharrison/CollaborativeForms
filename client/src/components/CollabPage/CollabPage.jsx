@@ -6,6 +6,8 @@ import Signature from '../Signature/Signature';
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
+import ListGroup from 'react-bootstrap/Button';
 
 // Packages
 import io from "socket.io-client";
@@ -27,6 +29,7 @@ class CollabPage extends React.Component {
             endpoint: '127.0.0.1:5000',
             username: null,
             roomKey: null,
+            currentUsers: [],
 
             canvas: null,
             holding: false,
@@ -38,7 +41,17 @@ class CollabPage extends React.Component {
             currentZoom: 1,
 
             invalidRoomCodeProc: false,
+
+            // when new user connects & other users disconnects
+            newUser: '',
+            usersJoinedAlertVisible: false,
+            disconnectedUser: '',
+            usersDisconnectedAlertVisible: false,
         }
+
+        // when new user connects & other users disconnects
+        this.usersJoinedAlertTimeout = null;
+        this.usersDisconnectedAlertTimeout = null;
         
         this.createCanvases = this.createCanvases.bind(this);
         this.sendCanvases = this.sendCanvases.bind(this);
@@ -61,6 +74,10 @@ class CollabPage extends React.Component {
         this.downloadPDF = this.downloadPDF.bind(this);
         this.scrollToPage = this.scrollToPage.bind(this);
         this.downloadProc = this.downloadProc.bind(this);
+        this.usersJoined = this.usersJoined.bind(this);
+        this.usersJoinedAlertProc = this.usersJoinedAlertProc.bind(this);
+        this.userDisconnected = this.userDisconnected.bind(this);
+        this.usersDisconnectedAlertProc = this.usersDisconnectedAlertProc.bind(this);
     }
 
     setSocket() {
@@ -77,7 +94,14 @@ class CollabPage extends React.Component {
         // }
         const joining = this.props.location.state === undefined
 
-        socket.on('join', canvasData => socket.emit('join', { username, roomKey, joining}));     
+        socket.on('join', () => socket.emit('join', { username, roomKey, joining}));    
+        
+        // when a user enters the room, call usersJoined function
+        socket.on("userJoined", (currUsers, newUser) => this.usersJoined(currUsers, newUser));
+
+        // when a user leaves the room, call userDisconnected function
+        socket.on("userDisconnected", (currUsers, disconnectedUser) => this.userDisconnected(currUsers, disconnectedUser))
+
         socket.on("canvasSetup", canvasData => this.getCanvases(canvasData));
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
 
@@ -103,6 +127,59 @@ class CollabPage extends React.Component {
         this.setState({
             invalidRoomCodeGiven: true
         })
+    }
+
+    // when a user enters the room, update the list of currently entered users
+    // then proc an alert
+    usersJoined(currUsers, newUser) {
+        this.setState({
+            currentUsers: currUsers,
+            newUser: newUser
+        }, () => {
+            this.usersJoinedAlertProc();
+        });
+    }
+
+    // alert that new user entered the room
+    usersJoinedAlertProc() {
+        clearTimeout(this.usersJoinedAlertTimeout)
+
+        this.setState({
+            usersJoinedAlertVisible: true
+        }, () => {
+            this.usersJoinedAlertTimeout = window.setTimeout(() => {
+            this.setState({
+                usersJoinedAlertVisible: false,
+                newUser: ''
+            })
+        }, 5000)})
+    }
+
+    // when a user leaves the room, update the list of currently entered users
+    // then proc an alert
+    userDisconnected(currUsers, disconnectedUser) {
+        this.setState({
+            currentUsers: currUsers,
+            disconnectedUser: disconnectedUser
+        }, () => {
+            this.usersDisconnectedAlertProc();
+        });
+    }
+
+    // alert that a user was disconnected from the room
+    usersDisconnectedAlertProc() {
+        clearTimeout(this.usersDisconnectedAlertTimeout) 
+
+        this.setState({
+            usersDisconnectedAlertVisible: true
+        }, () => {
+            this.usersDisconnectedAlertTimeout = window.setTimeout(() => {
+            this.setState({
+                usersDisconnectedAlertVisible: false,
+                disconnectedUser: ''
+            })
+        }, 5000)})
+        
     }
 
     // creates the FIRST instace of canvases
@@ -131,9 +208,13 @@ class CollabPage extends React.Component {
                 });
             }
 
-            this.setState({canvas:fabricCanvases});
+            this.setState({
+                canvas:fabricCanvases,
+                currentUsers: [this.state.username]
+            });
 
         } else {
+
             this.setState({invalidRoomCodeGiven: true});
         }
     }
@@ -160,11 +241,15 @@ class CollabPage extends React.Component {
         });
     }
     
+    
     getCanvases(canvasData) {
         let fabricCanvases = [];
-        this.setState({canvasData: canvasData,
-                        originalHeight: [],
-                        originalWidth: []});
+        this.setState({
+            currentUsers: canvasData.users,
+            canvasData: canvasData,
+            originalHeight: [],
+            originalWidth: []
+        });
 
         for (let i = 0; i < canvasData.pageCount; i++) {
             fabricCanvases.push(i);
@@ -552,8 +637,26 @@ class CollabPage extends React.Component {
                     </div>
                 </div>
                 <div className='header'> 
+                    <div className='download-button-container'>
+                        <Dropdown drop='up'>
+                            <Dropdown.Toggle>
+                                Users: {this.state.currentUsers.length}
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                {this.state.currentUsers.map((user) => (
+                                    <Dropdown.Item>{user}</Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
                     <div className='tools'>
-                        
+                        <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
+                            {this.state.newUser} has entered the room.
+                        </Alert>
+                        <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
+                            {this.state.disconnectedUser} has left the room.
+                        </Alert>
                     </div>
                     <div className='download-button-container'>
                         <Button className='download-button' onClick={event => this.downloadProc(event)}>

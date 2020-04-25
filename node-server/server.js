@@ -19,9 +19,8 @@ const port = 5000;
 //Bind socket.io socket to http server
 const io = socketio(http);
 
-var usersConnected = 0;
 //store incoming canvas in database and send canvas to users connected
-function initCanvas(roomKey, currentCanvas, socket) {    
+function initCanvas(username, roomKey, currentCanvas, socket) {    
 
     let cipherCanvases = [];
     for (let i = 0; i < currentCanvas.canvas.length; i++) {
@@ -32,6 +31,7 @@ function initCanvas(roomKey, currentCanvas, socket) {
     let canvasData = {
         createdAt: new Date(),
         room: roomKey,
+        users: [username],
         canvas: cipherCanvases,
         lowerCanvasDataURLs: currentCanvas.lowerCanvasDataURLs,
         pageCount: currentCanvas.pageCount,
@@ -57,10 +57,7 @@ io.on('connection', (socket)=>{
     socket.emit('join');
     socket.on('join', ({ username, roomKey, joining }) => {
         socket.join(roomKey);
-        console.log(socket.rooms)
         console.log(`${username} just joined ${roomKey}`)
-        usersConnected++;
-        console.log(`current number of users in ${roomKey}: ${usersConnected}`);
 
         db.collection("canvases").findOne({ room: roomKey }, function(err, result) {
             if (err) throw err;
@@ -72,6 +69,16 @@ io.on('connection', (socket)=>{
                 }
 
                 console.log(`fetching canvas data from room name: ${roomKey}`)
+
+                // update the list of users in the database
+                result.users.push(username);
+                db.collection("canvases").updateOne({ room: roomKey }, {$set: { users: result.users }});
+
+                // broadcast to every other users in the room that this user joined
+                // with the newly updated list of users 
+                socket.to(roomKey).emit('userJoined', result.users, username);
+
+
                 socket.emit('canvasSetup', result);
             } else if (!joining) {
                 console.log(`initial setup for room name: ${roomKey}`)
@@ -83,7 +90,7 @@ io.on('connection', (socket)=>{
     
         //force reset canvas, only gets called when 'needCanvas' gets emitted
         socket.on('initCanvas', function(data, callback) {
-            initCanvas(roomKey, data.currentCanvas, socket);
+            initCanvas(username, roomKey, data.currentCanvas, socket);
             callback();
         });
     
@@ -179,42 +186,26 @@ io.on('connection', (socket)=>{
             });
         })
 
-        // socket.on('editIn', (data) => {
-        //     db.collection("canvases").findOne({}, function(err, result) {
-        //         if (err) throw err;
-        
-        //         result.canvas[data.canvasData.id] = data.canvasData.json;
-    
-        //         db.collection("canvases").updateOne({}, {$set: {canvas: result.canvas}}, function(err, res) {
-        //             if (err) throw err;
-        //             console.log("1 document updated");
-    
-        //             let dataOut = {
-        //                 json: data.canvasData.json,
-        //                 id: data.canvasData.id
-        //             };
-        //             socket.to(data.roomKey).emit('editOut', dataOut); 
-        //         });
-        //     });
-        // })
-
-        socket.on("disconnect", ()=>{
+        socket.on("disconnect", () => {
             console.log(`${username} just left ${roomKey}`);
-            usersConnected--;
-            console.log(`current number of users in ${roomKey}: ${usersConnected}`);
+            
+            // update the list of users in the database
+            db.collection("canvases").findOne({room: roomKey}, function(err, result) {
+                if (err) throw err;
+
+                result.users.splice(result.users.indexOf(username), 1); // remove the first occurence of the username from database
+                db.collection("canvases").updateOne({ room: roomKey }, {$set: { users: result.users }});
+
+                // broadcast to every other users in the room that this user joined
+                // with the newly updated list of users 
+                socket.to(roomKey).emit('userDisconnected', result.users, username);
+            })
+            // result.users.push(username);
+            // db.collection("canvases").updateOne({ room: roomKey }, {$set: { users: result.users }});
         })
 
         console.log("------------------------------")
     })
-
-    // socket.on("disconnect", ()=>{
-    //     usersConnected--;
-    //     console.log('user connected');
-    //     // const user = removeUser(socket.id);
-    //     // if (user) {
-    //     //     socket.to(user.room).emit('message', { user: 'admin', text: `${user.name} has left`})
-    //     // }
-    // })
 
     socket.on('error', function (err) {
         console.log(err);
