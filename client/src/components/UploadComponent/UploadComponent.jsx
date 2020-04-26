@@ -5,15 +5,15 @@ export default class UploadComponent extends Component {
   state = {
     message:''
   };
-
-  getImage = e => {
+  //function for the file select button. this sets the file state to the selected file
+  getPDF = e => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
       this.setState({ file });
     }
   };
-
+  //sends a get request to the node server, requesting a signed URL that can be used to authorize a file upload to the s3 bucket
   uploadFile = e => {
     e.preventDefault();
     const { file } = this.state;
@@ -30,11 +30,11 @@ export default class UploadComponent extends Component {
         'Content-Type': contentType
       }
     };
-
     axios.get(generatePutUrl, options).then(res => {
       const {
         data: { putURL }
       } = res;
+      //upload file via url that was sent back from the server
       axios
         .put(putURL, file, options)
         .then(res => {
@@ -59,7 +59,7 @@ export default class UploadComponent extends Component {
           id='upload-image'
           type='file'
           accept='application/pdf'
-          onChange={this.getImage}
+          onChange={this.getPDF}
         />
         <p>{this.state.message}</p>
         <form onSubmit={this.uploadFile}>
