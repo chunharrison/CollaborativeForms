@@ -26,7 +26,7 @@ class CollabPage extends React.Component {
         this.state = {
             socket: null,
             disconnected: false,
-            endpoint: '127.0.0.1:5000',
+            endpoint: 'http://localhost:5000',
             username: null,
             roomKey: null,
             currentUsers: [],

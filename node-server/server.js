@@ -4,6 +4,12 @@ const app = express()
 const http = require('http').Server(app)
 const socketio = require('socket.io');
 const CryptoJS = require("crypto-js");
+var cors = require('cors');
+
+const {
+    generateGetUrl,
+    generatePutUrl
+  } = require('./AWSPresigner');
 
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
@@ -16,6 +22,45 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
 });
 
 const port = 5000;
+
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+    
+}));
+
+// GET URL
+app.get('/generate-get-url', (req, res) => {
+    // Both Key and ContentType are defined in the client side.
+    // Key refers to the remote name of the file.
+    const { Key } = req.query;
+    generateGetUrl(Key)
+        .then(getURL => {      
+        res.send(getURL);
+        })
+        .catch(err => {
+        res.send(err);
+        });
+});
+  
+// PUT URL
+app.get('/generate-put-url', (req,res)=>{
+// Both Key and ContentType are defined in the client side.
+// Key refers to the remote name of the file.
+// ContentType refers to the MIME content type, in this case image/jpeg
+res.header("Access-Control-Allow-Credentials", true);
+const { Key, ContentType } =  req.query;
+generatePutUrl(Key, ContentType).then(putURL => {
+    console.log(putURL);
+    res.send({putURL});
+})
+.catch(err => {
+    res.send(err);
+});
+});
+
+
 //Bind socket.io socket to http server
 const io = socketio(http);
 
@@ -38,6 +83,8 @@ function initCanvas(username, roomKey, currentCanvas, socket) {
         pageHeight: currentCanvas.pageHeight,
         pageWidth: currentCanvas.pageWidth
     }
+
+    console.log(roughSizeOfObject(canvasData.canvas));
 
     db.collection("canvases").insertOne( canvasData, function(err, res) {
         if (err) throw err;

@@ -64,6 +64,9 @@ class LandingPage extends React.Component {
         // PDF preview Modal
         this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
         this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
+
+        //requests
+        this.getSignedUrl = this.getSignedUrl.bind(this);
     }
 
     // change currently rendered canvases to dataURLs 
@@ -74,7 +77,7 @@ class LandingPage extends React.Component {
         for (var i = 0; i < pdfLength; i++) {
             let canvas = canvases[i];
             canvas.id = i // set id=0, 1, 2, ... , n to all the canvases on the screen
-            imageDatas.push(canvas.toDataURL("image/jpeg", 1.0));
+            imageDatas.push(canvas.toDataURL("image/jpeg", 0.7));
         };
 
         this.setState({imgDatas: imageDatas,
@@ -241,6 +244,7 @@ class LandingPage extends React.Component {
                 showPDFModal: false
             })
         }
+
     }
 
     render() {
@@ -278,6 +282,7 @@ class LandingPage extends React.Component {
                             }}>
                             <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>
                         </Link>
+                        <button onClick={this.getSignedUrl}>hehexd</button>
                     </div>
                 </div>
                 <div className='join-room-container'>
