@@ -606,8 +606,12 @@ class CollabPage extends React.Component {
         var inViewElement = <p></p>
         if (this.state.canvas !== null) {
             inViewElement = this.state.canvas.map((canvas, index) =>
-                            <div className='page-and-number-container' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}}>
-                                <InView className='page-wrapper' style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} onChange={(inView, entry) => this.handleInView(inView, entry)} >
+                            <div className='page-and-number-container' 
+                                style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}}>
+                                <InView 
+                                    className='page-wrapper' 
+                                    style={{"minHeight": (typeof this.state.canvas[index] !== 'object' ? 842 : this.state.canvas[index].getHeight()), "width": (typeof this.state.canvas[index] !== 'object' ? 595 : this.state.canvas[index].getWidth())}} as="div" id={`wrapper-${index}`} 
+                                    onChange={(inView, entry) => this.handleInView(inView, entry)} >
                                 </InView>
                                 <p className='page-number'>{index + 1}</p>
                             </div>

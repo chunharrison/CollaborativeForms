@@ -262,7 +262,7 @@ class LandingPage extends React.Component {
                         <p className='room-header'>CREATE ROOM</p>
                         <div className={`file-input-container ${this.state.createRoomFileAlertOutline}`}>
                             <input type="text" className='selected-file' value={fileValue} disabled></input>
-                            <label for="pdf-file-input" className='custom-file-upload'>
+                            <label htmlFor="pdf-file-input" className='custom-file-upload'>
                                 Browse
                             </label>
                             <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} onChange={this.onPDFUpload}/>
