@@ -64,9 +64,6 @@ class LandingPage extends React.Component {
         // PDF preview Modal
         this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
         this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
-
-        //requests
-        this.getSignedUrl = this.getSignedUrl.bind(this);
     }
 
     // change currently rendered canvases to dataURLs 
@@ -272,17 +269,10 @@ class LandingPage extends React.Component {
                             onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
                             to={{
                                 pathname: `/collab`,
-                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`,
-                                state: {
-                                    imgDatas: this.state.imgDatas,
-                                    pageHeight: this.state.pageHeight,
-                                    pageWidth: this.state.pageWidth,
-                                    fileName: this.state.selectedFileName
-                                }
+                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`
                             }}>
                             <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>
                         </Link>
-                        <button onClick={this.getSignedUrl}>hehexd</button>
                     </div>
                 </div>
                 <div className='join-room-container'>
