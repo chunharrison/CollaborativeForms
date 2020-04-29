@@ -6,10 +6,7 @@ const socketio = require('socket.io');
 const CryptoJS = require("crypto-js");
 var cors = require('cors');
 
-const {
-    generateGetUrl,
-    generatePutUrl
-  } = require('./AWSPresigner');
+const { generateGetUrl, generatePutUrl } = require('./AWSPresigner');
 
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
@@ -52,7 +49,6 @@ app.get('/generate-put-url', (req,res)=>{
 res.header("Access-Control-Allow-Credentials", true);
 const { Key, ContentType } =  req.query;
 generatePutUrl(Key, ContentType).then(putURL => {
-    console.log(putURL);
     res.send({putURL});
 })
 .catch(err => {
@@ -83,8 +79,6 @@ function initCanvas(username, roomCode, currentCanvas, socket) {
         pageHeight: currentCanvas.pageHeight,
         pageWidth: currentCanvas.pageWidth
     }
-
-    // console.log(roughSizeOfObject(canvasData.canvas));
 
     db.collection("canvases").insertOne( canvasData, function(err, res) {
         if (err) throw err;

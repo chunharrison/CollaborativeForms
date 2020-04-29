@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Redirect } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 import PDFViewer from '../PDFViewer/PDFViewer';
+import axios from 'axios';
 
 // Components
 import Button from 'react-bootstrap/Button';
@@ -53,7 +54,7 @@ class LandingPage extends React.Component {
         this.joinRoomAlertTimeoutRC = null;
         this.joinRoomAlertTimeoutUN = null;
 
-        this.pagesToDataURL = this.pagesToDataURL.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
         this.onPDFUpload = this.onPDFUpload.bind(this);
 
         // Alert messages
@@ -66,21 +67,38 @@ class LandingPage extends React.Component {
         this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
     }
 
-    // change currently rendered canvases to dataURLs 
-    pagesToDataURL() {
-        let canvases = document.getElementsByClassName('react-pdf__Page__canvas');
-        let imageDatas = [];
-        var pdfLength = canvases.length;
-        for (var i = 0; i < pdfLength; i++) {
-            let canvas = canvases[i];
-            canvas.id = i // set id=0, 1, 2, ... , n to all the canvases on the screen
-            imageDatas.push(canvas.toDataURL("image/jpeg", 0.7));
+    uploadFile() {
+        const { selectedFile } = this.state;
+        this.setState({message:'Uploading...'})
+        const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
+    
+        const generatePutUrl = 'http://localhost:5000/generate-put-url';
+        const options = {
+          params: {
+            Key: `${this.state.roomKey}.pdf`,
+            ContentType: contentType
+          },
+          headers: {
+            'Content-Type': contentType
+          }
         };
-
-        this.setState({imgDatas: imageDatas,
-                        pageHeight: canvases[0].height,
-                        pageWidth: canvases[0].width});
-    }
+        axios.get(generatePutUrl, options).then(res => {
+          const {
+            data: { putURL }
+          } = res;
+          //upload file via url that was sent back from the server
+          axios
+            .put(putURL, selectedFile, options)
+            .then(res => {
+              console.log('success');
+              this.setState({showPDFModal: false});
+            })
+            .catch(err => {
+              console.log('err', err);
+              this.setState({showPDFModal: false});
+            });
+        });
+    };
 
 
     // triggers when PDF file is uploaded, 
@@ -196,7 +214,7 @@ class LandingPage extends React.Component {
         const largePDFMessage = document.getElementsByClassName('too-large-pdf')
         
         if (accepted && errorMessage.length === 0 && largePDFMessage.length === 0) {
-            this.pagesToDataURL()
+            this.uploadFile()
         } else {
 
             if (errorMessage.length !== 0) {
