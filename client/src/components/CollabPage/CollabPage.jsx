@@ -5,6 +5,11 @@ import LoadPage from '../LoadPage/LoadPage';
 import { Document, Page } from 'react-pdf'; // open source
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
+import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
+// react-bootstrap
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 // Libraries
 import { fabric } from 'fabric';
@@ -12,6 +17,7 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
+import jsPDF from 'jspdf'; // for downloading the document
 
 // PDF document (for dev)
 import PDF from '../docs/sample.pdf';
@@ -249,6 +255,28 @@ class CollabPageNew extends React.Component {
         }
 
         return InViewElementList;
+    }
+
+    downloadProc(event) {
+        event.preventDefault();
+
+        const {numPages, originalWidth, originalHeight } = this.state;
+        const jspdf = new jsPDF({
+            orientation: 'p',
+            unit: 'px', 
+            format: [originalWidth, originalHeight],
+            compress: true
+        });
+        var PDFpageWidth = jspdf.internal.pageSize.getWidth();
+        var PDFpageHeight = jspdf.internal.pageSize.getHeight();
+
+        for (let i = 1; i <= numPages; i++) {
+            const canvas = downloadData.lowerCanvasDataURLs[i];
+            if (i > 1) {
+                jsPDF.addPage();
+            }
+            // jsPDF.addImage(canvas, 'PNG', 0, 0, PDFpageWidth, PDFpageHeight);
+        }
     }
 
     /* #################################################################################################
@@ -501,7 +529,12 @@ class CollabPageNew extends React.Component {
 
     render() {
         // State Variables 
-        const { PDFDocument, socket, signatureURL, holding } = this.state;
+        const { PDFDocument, roomCode, socket, signatureURL, holding, numPages } = this.state;
+
+        let roomCodeCopy;
+        if (this.state.roomKey !== null) {
+            roomCodeCopy = <CopyRoomCode roomCode={roomCode}></CopyRoomCode>
+        }
 
         return (
         <div className='collab-page' onMouseMove={this.mouseMove}>
@@ -512,8 +545,9 @@ class CollabPageNew extends React.Component {
                 <div className='tools'>
                     <Signature setURL={this.setSignatureURL}/>
                 </div>
-                {/* {roomCodeCopy} */}
+                {roomCodeCopy}
             </div>
+            {/* /HEADER */}
 
             {/* BODY */}
             {/* don't render until we receive the document from the server */}
@@ -550,7 +584,44 @@ class CollabPageNew extends React.Component {
                 </div>
                 </Document>
             : null}
+            {/* /BODY */}
+
+            {/* FOOTER */}
+            <div className='header'> 
+                {/* <div className='download-button-container'>
+                    <Dropdown drop='up'>
+                        <Dropdown.Toggle>
+                            Users: {this.state.currentUsers.length}
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu>
+                            {this.state.currentUsers.map((user) => (
+                                <Dropdown.Item>{user}</Dropdown.Item>
+                            ))}
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+                <div className='tools'>
+                    <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
+                        {this.state.newUser} has entered the room.
+                    </Alert>
+                    <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
+                        {this.state.disconnectedUser} has left the room.
+                    </Alert>
+                </div> */}
+                <div className='download-button-container'>
+                    <Button className='download-button' onClick={event => this.downloadProc(event)}>
+                        Download
+                    </Button>
+                </div>
+            </div>
+            {/* /FOOTER */}
+
+
             {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
+            <Alert variant='danger' show={this.state.disconnected}>
+                You are currently disconnected. The changes you make might not be saved. 
+            </Alert>
         </div>
         )
     }
