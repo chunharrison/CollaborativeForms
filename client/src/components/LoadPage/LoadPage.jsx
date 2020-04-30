@@ -40,14 +40,14 @@ function LoadPage(props) {
         }
 
         if (pageRendered) {
-            console.log(pageRendered)
-            // props.renderFabricCanvas(
-            //     props.numPages, 
-            //     props.width, 
-            //     props.height,
-            //     props.socket,
-            //     props.roomCode
-            // )
+            props.renderFabricCanvas(
+                props.dataURLFormat,
+                props.pageNum, 
+                props.width, 
+                props.height,
+                props.socket,
+                props.roomCode
+            )
         }
     });
 

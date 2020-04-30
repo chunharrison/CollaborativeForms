@@ -11,6 +11,7 @@ import { fabric } from 'fabric';
 import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
+import axios from 'axios';
 
 // PDF document (for dev)
 import PDF from '../docs/sample.pdf';
@@ -49,8 +50,8 @@ class CollabPageNew extends React.Component {
             
             // Server
             endpoint: 'http://localhost:5000',
-            socket: null,
-            // socket: true
+            // socket: null,
+            socket: true
         }
 
         // Render
@@ -70,6 +71,7 @@ class CollabPageNew extends React.Component {
 
         // Component Variables
         this.inViewElements = null; 
+        this.currentCanvas = null;
         this.fabricCanvases = [];
     }
     
@@ -87,16 +89,19 @@ class CollabPageNew extends React.Component {
         }) 
     }
 
-    renderFabricCanvas = (dataURLFormat, width, height, socket, roomCode) => {
+    renderFabricCanvas = (dataURLFormat, pageNum, width, height, socket, roomCode) => {
         let self = this
 
-        const pageCanvasWrapperElement = document.getElementsByClassName('react-pdf__Page 1')[0]
+        // get the canvas element created by react-pdf
+        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0]
         const pageCanvasElement = pageCanvasWrapperElement.firstElementChild
-        pageCanvasElement.id = '1'
+        pageCanvasElement.id = pageNum.toString()
         const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat) // maybe turn this into JSON
+        
         // create fabric canvas element with correct dimensions of the document
-        let fabricCanvas = new fabric.Canvas('1', {width: width, height: height})
-
+        let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height})
+        // console.log('pageNum', pageNum, fabricCanvas)
+        document.getElementById(pageNum.toString()).fabric = fabricCanvas
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
             // set correct dimensions of the image
@@ -106,6 +111,12 @@ class CollabPageNew extends React.Component {
             fabricCanvas.setBackgroundImage(img)
             fabricCanvas.requestRenderAll()
         })
+
+        // socket.emit('getCurrentPageSignatures', { roomCode, pageNum }, (currentPageSignatures) => {
+        //     for (let i = 0; i < currentPageSignatures.length; i++) {
+        //         currentPageSignatures
+        //     }
+        // })
 
         fabricCanvas.on('mouse:up', function(e) {
             if (e.e.target.previousElementSibling !== null) {
@@ -124,7 +135,7 @@ class CollabPageNew extends React.Component {
             const pageNum = e.target.canvas.lowerCanvasEl.id;
             const signatureID = e.target.id;
             const signatureObject = e.target
-            console.log(e.target)
+            // console.log(e.target)
             if (self.state.toSend) {
                 // self.sendEdit(pageNum, signatureID, 'add');
                 // socket.emit('editIn', {roomCode, signatureObject})
@@ -146,7 +157,7 @@ class CollabPageNew extends React.Component {
         fabricCanvas.on('object:moving', function (e) {
             var obj = e.target;
         
-                // if object is too big ignore
+            // if object is too big ignore
             if(obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width){
                 return;
             }        
@@ -178,7 +189,16 @@ class CollabPageNew extends React.Component {
             //     self.state.canvas[i].discardActiveObject().renderAll();
 
             // }
-            fabricCanvas.discardActiveObject().renderAll();
+            for (let i = 1; i <= self.state.numPages; i++) {
+                if (i === pageNum) {
+                    continue;
+                }
+                let canvasObject = document.getElementById(i.toString())
+                if (canvasObject) {
+                    let fabricCanvasObject = canvasObject.fabric
+                    fabricCanvasObject.discardActiveObject().renderAll();
+                }
+            }
         });
     }
 
@@ -209,7 +229,7 @@ class CollabPageNew extends React.Component {
                     height={height}
                     dataURLFormat={dataURLFormat}
                     roomCode={roomCode}
-                    // renderFabricCanvas={this.renderFabricCanvas}
+                    renderFabricCanvas={this.renderFabricCanvas}
                 />
             )
         }
@@ -239,7 +259,7 @@ class CollabPageNew extends React.Component {
     // parent function for the signature component
     // sets the image url to the current singaure being held by the cursor
     setSignatureURL(signatureURL, e){
-        console.log(e)
+        // console.log(e)
         if (signatureURL !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=') {
             this.setState({
                 signatureURL: signatureURL,
@@ -318,12 +338,38 @@ class CollabPageNew extends React.Component {
         //      the document file, existing signature object and the list of people in the room
         const creation = true;
         socket.on('join', () => {
+
+            // request PDF
+            const generateGetUrl = 'http://localhost:5000/generate-get-url';
+            const options = {
+                params: {
+                    Key: `${roomCode}.pdf`,
+                    ContentType: 'application/pdf'
+                },
+                headers: {
+                'Access-Control-Allow-Credentials' : true,
+                'Access-Control-Allow-Origin':'*',
+                'Access-Control-Allow-Methods':'GET',
+                'Access-Control-Allow-Headers':'application/pdf',
+                },
+            };
+            axios.get(generateGetUrl, options).then(res => {
+                const { data: getURL } = res;
+                this.setState({ getURL });
+                //get the data with the url that was given, then turn the data into a blob, which is the representation of a file without a name. this can be fed to a pdf render
+                fetch(getURL)
+                    .then(response => response.blob()).then((blob) => {
+                this.setState({PDFDocument:blob})
+                })
+            });
+
+
             socket.emit('join', { username, roomCode, creation })
         });
 
-        socket.on('sendPDFDocument', (PDFDocument) => {
-            this.setState({PDFDocument: PDFDocument})
-        })
+        // socket.on('sendPDFDocument', (PDFDocument) => {
+        //     this.setState({PDFDocument: PDFDocument})
+        // })
         
         // // get the document file, existing signature object and the list of people in the room
         // socket.on('initialSetup', (document, currentUsers) => {
@@ -353,6 +399,7 @@ class CollabPageNew extends React.Component {
         // THEN setup Socket.io object
         const username = '' + queryString.parse(this.props.location.search).username
         const roomCode = '' + queryString.parse(this.props.location.search).roomCode
+        console.log(username, roomCode)
         this.setState({username, roomCode}, () => { 
             this.setSocket(username, roomCode); // Socket.io
         })
@@ -363,18 +410,23 @@ class CollabPageNew extends React.Component {
 
         // after we extract the correct number of pages, width and height, 
         // generate inview elements for rest of the pages
-        if (0 !== this.state.numPages && 0 !== this.state.width && 0 !== this.state.height) {
+        if (0 !== this.state.numPages && 
+            0 !== this.state.width && 
+            0 !== this.state.height && 
+            this.inViewElements === null) {
+                console.log('here')
             this.inViewElements = this.createInViewElements();
         }
 
         // after the first page is fully rendered, convert it into a fabricJS canvas element
-        if (this.state.firstPageRendered) {
-            // this.renderFabricCanvas(
-            //     this.state.numPages, 
-            //     this.state.width, 
-            //     this.state.height,
-            //     this.state.socket,
-            //     this.state.roomCode)
+        if (prevState.firstPageRendered !== this.state.firstPageRendered && this.state.firstPageRendered) {
+            this.renderFabricCanvas(
+                this.state.dataURLFormat,
+                1,                          // pageNum
+                this.state.width, 
+                this.state.height,
+                this.state.socket,
+                this.state.roomCode)
         }
 
         if (prevState.holding === false && this.state.holding === true) {

@@ -287,7 +287,7 @@ class LandingPage extends React.Component {
                             onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
                             to={{
                                 pathname: `/collab`,
-                                search: `?username=${this.state.usernameCreate}&roomKey=${this.state.roomKey}`
+                                search: `?username=${this.state.usernameCreate}&roomCode=${this.state.roomKey}`
                             }}>
                             <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>
                         </Link>
@@ -302,7 +302,7 @@ class LandingPage extends React.Component {
                             onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
                         <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
                             to={{ pathname: `/collab`,
-                                search: `?username=${this.state.usernameJoin}&roomKey=${this.state.roomKey}`, }}>
+                                search: `?username=${this.state.usernameJoin}&roomCode=${this.state.roomKey}`, }}>
                             <Button variant="primary" className='create-room-button' type="submit">Enter Room</Button>
                         </Link>
                     </div>

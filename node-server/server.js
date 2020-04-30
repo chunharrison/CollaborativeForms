@@ -115,8 +115,7 @@ io.on('connection', (socket)=>{
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
-        const PDFDocument = generateGetUrl(`${roomCode}.pdf`)
-        socket.emit('sendPDFDocument', PDFDocument)
+
         // room creation
         if (creation) {
             roomCreation(roomCode, username, socket)
@@ -259,16 +258,16 @@ io.on('connection', (socket)=>{
             console.log(`${username} just left ${roomCode}`);
             
             // update the list of users in the database
-            db.collection("canvases").findOne({room: roomCode}, function(err, result) {
-                if (err) throw err;
+            // db.collection("canvases").findOne({room: roomCode}, function(err, result) {
+            //     if (err) throw err;
 
-                result.users.splice(result.users.indexOf(username), 1); // remove the first occurence of the username from database
-                db.collection("canvases").updateOne({ room: roomCode }, {$set: { users: result.users }});
+            //     result.users.splice(result.users.indexOf(username), 1); // remove the first occurence of the username from database
+            //     db.collection("canvases").updateOne({ room: roomCode }, {$set: { users: result.users }});
 
-                // broadcast to every other users in the room that this user joined
-                // with the newly updated list of users 
-                socket.to(roomCode).emit('userDisconnected', result.users, username);
-            })
+            //     // broadcast to every other users in the room that this user joined
+            //     // with the newly updated list of users 
+            //     socket.to(roomCode).emit('userDisconnected', result.users, username);
+            // })
             // result.users.push(username);
             // db.collection("canvases").updateOne({ room: roomCode }, {$set: { users: result.users }});
         })
