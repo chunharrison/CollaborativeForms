@@ -104,17 +104,18 @@ class CollabPageNew extends React.Component {
         document.getElementById(pageNum.toString()).fabric = fabricCanvas
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
-            // set correct dimensions of the image
-            img.scaleToWidth(self.state.width)
-            img.scaleToHeight(self.state.height)
+            // // set correct dimensions of the image
+            // img.scaleToWidth(self.state.width)
+            // img.scaleToHeight(self.state.height)
             // set the image as background and then render
             fabricCanvas.setBackgroundImage(img)
             fabricCanvas.requestRenderAll()
         })
 
+        // if you are joinging and existing room and there are signatures that were already placed
         // socket.emit('getCurrentPageSignatures', { roomCode, pageNum }, (currentPageSignatures) => {
         //     for (let i = 0; i < currentPageSignatures.length; i++) {
-        //         currentPageSignatures
+        //         document.getElementById(pageNum.toString()).fabric.add(currentPageSignatures)
         //     }
         // })
 
@@ -182,13 +183,6 @@ class CollabPageNew extends React.Component {
         });
 
         fabricCanvas.on('selection:created', function(e) {
-            // for (let i = 0; i < self.state.canvas.length; i++) {
-            //     if (typeof self.state.canvas[i] !== 'object' || i === parseInt(e.target.canvas.lowerCanvasEl.id)) {
-            //         continue;
-            //     }
-            //     self.state.canvas[i].discardActiveObject().renderAll();
-
-            // }
             for (let i = 1; i <= self.state.numPages; i++) {
                 if (i === pageNum) {
                     continue;
@@ -318,11 +312,8 @@ class CollabPageNew extends React.Component {
     ############################################# Backend ##############################################
     ################################################################################################# */
 
-    initialSetup(document, currentUsers) {
-        this.setState({
-            document,
-            currentUsers,
-        })
+    initialSetup(currentUsers) {
+        this.setState({ currentUsers })
     }
 
     // request signature objects for a specific page on the server
@@ -366,10 +357,6 @@ class CollabPageNew extends React.Component {
 
             socket.emit('join', { username, roomCode, creation })
         });
-
-        // socket.on('sendPDFDocument', (PDFDocument) => {
-        //     this.setState({PDFDocument: PDFDocument})
-        // })
         
         // // get the document file, existing signature object and the list of people in the room
         // socket.on('initialSetup', (document, currentUsers) => {
@@ -474,19 +461,17 @@ class CollabPageNew extends React.Component {
                         <div id='canvas-container'>
                             {/* just render the first page to get width and height data */}
                             <div className='page-and-number-container'>
-                                <div key={1}>
-                                    <Page 
-                                        scale={1.5}
-                                        pageNumber={1}
-                                        renderTextLayer={false}
-                                        renderAnnotationLayer={false}
-                                        onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
-                                        className={'1'}
-                                        onRenderSuccess={() => this.setState({
-                                            firstPageRendered: true
-                                        })}
-                                    />
-                                </div>
+                                <Page 
+                                    scale={1.5}
+                                    pageNumber={1}
+                                    renderTextLayer={false}
+                                    renderAnnotationLayer={false}
+                                    onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
+                                    className={'1'}
+                                    onRenderSuccess={() => this.setState({
+                                        firstPageRendered: true
+                                    })}
+                                />
                                 <p className='page-number'>1</p>
                             </div>
                             {/* rest of the pages are to be loaded if they are in view */}

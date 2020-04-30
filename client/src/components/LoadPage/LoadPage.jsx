@@ -57,19 +57,17 @@ function LoadPage(props) {
                     minHeight:(props.height !== 0 ? props.height : 842)
                 }}
                 ref={setRefs}>
-                <div key={props.pageNum}>
-                    {inView && oneSecondReached ? (
-                        <Page 
-                            scale={1.5}
-                            pageNumber={props.pageNum}
-                            renderTextLayer={false}
-                            renderAnnotationLayer={false}
-                            className={props.pageNum.toString()}
-                            onRenderSuccess={() => setPageRenderd(true)}
-                        />
-                        
-                    ) : null }
-                </div>
+                {inView && oneSecondReached ? (
+                    <Page 
+                        scale={1.5}
+                        pageNumber={props.pageNum}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                        className={props.pageNum.toString()}
+                        onRenderSuccess={() => setPageRenderd(true)}
+                    />
+                    
+                ) : null }
                 <p className='page-number'>{props.pageNum}</p>
             </div>)
 }
