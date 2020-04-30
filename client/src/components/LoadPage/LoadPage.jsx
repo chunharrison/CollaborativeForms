@@ -57,17 +57,19 @@ function LoadPage(props) {
                     minHeight:(props.height !== 0 ? props.height : 842)
                 }}
                 ref={setRefs}>
-                {inView && oneSecondReached ? (
-                    <Page 
-                        scale={1.5}
-                        pageNumber={props.pageNum}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                        className={props.pageNum.toString()}
-                        onRenderSuccess={() => setPageRenderd(true)}
-                    />
-                    
-                ) : null }
+                <div className='page-wrapper' style={{minHeight: "842px", width:'595px'}}>
+                    {inView && oneSecondReached ? (
+                        <Page 
+                            scale={1.5}
+                            pageNumber={props.pageNum}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            className={props.pageNum.toString()}
+                            onRenderSuccess={() => setPageRenderd(true)}
+                        />
+                        
+                    ) : null }
+                </div>
                 <p className='page-number'>{props.pageNum}</p>
             </div>)
 }
