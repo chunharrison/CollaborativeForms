@@ -113,11 +113,17 @@ class CollabPageNew extends React.Component {
         })
 
         // if you are joinging and existing room and there are signatures that were already placed
-        // socket.emit('getCurrentPageSignatures', { roomCode, pageNum }, (currentPageSignatures) => {
-        //     for (let i = 0; i < currentPageSignatures.length; i++) {
-        //         document.getElementById(pageNum.toString()).fabric.add(currentPageSignatures)
-        //     }
-        // })
+        socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
+            console.log("emitting getCurrentPageSignatures", currentPageSignaturesJSONList)
+            // Array of JSON -> Array of FabricJS Objects
+            fabric.util.enlivenObjects(currentPageSignaturesJSONList, function(signatureObjects) {
+                // loop through the array
+                signatureObjects.forEach(function(signatureObject) {
+                    // add the signature to the page
+                    document.getElementById(pageNum.toString()).fabric.add(signatureObject)
+                })
+            })
+        })
 
         fabricCanvas.on('mouse:up', function(e) {
             if (e.e.target.previousElementSibling !== null) {
@@ -133,26 +139,31 @@ class CollabPageNew extends React.Component {
         });
 
         fabricCanvas.on('object:added', function(e) {
-            const pageNum = e.target.canvas.lowerCanvasEl.id;
-            const signatureID = e.target.id;
-            const signatureObject = e.target
-            // console.log(e.target)
-            if (self.state.toSend) {
-                // self.sendEdit(pageNum, signatureID, 'add');
-                // socket.emit('editIn', {roomCode, signatureObject})
-                self.setState({
-                    toSend:false
-                });
-            }
+            const newSignatureObject = e.target
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id'])))
             
+            let pageData = {
+                pageNum: pageNum,
+                newSignatureObjectJSON: newSignatureObjectJSON
+            }
+
+            if (self.state.toSend) {
+                console.log("emitting add", pageData)
+                socket.emit('addIn', pageData)
+                self.setState({ toSend:false });
+            }
         });
 
         fabricCanvas.on('object:modified', function(e) {
-            const pageNum = e.target.canvas.lowerCanvasEl.id;
-            const signatureID = e.target.id;
-            const signatureObject = e.target
-            // self.sendEdit(pageNum, signatureID, 'modify');
-            // socket.emit('editIn', {roomCode, signatureObject})
+            const modifiedSignatureObject = e.target
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
+
+            let pageData = {
+                pageNum: pageNum,
+                modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
+            }
+
+            socket.emit('editIn', pageData)
         });
 
         fabricCanvas.on('object:moving', function (e) {
@@ -175,14 +186,23 @@ class CollabPageNew extends React.Component {
         }});
 
         fabricCanvas.on('object:removed', function(e) {
+            const removedSignatureObject = e.target
+            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id'])))
+
+            let pageData = {
+                pageNum: pageNum,
+                removedSignatureObjectJSON: removedSignatureObjectJSON
+            }
+
             if (self.state.toSend) {
-                // self.sendDelete(e.target.canvas.lowerCanvasEl.id, e.target.id, 'remove');
-                self.setState({toSend:false});
+                socket.emit("deleteIn", pageData)
+                self.setState({ toSend: false });
             }
             
         });
 
         fabricCanvas.on('selection:created', function(e) {
+            console.log("signature created")
             for (let i = 1; i <= self.state.numPages; i++) {
                 if (i === pageNum) {
                     continue;
@@ -316,10 +336,54 @@ class CollabPageNew extends React.Component {
         this.setState({ currentUsers })
     }
 
-    // request signature objects for a specific page on the server
-    // requestSignatureObjects()
+    receiveAdd(pageData) {
+        console.log('receiveAdd')
+        const { pageNum, newSignatureObjectJSON } = pageData
 
-    setSocket(username, roomCode) {
+        fabric.util.enlivenObjects([newSignatureObjectJSON], function(newSignatureObject) {
+            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+            fabricCanvasObject.add(newSignatureObject[0])
+        })
+    }
+
+    receiveEdit(pageData) {
+        console.log('receiveEdit')
+        const {pageNum, modifiedSignatureObjectJSON} = pageData
+
+        fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
+            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+
+            let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
+            fabricCanvasObject.renderOnAddRemove = false;
+
+            fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
+                if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
+                    fabricCanvasObject.remove(currentSignatureObject);
+                    fabricCanvasObject.add(modifiedSignatureObject[0]);
+                }
+            })
+
+            fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
+            fabricCanvasObject.renderAll();
+        })
+    }
+
+    receiveDelete(pageData) {
+        console.log('receiveDelete')
+        const {pageNum, removedSignatureObjectJSON} = pageData
+
+        fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObject) {
+            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+            fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
+                if (removedSignatureObject.id === currentSignatureObject.id) {
+                    fabricCanvasObject.remove(currentSignatureObject);
+                }
+            })
+            fabricCanvasObject.discardActiveObject().renderAll();
+        })
+    }
+
+    setSocket(username, roomCode, action) {
         // Socket.io
         const socket = io(this.state.endpoint); 
 
@@ -327,7 +391,6 @@ class CollabPageNew extends React.Component {
         // and the roomcode to update the correct database
         // the server then emits an initial setup with:
         //      the document file, existing signature object and the list of people in the room
-        const creation = true;
         socket.on('join', () => {
 
             // request PDF
@@ -354,17 +417,21 @@ class CollabPageNew extends React.Component {
                 })
             });
 
-
+            const creation = action === 'create' ? true : false;
+            console.log(creation)
             socket.emit('join', { username, roomCode, creation })
         });
         
-        // // get the document file, existing signature object and the list of people in the room
-        // socket.on('initialSetup', (document, currentUsers) => {
-        //     this.initialSetup(document, currentUsers)
-        // })
+        // get the document file, existing signature object and the list of people in the room
+        socket.on('initialSetup', (document, currentUsers) => {
+            this.initialSetup(document, currentUsers)
+        })
 
-        // // 
-        // socket.on("editOut", (pageData) => this.receiveEdit(pageData))
+        // 
+        socket.on("addOut", (pageData) => this.receiveAdd(pageData))
+        socket.on("editOut", (pageData) => this.receiveEdit(pageData))
+        socket.on("deleteOut", (pageData) => this.receiveDelete(pageData))
+        this.setState({socket:socket})
     }
 
     /* #################################################################################################
@@ -386,9 +453,9 @@ class CollabPageNew extends React.Component {
         // THEN setup Socket.io object
         const username = '' + queryString.parse(this.props.location.search).username
         const roomCode = '' + queryString.parse(this.props.location.search).roomCode
-        console.log(username, roomCode)
-        this.setState({username, roomCode}, () => { 
-            this.setSocket(username, roomCode); // Socket.io
+        const action = '' + queryString.parse(this.props.location.search).action
+        this.setState({username, roomCode, action}, () => { 
+            this.setSocket(username, roomCode, action); // Socket.io
         })
         // this.setState()
     }
@@ -413,7 +480,8 @@ class CollabPageNew extends React.Component {
                 this.state.width, 
                 this.state.height,
                 this.state.socket,
-                this.state.roomCode)
+                this.state.roomCode
+            )
         }
 
         if (prevState.holding === false && this.state.holding === true) {
@@ -460,19 +528,21 @@ class CollabPageNew extends React.Component {
                     </div> */}
                         <div id='canvas-container'>
                             {/* just render the first page to get width and height data */}
-                            <div className='page-and-number-container'>
-                                <Page 
-                                    scale={1.5}
-                                    pageNumber={1}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
-                                    className={'1'}
-                                    onRenderSuccess={() => this.setState({
-                                        firstPageRendered: true
-                                    })}
-                                />
-                                <p className='page-number'>1</p>
+                            <div key={1}>
+                                <div className='page-and-number-container'>
+                                    <Page 
+                                        scale={1.5}
+                                        pageNumber={1}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
+                                        className={'1'}
+                                        onRenderSuccess={() => this.setState({
+                                            firstPageRendered: true
+                                        })}
+                                    />
+                                    <p className='page-number'>1</p>
+                                </div>
                             </div>
                             {/* rest of the pages are to be loaded if they are in view */}
                             {this.inViewElements}
