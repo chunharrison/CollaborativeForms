@@ -51,7 +51,7 @@ function LoadPage(props) {
         }
     });
 
-    return (<div className='page-and-number-container'
+    return (<div className='page-and-number-container' id={`container-${props.pageNum}`}
                 style= {{
                     width:(props.width !== 0 ? props.width : 595),
                     minHeight:(props.height !== 0 ? props.height : 842)

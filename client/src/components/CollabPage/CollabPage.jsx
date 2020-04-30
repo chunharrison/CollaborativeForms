@@ -57,7 +57,8 @@ class CollabPageNew extends React.Component {
             // Server
             endpoint: 'http://localhost:5000',
             // socket: null,
-            socket: true
+            socket: true,
+            disconnected: false,
         }
 
         // Render
@@ -65,6 +66,8 @@ class CollabPageNew extends React.Component {
         this.renderFabricCanvas = this.renderFabricCanvas.bind(this);
         this.onPageLoadSuccess = this.onPageLoadSuccess.bind(this);
         
+        // Browser Functionality
+        this.scrollToPage = this.scrollToPage.bind(this);
 
         // Signature
         this.mouseMove = this.mouseMove.bind(this);
@@ -103,19 +106,20 @@ class CollabPageNew extends React.Component {
         const pageCanvasElement = pageCanvasWrapperElement.firstElementChild
         pageCanvasElement.id = pageNum.toString()
         const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat) // maybe turn this into JSON
-        
+        let browserElement = document.getElementById(`browser-${pageNum}`);
+        browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height})
         // console.log('pageNum', pageNum, fabricCanvas)
-        document.getElementById(pageNum.toString()).fabric = fabricCanvas
+        document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
             // // set correct dimensions of the image
             // img.scaleToWidth(self.state.width)
             // img.scaleToHeight(self.state.height)
             // set the image as background and then render
-            fabricCanvas.setBackgroundImage(img)
-            fabricCanvas.requestRenderAll()
+            fabricCanvas.setBackgroundImage(img);
+            fabricCanvas.requestRenderAll();            
         })
 
         // if you are joinging and existing room and there are signatures that were already placed
@@ -270,13 +274,13 @@ class CollabPageNew extends React.Component {
         var PDFpageWidth = jspdf.internal.pageSize.getWidth();
         var PDFpageHeight = jspdf.internal.pageSize.getHeight();
 
-        for (let i = 1; i <= numPages; i++) {
-            const canvas = downloadData.lowerCanvasDataURLs[i];
-            if (i > 1) {
-                jsPDF.addPage();
-            }
-            // jsPDF.addImage(canvas, 'PNG', 0, 0, PDFpageWidth, PDFpageHeight);
-        }
+        // for (let i = 1; i <= numPages; i++) {
+        //     const canvas = downloadData.lowerCanvasDataURLs[i];
+        //     if (i > 1) {
+        //         jsPDF.addPage();
+        //     }
+        //     // jsPDF.addImage(canvas, 'PNG', 0, 0, PDFpageWidth, PDFpageHeight);
+        // }
     }
 
     /* #################################################################################################
@@ -347,6 +351,11 @@ class CollabPageNew extends React.Component {
                 }              
             }
         }     
+    }
+
+    scrollToPage(e) {
+        let element = document.getElementById(`container-${e.target.id.split('-')[1]}`);
+        element.scrollIntoView();
     }
 
     /* #################################################################################################
@@ -455,6 +464,13 @@ class CollabPageNew extends React.Component {
             this.initialSetup(document, currentUsers)
         })
 
+        socket.on('disconnect', () => {
+            this.setState({disconnected: true});
+        })
+        socket.on('reconnect', () => {
+            this.setState({disconnected: false});
+        })
+
         // 
         socket.on("addOut", (pageData) => this.receiveAdd(pageData))
         socket.on("editOut", (pageData) => this.receiveEdit(pageData))
@@ -536,95 +552,106 @@ class CollabPageNew extends React.Component {
             roomCodeCopy = <CopyRoomCode roomCode={roomCode}></CopyRoomCode>
         }
 
-        return (
-        <div className='collab-page' onMouseMove={this.mouseMove}>
-
-            {/* HEADER */}
-            <div className='header'>
-                <a className='cosign-header-text' href="/">Cosign</a>
-                <div className='tools'>
-                    <Signature setURL={this.setSignatureURL}/>
-                </div>
-                {roomCodeCopy}
-            </div>
-            {/* /HEADER */}
-
-            {/* BODY */}
-            {/* don't render until we receive the document from the server */}
-            {PDFDocument !== null && socket !== null ?
-                <Document
-                    file={PDFDocument}
-                    onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
-                >
-                <div className='body-container'>
-                    {/* <div id='browser-canvas-container'>
-                        {pageBrowser}
-                    </div> */}
-                        <div id='canvas-container'>
-                            {/* just render the first page to get width and height data */}
-                            <div key={1}>
-                                <div className='page-and-number-container'>
-                                    <Page 
-                                        scale={1.5}
-                                        pageNumber={1}
-                                        renderTextLayer={false}
-                                        renderAnnotationLayer={false}
-                                        onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
-                                        className={'1'}
-                                        onRenderSuccess={() => this.setState({
-                                            firstPageRendered: true
-                                        })}
-                                    />
-                                    <p className='page-number'>1</p>
+        var pageBrowser = <p></p>
+        if (this.state.PDFDocument !== null) {
+            pageBrowser = [...Array(this.state.numPages).keys()].map((number, index) =>
+                                <div className='browser-page-and-number-container'>
+                                    <div id={`browser-${index + 1}`} style={{'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize':'cover'}} onClick={this.scrollToPage}>
+                                    </div>
+                                    <p className='browser-page-number'>{index + 1}</p>
                                 </div>
-                            </div>
-                            {/* rest of the pages are to be loaded if they are in view */}
-                            {this.inViewElements}
-                        </div>
-                </div>
-                </Document>
-            : null}
-            {/* /BODY */}
+                            )
+        }
 
-            {/* FOOTER */}
-            <div className='header'> 
-                {/* <div className='download-button-container'>
-                    <Dropdown drop='up'>
-                        <Dropdown.Toggle>
-                            Users: {this.state.currentUsers.length}
-                        </Dropdown.Toggle>
-
-                        <Dropdown.Menu>
-                            {this.state.currentUsers.map((user) => (
-                                <Dropdown.Item>{user}</Dropdown.Item>
-                            ))}
-                        </Dropdown.Menu>
-                    </Dropdown>
+        return (
+            <div className='collab-page' onMouseMove={this.mouseMove}>
+    
+                {/* HEADER */}
+                <div className='header'>
+                    <a className='cosign-header-text' href="/">Cosign</a>
+                    <div className='tools'>
+                        <Signature setURL={this.setSignatureURL}/>
+                    </div>
+                    {roomCodeCopy}
                 </div>
-                <div className='tools'>
-                    <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
-                        {this.state.newUser} has entered the room.
-                    </Alert>
-                    <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
-                        {this.state.disconnectedUser} has left the room.
-                    </Alert>
-                </div> */}
-                <div className='download-button-container'>
-                    <Button className='download-button' onClick={event => this.downloadProc(event)}>
-                        Download
-                    </Button>
+                {/* /HEADER */}
+    
+                {/* BODY */}
+                {/* don't render until we receive the document from the server */}
+                <div className='body-container'>
+                    <div id='browser-canvas-container'>
+                        {pageBrowser}
+                    </div> 
+                    {PDFDocument !== null && socket !== null ?
+                        <Document
+                            file={PDFDocument}
+                            onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
+                        >
+                                <div id='canvas-container'>
+                                    {/* just render the first page to get width and height data */}
+                                    <div key={1}>
+                                        <div className='page-and-number-container' id={`container-1`}>
+                                            <Page 
+                                                scale={1.5}
+                                                pageNumber={1}
+                                                renderTextLayer={false}
+                                                renderAnnotationLayer={false}
+                                                onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
+                                                className={'1'}
+                                                onRenderSuccess={() => this.setState({
+                                                    firstPageRendered: true
+                                                })}
+                                            />
+                                            <p className='page-number'>1</p>
+                                        </div>
+                                    </div>
+                                    {/* rest of the pages are to be loaded if they are in view */}
+                                    {this.inViewElements}
+                                </div>
+                        
+                        </Document>
+                    : null}
                 </div>
+                {/* /BODY */}
+    
+                {/* FOOTER */}
+                <div className='header'> 
+                    {/* <div className='download-button-container'>
+                        <Dropdown drop='up'>
+                            <Dropdown.Toggle>
+                                Users: {this.state.currentUsers.length}
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu>
+                                {this.state.currentUsers.map((user) => (
+                                    <Dropdown.Item>{user}</Dropdown.Item>
+                                ))}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </div>
+                    <div className='tools'>
+                        <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
+                            {this.state.newUser} has entered the room.
+                        </Alert>
+                        <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
+                            {this.state.disconnectedUser} has left the room.
+                        </Alert>
+                    </div> */}
+                    <div className='download-button-container'>
+                        <Button className='download-button' onClick={event => this.downloadProc(event)}>
+                            Download
+                        </Button>
+                    </div>
+                </div>
+                {/* /FOOTER */}
+    
+    
+                {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
+                <Alert variant='danger' show={this.state.disconnected}>
+                    You are currently disconnected. The changes you make might not be saved. 
+                </Alert>
             </div>
-            {/* /FOOTER */}
-
-
-            {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
-            <Alert variant='danger' show={this.state.disconnected}>
-                You are currently disconnected. The changes you make might not be saved. 
-            </Alert>
-        </div>
-        )
+            )
+        }
     }
-}
-
-export default CollabPageNew
+    
+    export default CollabPageNew

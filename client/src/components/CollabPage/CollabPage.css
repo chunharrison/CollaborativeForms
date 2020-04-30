@@ -98,6 +98,10 @@ body {
     z-index: 1;
 }
 
+.react-pdf__Document {
+    width: 100%;
+}
+
 .page-wrapper {
     flex-shrink: 0;
     display:flex;
