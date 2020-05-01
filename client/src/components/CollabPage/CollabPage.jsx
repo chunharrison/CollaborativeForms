@@ -401,16 +401,18 @@ class CollabPageNew extends React.Component {
     delObject(event) {
         if(event.keyCode === 46) {
             this.setState({holding: false});
-            for (let i = 0; i < this.state.canvas.length; i++) {
-                if (typeof this.state.canvas[i] === 'object') {
-                    var activeObject = this.state.canvas[i].getActiveObjects();
+            for (let pageNum = 0; pageNum < this.state.numPages; pageNum++) {
+                let currentPageCanvas = document.getElementById(pageNum.toString());
+                if (typeof currentPageCanvas === 'object' && currentPageCanvas !== null) {
+                    let currentPageFabricCanvas = currentPageCanvas.fabric;
+                    var activeObject = currentPageFabricCanvas.getActiveObjects()
                     if (activeObject.length > 0) {
                         this.setState({toSend: true}, () => {
-                            this.state.canvas[i].discardActiveObject();
-                            this.state.canvas[i].remove(...activeObject);
+                            currentPageFabricCanvas.discardActiveObject();
+                            currentPageFabricCanvas.remove(...activeObject);
                         });
-                    }  
-                }              
+                    } 
+                }
             }
         }     
     }
@@ -468,7 +470,10 @@ class CollabPageNew extends React.Component {
     receiveDelete(pageData) {
         const {pageNum, removedSignatureObjectJSON} = pageData
 
-        fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObject) {
+        fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObjects) {
+            // get the signature object
+            let removedSignatureObject = removedSignatureObjects[0]
+            // fabric canvas object of the pageNum
             let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
             fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
                 if (removedSignatureObject.id === currentSignatureObject.id) {
