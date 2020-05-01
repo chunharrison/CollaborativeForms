@@ -437,49 +437,52 @@ class CollabPageNew extends React.Component {
 
     receiveAdd(pageData) {
         const { pageNum, newSignatureObjectJSON } = pageData
-
-        fabric.util.enlivenObjects([newSignatureObjectJSON], function(newSignatureObject) {
-            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
-            fabricCanvasObject.add(newSignatureObject[0])
-        })
+        if (document.getElementById(pageNum.toString()) !== null) {
+            fabric.util.enlivenObjects([newSignatureObjectJSON], function(newSignatureObject) {
+                let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+                fabricCanvasObject.add(newSignatureObject[0])
+            })
+        }
     }
 
     receiveEdit(pageData) {
         const {pageNum, modifiedSignatureObjectJSON} = pageData
-
-        fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
-            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
-
-            let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
-            fabricCanvasObject.renderOnAddRemove = false;
-
-            fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
-                if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
-                    fabricCanvasObject.remove(currentSignatureObject);
-                    fabricCanvasObject.add(modifiedSignatureObject[0]);
-                }
+        if (document.getElementById(pageNum.toString()) !== null) {
+            fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
+                let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+    
+                let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
+                fabricCanvasObject.renderOnAddRemove = false;
+    
+                fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
+                    if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
+                        fabricCanvasObject.remove(currentSignatureObject);
+                        fabricCanvasObject.add(modifiedSignatureObject[0]);
+                    }
+                })
+    
+                fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
+                fabricCanvasObject.renderAll();
             })
-
-            fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
-            fabricCanvasObject.renderAll();
-        })
+        }
     }
 
     receiveDelete(pageData) {
         const {pageNum, removedSignatureObjectJSON} = pageData
-
-        fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObjects) {
-            // get the signature object
-            let removedSignatureObject = removedSignatureObjects[0]
-            // fabric canvas object of the pageNum
-            let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
-            fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
-                if (removedSignatureObject.id === currentSignatureObject.id) {
-                    fabricCanvasObject.remove(currentSignatureObject);
-                }
+        if (document.getElementById(pageNum.toString()) !== null) {
+            fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObjects) {
+                // get the signature object
+                let removedSignatureObject = removedSignatureObjects[0]
+                // fabric canvas object of the pageNum
+                let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
+                fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
+                    if (removedSignatureObject.id === currentSignatureObject.id) {
+                        fabricCanvasObject.remove(currentSignatureObject);
+                    }
+                })
+                fabricCanvasObject.discardActiveObject().renderAll();
             })
-            fabricCanvasObject.discardActiveObject().renderAll();
-        })
+        }
     }
 
     invalidRoomCodeProc() {
