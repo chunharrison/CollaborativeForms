@@ -241,6 +241,10 @@ io.on('connection', (socket)=>{
             })
         })
 
+        socket.on("reconnect", () => {
+            socket.emit("reconnect")
+        })
+
         socket.on("disconnect", () => {
             console.log(`${username} just left ${roomCode}`);
             

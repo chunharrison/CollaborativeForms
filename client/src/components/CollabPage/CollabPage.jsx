@@ -534,10 +534,10 @@ class CollabPageNew extends React.Component {
             this.setState({disconnected: true});
         })
         socket.on('reconnect', () => {
+            window.location.reload();
             this.setState({disconnected: false});
         })
         socket.on('updateCurrentUsers', (currentUsers) => {
-            console.log('updateCurrentUsers', currentUsers)
             this.setState({
                 currentUsers: currentUsers
             })  
