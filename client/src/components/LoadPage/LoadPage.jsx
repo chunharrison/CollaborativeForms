@@ -57,7 +57,10 @@ function LoadPage(props) {
                     minHeight:(props.height !== 0 ? props.height : 842)
                 }}
                 ref={setRefs}>
-                <div className='page-wrapper' style={{minHeight: "842px", width:'595px'}}>
+                <div className='page-wrapper' style={{
+                    width:(props.width !== 0 ? props.width : 595),
+                    minHeight:(props.height !== 0 ? props.height : 842)
+                }}>
                     {inView && oneSecondReached ? (
                         <Page 
                             scale={1.5}

@@ -90,11 +90,11 @@ class LandingPage extends React.Component {
           axios
             .put(putURL, selectedFile, options)
             .then(res => {
-              console.log('success');
+            //   console.log('success');
               this.setState({showPDFModal: false});
             })
             .catch(err => {
-              console.log('err', err);
+            //   console.log('err', err);
               this.setState({showPDFModal: false});
             });
         });

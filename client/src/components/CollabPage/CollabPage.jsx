@@ -18,6 +18,8 @@ import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
 import jsPDF from 'jspdf'; // for downloading the document
+import {degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import download from 'downloadjs'
 
 // PDF document (for dev)
 import PDF from '../docs/sample.pdf';
@@ -31,7 +33,7 @@ class CollabPageNew extends React.Component {
 
         this.state = {
 
-            PDFDocument: null,
+            givenPDFDocument: null,
             currentUsers: [],
 
             // Document info
@@ -66,6 +68,9 @@ class CollabPageNew extends React.Component {
         this.renderFabricCanvas = this.renderFabricCanvas.bind(this);
         this.onPageLoadSuccess = this.onPageLoadSuccess.bind(this);
         
+        // Download 
+        this.downloadProc = this.downloadProc.bind(this);
+        
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
 
@@ -92,7 +97,6 @@ class CollabPageNew extends React.Component {
     // procs when the document is successfully loaded by the Document component from react-pdf
     // retrieves the number of pdf pages and store it in state
     onDocumentLoadSuccess = (pdf) => {
-        console.log(pdf)
         this.setState({
             numPages: pdf.numPages
         }) 
@@ -110,7 +114,6 @@ class CollabPageNew extends React.Component {
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height})
-        // console.log('pageNum', pageNum, fabricCanvas)
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
@@ -124,7 +127,6 @@ class CollabPageNew extends React.Component {
 
         // if you are joinging and existing room and there are signatures that were already placed
         socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
-            console.log("emitting getCurrentPageSignatures", currentPageSignaturesJSONList)
             // Array of JSON -> Array of FabricJS Objects
             fabric.util.enlivenObjects(currentPageSignaturesJSONList, function(signatureObjects) {
                 // loop through the array
@@ -158,7 +160,6 @@ class CollabPageNew extends React.Component {
             }
 
             if (self.state.toSend) {
-                console.log("emitting add", pageData)
                 socket.emit('addIn', pageData)
                 self.setState({ toSend:false });
             }
@@ -212,7 +213,6 @@ class CollabPageNew extends React.Component {
         });
 
         fabricCanvas.on('selection:created', function(e) {
-            console.log("signature created")
             for (let i = 1; i <= self.state.numPages; i++) {
                 if (i === pageNum) {
                     continue;
@@ -261,26 +261,89 @@ class CollabPageNew extends React.Component {
         return InViewElementList;
     }
 
-    downloadProc(event) {
-        event.preventDefault();
+    // downloads the document with all the signatures
+    async downloadProc(event) {
+        event.preventDefault()
+        const { givenPDFDocument, numPages, socket, height } = this.state;
 
-        const {numPages, originalWidth, originalHeight } = this.state;
-        const jspdf = new jsPDF({
-            orientation: 'p',
-            unit: 'px', 
-            format: [originalWidth, originalHeight],
-            compress: true
-        });
-        var PDFpageWidth = jspdf.internal.pageSize.getWidth();
-        var PDFpageHeight = jspdf.internal.pageSize.getHeight();
+        // change dataURI to a Uint8Array
+        function dataURItoUint8Array(dataURI) {
+            // convert base64 to raw binary data held in a string
+            var byteString = atob(dataURI.split(',')[1]);
+        
+            // write the bytes of the string to an ArrayBuffer
+            var arrayBuffer = new ArrayBuffer(byteString.length);
 
-        // for (let i = 1; i <= numPages; i++) {
-        //     const canvas = downloadData.lowerCanvasDataURLs[i];
-        //     if (i > 1) {
-        //         jsPDF.addPage();
+            var UI8A = new Uint8Array(arrayBuffer);
+
+            for (var i = 0; i < byteString.length; i++) {
+                UI8A[i] = byteString.charCodeAt(i);
+            }
+
+            return UI8A
+        }
+
+        ////// ATERNATIVE TO THE FUNCTION ON THE TOP
+        // var BASE64_MARKER = ';base64,';
+
+        // function convertDataURIToBinary(dataURI) {
+        //     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+        //     var base64 = dataURI.substring(base64Index);
+        //     var raw = window.atob(base64);
+        //     var rawLength = raw.length;
+        //     var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+        //     for(let i = 0; i < rawLength; i++) {
+        //         array[i] = raw.charCodeAt(i);
         //     }
-        //     // jsPDF.addImage(canvas, 'PNG', 0, 0, PDFpageWidth, PDFpageHeight);
+        //     return array;
         // }
+        
+        // Blob -> ArrayBuffer
+        const PDFArrayBuffer = await givenPDFDocument.arrayBuffer();
+        // create 'pdf-lib' PDFDocument object
+        const pdfDoc = await PDFDocument.load(PDFArrayBuffer)
+        // get pages
+        let pages = pdfDoc.getPages()
+        // loop through all the pages
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            // request the list of signatures that are on that page from the server
+            socket.emit('getCurrentPageSignatures', pageNum, function(currentPageSignaturesJSONList) {
+                // Array of JSON -> Array of FabricJS Objects
+                fabric.util.enlivenObjects(currentPageSignaturesJSONList, function(signatureObjects) {
+                    // loop through the array and add all the signatures to the page
+                    signatureObjects.forEach(async function(signatureObject) {
+                        // get the dataURI of the signature image
+                        const signatureDataURI = signatureObject.src
+                        // dataURI -> Uint8Array
+                        // ALTERNATIVE: const signatureUint8Array = convertDataURIToBinary(signatureDataURI)
+                        const signatureUint8Array = dataURItoUint8Array(signatureDataURI)
+                        // embed the Uint8Array to the 'pdf-lib' PDFDocument object
+                        const pngImage = await pdfDoc.embedPng(signatureUint8Array)
+                        // draw the image to the current page
+                        // (0, 0) refers to the bottom left corner 
+                        const currPage = pages[pageNum-1]
+                        currPage.drawImage(pngImage, {
+                            x: (signatureObject.left / 1.5),
+                            y: (height - signatureObject.top - signatureObject.height) / 1.5,
+                            width: signatureObject.width / 1.5,
+                            height: (signatureObject.height / 1.5)
+                        })
+                    })
+                })
+            })
+        }
+        
+        // its kind of cringe but I had to give it a wait time aha
+        // before saving & downloading the pdf
+        // I think this is because the drawIamge function above takes time to render
+        // everything on the page but have no way to check when they do
+        setTimeout(async () => {
+            // save the 'pdf-lib' PDFDocument object
+            const pdfBytes = await pdfDoc.save()
+            const fileName = "signed_document.pdf";
+            download(pdfBytes, fileName, "application/pdf");
+        }, 2000)
     }
 
     /* #################################################################################################
@@ -305,7 +368,6 @@ class CollabPageNew extends React.Component {
     // parent function for the signature component
     // sets the image url to the current singaure being held by the cursor
     setSignatureURL(signatureURL, e){
-        // console.log(e)
         if (signatureURL !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQYV2NgAAIAAAUAAarVyFEAAAAASUVORK5CYII=') {
             this.setState({
                 signatureURL: signatureURL,
@@ -374,7 +436,6 @@ class CollabPageNew extends React.Component {
     }
 
     receiveAdd(pageData) {
-        console.log('receiveAdd')
         const { pageNum, newSignatureObjectJSON } = pageData
 
         fabric.util.enlivenObjects([newSignatureObjectJSON], function(newSignatureObject) {
@@ -384,7 +445,6 @@ class CollabPageNew extends React.Component {
     }
 
     receiveEdit(pageData) {
-        console.log('receiveEdit')
         const {pageNum, modifiedSignatureObjectJSON} = pageData
 
         fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
@@ -406,7 +466,6 @@ class CollabPageNew extends React.Component {
     }
 
     receiveDelete(pageData) {
-        console.log('receiveDelete')
         const {pageNum, removedSignatureObjectJSON} = pageData
 
         fabric.util.enlivenObjects([removedSignatureObjectJSON], function(removedSignatureObject) {
@@ -450,12 +509,11 @@ class CollabPageNew extends React.Component {
                 //get the data with the url that was given, then turn the data into a blob, which is the representation of a file without a name. this can be fed to a pdf render
                 fetch(getURL)
                     .then(response => response.blob()).then((blob) => {
-                this.setState({PDFDocument:blob})
+                this.setState({givenPDFDocument:blob})
                 })
             });
 
             const creation = action === 'create' ? true : false;
-            console.log(creation)
             socket.emit('join', { username, roomCode, creation })
         });
         
@@ -501,7 +559,7 @@ class CollabPageNew extends React.Component {
         this.setState({username, roomCode, action}, () => { 
             this.setSocket(username, roomCode, action); // Socket.io
         })
-        // this.setState()
+
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -512,7 +570,6 @@ class CollabPageNew extends React.Component {
             0 !== this.state.width && 
             0 !== this.state.height && 
             this.inViewElements === null) {
-                console.log('here')
             this.inViewElements = this.createInViewElements();
         }
 
@@ -545,7 +602,7 @@ class CollabPageNew extends React.Component {
 
     render() {
         // State Variables 
-        const { PDFDocument, roomCode, socket, signatureURL, holding, numPages } = this.state;
+        const { givenPDFDocument, roomCode, socket, signatureURL, holding, numPages } = this.state;
 
         let roomCodeCopy;
         if (this.state.roomKey !== null) {
@@ -582,9 +639,9 @@ class CollabPageNew extends React.Component {
                     <div id='browser-canvas-container'>
                         {pageBrowser}
                     </div> 
-                    {PDFDocument !== null && socket !== null ?
+                    {givenPDFDocument !== null && socket !== null ?
                         <Document
-                            file={PDFDocument}
+                            file={givenPDFDocument}
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
                         >
                                 <div id='canvas-container'>

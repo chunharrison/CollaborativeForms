@@ -7,7 +7,6 @@ import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
-import ListGroup from 'react-bootstrap/Button';
 
 // Packages
 import io from "socket.io-client";

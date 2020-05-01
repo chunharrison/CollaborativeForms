@@ -77,6 +77,14 @@ function get(object, key, default_value) {
     return (typeof result !== "undefined") ? result : default_value;
 }
 
+function getDownload(object, key, default_value) {
+    var result = object[key];
+    // return (typeof result !== "undefined") ? result : default_value;
+    return new Promise((resolve) => {
+        resolve((typeof result !== "undefined") ? result : default_value)
+    })
+}
+
 //define socket.io behavior when users connect
 io.on('connection', (socket)=>{
 
