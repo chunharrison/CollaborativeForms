@@ -34,7 +34,6 @@ class CollabPageNew extends React.Component {
         this.state = {
 
             givenPDFDocument: null,
-            currentUsers: [],
 
             // Document info
             numPages: 0, // number of pages the document have
@@ -61,6 +60,8 @@ class CollabPageNew extends React.Component {
             // socket: null,
             socket: true,
             disconnected: false,
+            invalidRoomCodeGiven: false,
+            currentUsers: []
         }
 
         // Render
@@ -82,6 +83,7 @@ class CollabPageNew extends React.Component {
 
         // Backend
         this.setSocket = this.setSocket.bind(this);
+        this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this)
 
         // Component Variables
         this.inViewElements = null; 
@@ -433,10 +435,6 @@ class CollabPageNew extends React.Component {
     ############################################# Backend ##############################################
     ################################################################################################# */
 
-    initialSetup(currentUsers) {
-        this.setState({ currentUsers })
-    }
-
     receiveAdd(pageData) {
         const { pageNum, newSignatureObjectJSON } = pageData
 
@@ -484,6 +482,12 @@ class CollabPageNew extends React.Component {
         })
     }
 
+    invalidRoomCodeProc() {
+        this.setState({
+            invalidRoomCodeGiven: true
+        })
+    }
+
     setSocket(username, roomCode, action) {
         // Socket.io
         const socket = io(this.state.endpoint); 
@@ -521,23 +525,38 @@ class CollabPageNew extends React.Component {
             const creation = action === 'create' ? true : false;
             socket.emit('join', { username, roomCode, creation })
         });
-        
-        // get the document file, existing signature object and the list of people in the room
-        socket.on('initialSetup', (document, currentUsers) => {
-            this.initialSetup(document, currentUsers)
-        })
 
+        // Connection
         socket.on('disconnect', () => {
             this.setState({disconnected: true});
         })
         socket.on('reconnect', () => {
             this.setState({disconnected: false});
         })
+        socket.on('updateCurrentUsers', (currentUsers) => {
+            console.log('updateCurrentUsers', currentUsers)
+            this.setState({
+                currentUsers: currentUsers
+            })  
+        })
+        socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
+        // we will need for alerts in the futre
+        // socket.on('userJoined', (currentUsers, username) => {
+        //     this.setState({currentUsers: currentUsers})
+        //     console.log(currentUsers)
+        // })
+        // socket.on('userDisconnected', (currentUsers, username) => {
+        //     this.setState({currentUsers: currentUsers})
+        //     console.log(currentUsers)
+        // })
 
-        // 
+
+        // Signatures
         socket.on("addOut", (pageData) => this.receiveAdd(pageData))
         socket.on("editOut", (pageData) => this.receiveEdit(pageData))
         socket.on("deleteOut", (pageData) => this.receiveDelete(pageData))
+
+        // set socket.io to state
         this.setState({socket:socket})
     }
 
@@ -564,7 +583,6 @@ class CollabPageNew extends React.Component {
         this.setState({username, roomCode, action}, () => { 
             this.setSocket(username, roomCode, action); // Socket.io
         })
-
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -595,6 +613,7 @@ class CollabPageNew extends React.Component {
             image.style.top = this.state.pageY + 'px';
             image.style.left = this.state.pageX + 'px';
         }
+
     }
 
     componentWillUnmount() {
@@ -607,7 +626,11 @@ class CollabPageNew extends React.Component {
 
     render() {
         // State Variables 
-        const { givenPDFDocument, roomCode, socket, signatureURL, holding, numPages } = this.state;
+        const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven } = this.state;
+
+        if (invalidRoomCodeGiven) {
+            return <Redirect to={{pathname: '/invalid-room-code'}}></Redirect>
+        }
 
         let roomCodeCopy;
         if (this.state.roomKey !== null) {
@@ -678,7 +701,7 @@ class CollabPageNew extends React.Component {
     
                 {/* FOOTER */}
                 <div className='header'> 
-                    {/* <div className='download-button-container'>
+                    <div className='download-button-container'>
                         <Dropdown drop='up'>
                             <Dropdown.Toggle>
                                 Users: {this.state.currentUsers.length}
@@ -691,13 +714,13 @@ class CollabPageNew extends React.Component {
                         </Dropdown>
                     </div>
                     <div className='tools'>
-                        <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
+                        {/* <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
                             {this.state.newUser} has entered the room.
                         </Alert>
                         <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
                             {this.state.disconnectedUser} has left the room.
-                        </Alert>
-                    </div> */}
+                        </Alert> */}
+                    </div>
                     <div className='download-button-container'>
                         <Button className='download-button' onClick={event => this.downloadProc(event)}>
                             Download

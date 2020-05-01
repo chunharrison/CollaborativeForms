@@ -77,14 +77,6 @@ function get(object, key, default_value) {
     return (typeof result !== "undefined") ? result : default_value;
 }
 
-function getDownload(object, key, default_value) {
-    var result = object[key];
-    // return (typeof result !== "undefined") ? result : default_value;
-    return new Promise((resolve) => {
-        resolve((typeof result !== "undefined") ? result : default_value)
-    })
-}
-
 //define socket.io behavior when users connect
 io.on('connection', (socket)=>{
 
@@ -94,7 +86,6 @@ io.on('connection', (socket)=>{
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
-
         db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
             if (err) throw err; 
 
@@ -105,17 +96,20 @@ io.on('connection', (socket)=>{
                 console.log(`fetching data from room: ${roomCode}`)
 
                 // update the list of users in the database
-                // result.users.push(username);
-                // db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
+                result.users.push(username);
+                db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
                 // broadcast to every other users in the room that this user joined
                 // with the newly updated list of users 
                 // socket.to(roomCode).emit('userJoined', result.users, username);
+                socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                socket.emit('updateCurrentUsers', result.users);
             } 
             // room create
             else if (result === null && creation) {
                 // initial room
                 initialData(roomCode, username, socket)
+                socket.emit('updateCurrentUsers', [username]);
             }
             
             // could not find the database under the given roomCode
@@ -124,7 +118,7 @@ io.on('connection', (socket)=>{
                 socket.emit('invalidRoomCode')
             }
         });
-        
+
         // //force send clients canvas that are missing it
         // socket.on('missingCanvas', (data) => {
         //     socket.emit('canvasSetup', canvasData);
@@ -251,18 +245,19 @@ io.on('connection', (socket)=>{
             console.log(`${username} just left ${roomCode}`);
             
             // update the list of users in the database
-            // db.collection("canvases").findOne({room: roomCode}, function(err, result) {
-            //     if (err) throw err;
+            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+                if (err) throw err;
+                if (result) {
+                    // remove the first occurence of the username from database
+                    result.users.splice(result.users.indexOf(username), 1);
+                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
-            //     result.users.splice(result.users.indexOf(username), 1); // remove the first occurence of the username from database
-            //     db.collection("canvases").updateOne({ room: roomCode }, {$set: { users: result.users }});
-
-            //     // broadcast to every other users in the room that this user joined
-            //     // with the newly updated list of users 
-            //     socket.to(roomCode).emit('userDisconnected', result.users, username);
-            // })
-            // result.users.push(username);
-            // db.collection("canvases").updateOne({ room: roomCode }, {$set: { users: result.users }});
+                    // broadcast to every other users in the room that this user joined
+                    // with the newly updated list of users 
+                    // socket.to(roomCode).emit('userDisconnected', result.users, username);
+                    socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                }
+            })
         })
 
         console.log("------------------------------")
