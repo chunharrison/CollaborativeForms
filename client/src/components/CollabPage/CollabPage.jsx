@@ -56,7 +56,7 @@ class CollabPageNew extends React.Component {
             currentZoom: 1,
             
             // Server
-            endpoint: 'http://localhost:5000',
+            endpoint: 'https://cosign.pro',
             // socket: null,
             socket: true,
             disconnected: false,
@@ -502,7 +502,7 @@ class CollabPageNew extends React.Component {
         socket.on('join', () => {
 
             // request PDF
-            const generateGetUrl = 'http://localhost:5000/generate-get-url';
+            const generateGetUrl = 'https://cosign.pro/api/generate-get-url';
             const options = {
                 params: {
                     Key: `${roomCode}.pdf`,
