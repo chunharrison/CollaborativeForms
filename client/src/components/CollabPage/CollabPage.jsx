@@ -457,9 +457,9 @@ class CollabPageNew extends React.Component {
                 fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
                     if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
                         fabricCanvasObject.remove(currentSignatureObject);
-                        fabricCanvasObject.add(modifiedSignatureObject[0]);
                     }
                 })
+                fabricCanvasObject.add(modifiedSignatureObject[0]);
     
                 fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
                 fabricCanvasObject.renderAll();
