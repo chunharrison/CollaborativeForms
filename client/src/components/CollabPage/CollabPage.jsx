@@ -115,7 +115,7 @@ class CollabPageNew extends React.Component {
         let browserElement = document.getElementById(`browser-${pageNum}`);
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
-        let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height})
+        let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height, selection: false})
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
