@@ -70,7 +70,7 @@ class LandingPage extends React.Component {
     uploadFile() {
         const { selectedFile } = this.state;
         const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
-        const generatePutUrl = 'http://localhost:5000/generate-put-url';
+        const generatePutUrl = 'http://localhost:5000/api/generate-put-url';
         const options = {
           params: {
             Key: `${this.state.roomKey}.pdf`,

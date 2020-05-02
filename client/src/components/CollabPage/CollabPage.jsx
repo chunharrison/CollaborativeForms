@@ -456,13 +456,21 @@ class CollabPageNew extends React.Component {
     
                 fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
                     if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
-                        fabricCanvasObject.remove(currentSignatureObject);
+                        currentSignatureObject.set({'top': modifiedSignatureObject[0].top,
+                        'left': modifiedSignatureObject[0].left,
+                        'width': modifiedSignatureObject[0].width,
+                        'height': modifiedSignatureObject[0].height,
+                        'angle': modifiedSignatureObject[0].angle,
+                        'scaleX': modifiedSignatureObject[0].scaleX,
+                        'scaleY': modifiedSignatureObject[0].scaleY,
+                        'skewX': modifiedSignatureObject[0].skewX,
+                        'skewY': modifiedSignatureObject[0].skewY,
+                        });
+                        
+                        currentSignatureObject.setCoords();
+                        fabricCanvasObject.renderAll();
                     }
                 })
-                fabricCanvasObject.add(modifiedSignatureObject[0]);
-    
-                fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
-                fabricCanvasObject.renderAll();
             })
         }
     }
@@ -502,7 +510,7 @@ class CollabPageNew extends React.Component {
         socket.on('join', () => {
 
             // request PDF
-            const generateGetUrl = 'http://localhost:5000/generate-get-url';
+            const generateGetUrl = 'http://localhost:5000/api/generate-get-url';
             const options = {
                 params: {
                     Key: `${roomCode}.pdf`,
