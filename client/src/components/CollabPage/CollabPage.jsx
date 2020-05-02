@@ -451,18 +451,23 @@ class CollabPageNew extends React.Component {
             fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
                 let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
     
-                let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
-                fabricCanvasObject.renderOnAddRemove = false;
-    
                 fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
                     if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
-                        fabricCanvasObject.remove(currentSignatureObject);
+                        currentSignatureObject.set({'top': modifiedSignatureObject[0].top,
+                        'left': modifiedSignatureObject[0].left,
+                        'width': modifiedSignatureObject[0].width,
+                        'height': modifiedSignatureObject[0].height,
+                        'angle': modifiedSignatureObject[0].angle,
+                        'scaleX': modifiedSignatureObject[0].scaleX,
+                        'scaleY': modifiedSignatureObject[0].scaleY,
+                        'skewX': modifiedSignatureObject[0].skewX,
+                        'skewY': modifiedSignatureObject[0].skewY,
+                        });
+                        
+                        currentSignatureObject.setCoords();
+                        fabricCanvasObject.renderAll();
                     }
                 })
-                fabricCanvasObject.add(modifiedSignatureObject[0]);
-    
-                fabricCanvasObject.renderOnAddRemove = origRenderOnAddRemove;
-                fabricCanvasObject.renderAll();
             })
         }
     }
