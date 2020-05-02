@@ -9,15 +9,7 @@ AWS.config = new AWS.Config({
 });
 
 // Creating a S3 instance
-const s3 = new AWS.S3({
-    region: process.env.S3_BUCKET_REGION,
-    endpoint: "us-east-1.linodeobjects.com",
-    apiVersion: "2006-03-01",
-    credentials: new AWS.Credentials({
-      accessKeyId: process.env.S3_BUCKET_ACCESS_KEY,
-      secretAccessKey: process.env.S3_BUCKET_SECRET_ACCESS_KEY
-    })
-});
+const s3 = new AWS.S3();
 // Retrieving the bucket name from env variable
 const Bucket = process.env.S3_BUCKET_NAME;
 
@@ -26,12 +18,12 @@ const Bucket = process.env.S3_BUCKET_NAME;
 
 // GET URL Generator
 function generateGetUrl(Key) {
+  const params = {
+    Bucket: Bucket,
+    Key: Key,
+    Expires: 60*60, // expiry time
+  };
   return new Promise((resolve, reject) => {
-    const params = {
-      Bucket,
-      Key,
-      Expires: 120 // 2 minutes
-    };
     // Note operation in this case is getObject
     s3.getSignedUrl('getObject', params, (err, url) => {
       if (err) {
@@ -46,10 +38,14 @@ function generateGetUrl(Key) {
 
 // PUT URL Generator
 function generatePutUrl(Key, ContentType) {
-    console.log(Key);
+  const params = {
+    Bucket: Bucket,
+    Key: Key,
+    Expires: 60*60, // expiry time
+    ACL: "bucket-owner-full-control",
+    ContentType: "application/pdf" // this can be changed as per the file type
+  };
   return new Promise((resolve, reject) => {
-    // Note Bucket is retrieved from the env variable above.
-    const params = { Bucket, Key, ContentType };
     // Note operation in this case is putObject
     s3.getSignedUrl('putObject', params, function(err, url) {
       if (err) {

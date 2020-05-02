@@ -69,9 +69,7 @@ class LandingPage extends React.Component {
 
     uploadFile() {
         const { selectedFile } = this.state;
-        this.setState({message:'Uploading...'})
         const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
-    
         const generatePutUrl = 'http://localhost:5000/generate-put-url';
         const options = {
           params: {
@@ -79,7 +77,7 @@ class LandingPage extends React.Component {
             ContentType: contentType
           },
           headers: {
-            'Content-Type': contentType
+            'Content-Type': contentType,
           }
         };
         axios.get(generatePutUrl, options).then(res => {
@@ -88,7 +86,7 @@ class LandingPage extends React.Component {
           } = res;
           //upload file via url that was sent back from the server
           axios
-            .put(putURL, selectedFile, options)
+            .put(putURL, selectedFile)
             .then(res => {
             //   console.log('success');
               this.setState({showPDFModal: false});
