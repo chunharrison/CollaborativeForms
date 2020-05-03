@@ -59,13 +59,13 @@ function LoadPage(props) {
                 className='page-and-number-container' id={`container-${props.pageNum}`}
                 style= {{
                     width:(props.width !== 0 ? props.width : 595),
-                    minHeight:(props.height !== 0 ? props.height : 842)
+                    height:(props.height !== 0 ? props.height : 842)
                 }}>
                 <div 
                     className='page-wrapper' 
                     style={{
                         width:(props.width !== 0 ? props.width : 595),
-                        minHeight:(props.height !== 0 ? props.height : 842)
+                        height:(props.height !== 0 ? props.height : 842)
                     }}
                     ref={setRefs}>
                     {(oneSecondReached) ? (
