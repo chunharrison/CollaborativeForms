@@ -116,7 +116,7 @@ class LandingPage extends React.Component {
             this.setState ({
                 selectedFile: event.target.files[0],
                 selectedFileName: event.target.files[0].name,
-                pdfViewer: <PDFViewer selectedFile={event.target.files[0]}></PDFViewer>,
+                pdfViewer: <PDFViewer renderFive={true} selectedFile={event.target.files[0]}></PDFViewer>,
                 showPDFModal: true
             }, () => {
                 this.handleShowPDFModal();
