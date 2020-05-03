@@ -55,7 +55,7 @@ class CollabPageNew extends React.Component {
             currentZoom: 1,
             
             // Server
-            endpoint: 'http://localhost:5000',
+            endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
             // socket: null,
             socket: true,
             disconnected: false,
@@ -509,7 +509,7 @@ class CollabPageNew extends React.Component {
         socket.on('join', () => {
 
             // request PDF
-            const generateGetUrl = 'http://localhost:5000/api/generate-get-url';
+            const generateGetUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-get-url`;
             const options = {
                 params: {
                     Key: `${roomCode}.pdf`,

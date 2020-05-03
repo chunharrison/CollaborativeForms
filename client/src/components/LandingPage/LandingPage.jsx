@@ -43,8 +43,6 @@ class LandingPage extends React.Component {
             joinRoomAlertTimeout: null,
 
             invalidPDFAlertVisible: false,
-
-            endpoint: '127.0.0.1:5000'
         }
 
         this.fileInputRef = React.createRef();
@@ -71,7 +69,7 @@ class LandingPage extends React.Component {
     uploadFile() {
         const { selectedFile } = this.state;
         const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
-        const generatePutUrl = 'http://localhost:5000/api/generate-put-url';
+        const generatePutUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-put-url`;
         let options = {
             params: {
                 Key: `${this.state.roomKey}.pdf`,
