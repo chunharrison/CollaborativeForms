@@ -18,13 +18,20 @@ class PDFViewer extends Component {
     this.setState({ numPages });
   }
   
-  renderPages = () => {
+  renderPages = (renderFive) => {
     let pagesList = []
+    let pagesToRender;
 
-    for (let i = 1; i <= this.state.numPages; i++) {
+    if (renderFive !== null && this.state.numPages > 5) {
+      pagesToRender = 5;
+    } else {
+      pagesToRender = this.state.numPages;
+    }
+
+    for (let i = 1; i <= pagesToRender; i++) {
       pagesList.push( <div key={i}>
                         <Page 
-                          scale={1.5}
+                          scale={1}
                           pageNumber={i}
                           renderTextLayer={false}
                           renderAnnotationLayer={false}
@@ -47,7 +54,7 @@ class PDFViewer extends Component {
           inputRef={ (ref) => { this.wrapperRef = ref; } }
           loading={<Spinner animation="border" variant="primary"/>}
         >
-          { this.renderPages() }
+          { this.renderPages(this.props.renderFive) }
         </Document>
     } else {
       output = <h3 className="too-large-pdf">You can't upload a PDF document that has more than 50 pages.</h3>

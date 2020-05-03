@@ -17,8 +17,7 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
-import jsPDF from 'jspdf'; // for downloading the document
-import {degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs'
 
 // PDF document (for dev)
@@ -56,7 +55,11 @@ class CollabPageNew extends React.Component {
             currentZoom: 1,
             
             // Server
+<<<<<<< HEAD
             endpoint: 'https://cosign.pro',
+=======
+            endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
+>>>>>>> master
             // socket: null,
             socket: true,
             disconnected: false,
@@ -109,19 +112,23 @@ class CollabPageNew extends React.Component {
 
         // get the canvas element created by react-pdf
         const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0]
-        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild
+        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
         pageCanvasElement.id = pageNum.toString()
         const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat) // maybe turn this into JSON
         let browserElement = document.getElementById(`browser-${pageNum}`);
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
+<<<<<<< HEAD
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height, selection: false})
+=======
+        let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: Math.floor(width), height: Math.floor(height), selection: false})
+>>>>>>> master
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
             // // set correct dimensions of the image
-            // img.scaleToWidth(self.state.width)
-            // img.scaleToHeight(self.state.height)
+            img.scaleToWidth(Math.floor(self.state.width));
+            img.scaleToHeight(Math.floor(self.state.height));
             // set the image as background and then render
             fabricCanvas.setBackgroundImage(img);
             fabricCanvas.requestRenderAll();            
@@ -507,7 +514,7 @@ class CollabPageNew extends React.Component {
         socket.on('join', () => {
 
             // request PDF
-            const generateGetUrl = 'https://cosign.pro/api/generate-get-url';
+            const generateGetUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-get-url`;
             const options = {
                 params: {
                     Key: `${roomCode}.pdf`,
@@ -581,7 +588,6 @@ class CollabPageNew extends React.Component {
 
     componentDidMount() {
         document.addEventListener("keydown", this.delObject, false);
-
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
         // THEN setup Socket.io object
@@ -656,6 +662,28 @@ class CollabPageNew extends React.Component {
                             )
         }
 
+        let downloadLoader = (givenPDFDocument === null ? <div style={{height: '500px'}}>
+                <div class="loader-wrapper">
+                    <span class="circle circle-1"></span>
+                    <span class="circle circle-2"></span>
+                    <span class="circle circle-3"></span>
+                    <span class="circle circle-4"></span>
+                    <span class="circle circle-5"></span>
+                    <span class="circle circle-6"></span>
+                </div>
+            </div> : null)
+
+        let documentLoader = <div style={{height: '500px'}}>
+                <div class="loader-wrapper">
+                    <span class="circle circle-1"></span>
+                    <span class="circle circle-2"></span>
+                    <span class="circle circle-3"></span>
+                    <span class="circle circle-4"></span>
+                    <span class="circle circle-5"></span>
+                    <span class="circle circle-6"></span>
+                </div>
+            </div>
+
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
     
@@ -675,10 +703,13 @@ class CollabPageNew extends React.Component {
                     <div id='browser-canvas-container'>
                         {pageBrowser}
                     </div> 
+                    {/* loader waiting for download */}
+                    {givenPDFDocument === null ? downloadLoader : null}
                     {givenPDFDocument !== null && socket !== null ?
                         <Document
                             file={givenPDFDocument}
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
+                            loading={documentLoader}
                         >
                                 <div id='canvas-container'>
                                     {/* just render the first page to get width and height data */}

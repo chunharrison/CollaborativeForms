@@ -26,6 +26,7 @@ class LandingPage extends React.Component {
             selectedFileName: 'PDF File',
             pdfViewer: null,
             showPDFModal: false,
+            showProgressBar: false,
 
             usernameCreate: null,
             usernameJoin: null,
@@ -68,30 +69,33 @@ class LandingPage extends React.Component {
     uploadFile() {
         const { selectedFile } = this.state;
         const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
-        const generatePutUrl = 'https://cosign.pro/api/generate-put-url';
-        const options = {
-          params: {
-            Key: `${this.state.roomKey}.pdf`,
-            ContentType: contentType
-          },
-          headers: {
-            'Content-Type': contentType,
-          }
+        const generatePutUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-put-url`;
+        let options = {
+            params: {
+                Key: `${this.state.roomKey}.pdf`,
+                ContentType: contentType
+            },
+            headers: {
+                'Content-Type': contentType,
+            },
         };
         axios.get(generatePutUrl, options).then(res => {
           const {
             data: { putURL }
           } = res;
+          this.setState({showProgressBar: true});
           //upload file via url that was sent back from the server
           axios
             .put(putURL, selectedFile)
             .then(res => {
             //   console.log('success');
-              this.setState({showPDFModal: false});
+              this.setState({showPDFModal: false,
+                            showProgressBar:false});
             })
             .catch(err => {
             //   console.log('err', err);
-              this.setState({showPDFModal: false});
+              this.setState({showPDFModal: false,
+                            showProgressBar:false});
             });
         });
     };
@@ -110,7 +114,7 @@ class LandingPage extends React.Component {
             this.setState ({
                 selectedFile: event.target.files[0],
                 selectedFileName: event.target.files[0].name,
-                pdfViewer: <PDFViewer selectedFile={event.target.files[0]}></PDFViewer>,
+                pdfViewer: <PDFViewer renderFive={true} selectedFile={event.target.files[0]}></PDFViewer>,
                 showPDFModal: true
             }, () => {
                 this.handleShowPDFModal();
@@ -314,7 +318,20 @@ class LandingPage extends React.Component {
                         <Modal.Title>{this.state.selectedFileName} (preview)</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className='modal-body'>
-                        {this.state.pdfViewer}
+                        {this.state.showProgressBar ? null : this.state.pdfViewer}
+                        {this.state.showProgressBar ? 
+                        <div style={{height: '500px'}}>
+                            <div className="wrapper">
+                                <span className="circle circle-1"></span>
+                                <span className="circle circle-2"></span>
+                                <span className="circle circle-3"></span>
+                                <span className="circle circle-4"></span>
+                                <span className="circle circle-5"></span>
+                                <span className="circle circle-6"></span>
+                            </div>
+                        </div>
+                        :
+                        null}
                     </Modal.Body>
                     <Modal.Footer>
                     <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
