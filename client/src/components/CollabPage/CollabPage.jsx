@@ -582,6 +582,7 @@ class CollabPageNew extends React.Component {
     ################################################################################################# */
 
     componentDidMount() {
+        document.addEventListener("keydown", this.delObject, false);
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
         // THEN setup Socket.io object
