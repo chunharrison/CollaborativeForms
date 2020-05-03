@@ -323,13 +323,13 @@ class LandingPage extends React.Component {
                         {this.state.showProgressBar ? null : this.state.pdfViewer}
                         {this.state.showProgressBar ? 
                         <div style={{height: '500px'}}>
-                            <div class="wrapper">
-                                <span class="circle circle-1"></span>
-                                <span class="circle circle-2"></span>
-                                <span class="circle circle-3"></span>
-                                <span class="circle circle-4"></span>
-                                <span class="circle circle-5"></span>
-                                <span class="circle circle-6"></span>
+                            <div className="wrapper">
+                                <span className="circle circle-1"></span>
+                                <span className="circle circle-2"></span>
+                                <span className="circle circle-3"></span>
+                                <span className="circle circle-4"></span>
+                                <span className="circle circle-5"></span>
+                                <span className="circle circle-6"></span>
                             </div>
                         </div>
                         :
