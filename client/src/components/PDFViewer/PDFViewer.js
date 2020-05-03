@@ -22,12 +22,12 @@ class PDFViewer extends Component {
     let pagesList = []
     let pagesToRender;
 
-    if (renderFive !== null) {
+    if (renderFive !== null && this.state.numPages > 5) {
       pagesToRender = 5;
     } else {
       pagesToRender = this.state.numPages;
     }
-    
+
     for (let i = 1; i <= pagesToRender; i++) {
       pagesList.push( <div key={i}>
                         <Page 
