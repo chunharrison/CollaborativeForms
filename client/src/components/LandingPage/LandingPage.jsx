@@ -88,7 +88,7 @@ class LandingPage extends React.Component {
           this.setState({showProgressBar: true});
           //upload file via url that was sent back from the server
           axios
-            .put(putURL, selectedFile, options)
+            .put(putURL, selectedFile)
             .then(res => {
             //   console.log('success');
               this.setState({showPDFModal: false,
