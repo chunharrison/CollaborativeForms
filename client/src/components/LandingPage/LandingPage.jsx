@@ -26,6 +26,7 @@ class LandingPage extends React.Component {
             selectedFileName: 'PDF File',
             pdfViewer: null,
             showPDFModal: false,
+            showProgressBar: false,
 
             usernameCreate: null,
             usernameJoin: null,
@@ -71,29 +72,32 @@ class LandingPage extends React.Component {
         const { selectedFile } = this.state;
         const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
         const generatePutUrl = 'http://localhost:5000/api/generate-put-url';
-        const options = {
-          params: {
-            Key: `${this.state.roomKey}.pdf`,
-            ContentType: contentType
-          },
-          headers: {
-            'Content-Type': contentType,
-          }
+        let options = {
+            params: {
+                Key: `${this.state.roomKey}.pdf`,
+                ContentType: contentType
+            },
+            headers: {
+                'Content-Type': contentType,
+            },
         };
         axios.get(generatePutUrl, options).then(res => {
           const {
             data: { putURL }
           } = res;
+          this.setState({showProgressBar: true});
           //upload file via url that was sent back from the server
           axios
-            .put(putURL, selectedFile)
+            .put(putURL, selectedFile, options)
             .then(res => {
             //   console.log('success');
-              this.setState({showPDFModal: false});
+              this.setState({showPDFModal: false,
+                            showProgressBar:false});
             })
             .catch(err => {
             //   console.log('err', err);
-              this.setState({showPDFModal: false});
+              this.setState({showPDFModal: false,
+                            showProgressBar:false});
             });
         });
     };
@@ -316,7 +320,20 @@ class LandingPage extends React.Component {
                         <Modal.Title>{this.state.selectedFileName} (preview)</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className='modal-body'>
-                        {this.state.pdfViewer}
+                        {this.state.showProgressBar ? null : this.state.pdfViewer}
+                        {this.state.showProgressBar ? 
+                        <div style={{height: '500px'}}>
+                            <div class="wrapper">
+                                <span class="circle circle-1"></span>
+                                <span class="circle circle-2"></span>
+                                <span class="circle circle-3"></span>
+                                <span class="circle circle-4"></span>
+                                <span class="circle circle-5"></span>
+                                <span class="circle circle-6"></span>
+                            </div>
+                        </div>
+                        :
+                        null}
                     </Modal.Body>
                     <Modal.Footer>
                     <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
