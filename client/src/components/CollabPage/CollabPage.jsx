@@ -17,8 +17,7 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
-import jsPDF from 'jspdf'; // for downloading the document
-import {degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs'
 
 // PDF document (for dev)
