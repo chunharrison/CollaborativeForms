@@ -658,6 +658,28 @@ class CollabPageNew extends React.Component {
                             )
         }
 
+        let downloadLoader = (givenPDFDocument === null ? <div style={{height: '500px'}}>
+                <div class="loader-wrapper">
+                    <span class="circle circle-1"></span>
+                    <span class="circle circle-2"></span>
+                    <span class="circle circle-3"></span>
+                    <span class="circle circle-4"></span>
+                    <span class="circle circle-5"></span>
+                    <span class="circle circle-6"></span>
+                </div>
+            </div> : null)
+
+        let documentLoader = <div style={{height: '500px'}}>
+                <div class="loader-wrapper">
+                    <span class="circle circle-1"></span>
+                    <span class="circle circle-2"></span>
+                    <span class="circle circle-3"></span>
+                    <span class="circle circle-4"></span>
+                    <span class="circle circle-5"></span>
+                    <span class="circle circle-6"></span>
+                </div>
+            </div>
+
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
     
@@ -677,10 +699,13 @@ class CollabPageNew extends React.Component {
                     <div id='browser-canvas-container'>
                         {pageBrowser}
                     </div> 
+                    {/* loader waiting for download */}
+                    {givenPDFDocument === null ? downloadLoader : null}
                     {givenPDFDocument !== null && socket !== null ?
                         <Document
                             file={givenPDFDocument}
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
+                            loading={documentLoader}
                         >
                                 <div id='canvas-container'>
                                     {/* just render the first page to get width and height data */}
