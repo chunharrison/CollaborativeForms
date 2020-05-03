@@ -55,11 +55,7 @@ class CollabPageNew extends React.Component {
             currentZoom: 1,
             
             // Server
-<<<<<<< HEAD
-            endpoint: 'https://cosign.pro',
-=======
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
->>>>>>> master
             // socket: null,
             socket: true,
             disconnected: false,
@@ -118,11 +114,7 @@ class CollabPageNew extends React.Component {
         let browserElement = document.getElementById(`browser-${pageNum}`);
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
-<<<<<<< HEAD
-        let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: width, height: height, selection: false})
-=======
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), {width: Math.floor(width), height: Math.floor(height), selection: false})
->>>>>>> master
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function(img) {
