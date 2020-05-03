@@ -108,7 +108,7 @@ class CollabPageNew extends React.Component {
 
         // get the canvas element created by react-pdf
         const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0]
-        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild
+        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
         pageCanvasElement.id = pageNum.toString()
         const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat) // maybe turn this into JSON
         let browserElement = document.getElementById(`browser-${pageNum}`);
@@ -582,8 +582,6 @@ class CollabPageNew extends React.Component {
     ################################################################################################# */
 
     componentDidMount() {
-        document.addEventListener("keydown", this.delObject, false);
-
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
         // THEN setup Socket.io object
