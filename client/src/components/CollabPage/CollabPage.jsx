@@ -139,8 +139,11 @@ class CollabPageNew extends React.Component {
         })
 
         fabricCanvas.on('mouse:up', function(e) {
+            if (e.target) {
+                e.target.lockScalingX = false 
+                e.target.lockScalingY = false
+            }
             if (e.e.target.previousElementSibling !== null) {
-                // let currentCanvas = self.state.canvas[parseInt(e.e.target.previousElementSibling.id)]
                 if (self.state.holding){
                     self.addImage(fabricCanvas, self.state.signatureURL, e.pointer.x, e.pointer.y);
                     self.setState({
@@ -167,7 +170,9 @@ class CollabPageNew extends React.Component {
         });
 
         fabricCanvas.on('object:modified', function(e) {
+            console.log('modified', e.target.getScaledHeight())
             const modifiedSignatureObject = e.target
+            console.log(modifiedSignatureObject)
             const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
 
             let pageData = {
@@ -182,20 +187,42 @@ class CollabPageNew extends React.Component {
             var obj = e.target;
         
             // if object is too big ignore
-            if(obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width){
+            if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
                 return;
             }        
             obj.setCoords();        
             // top-left  corner
-            if(obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0){
+            if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
                 obj.top = Math.max(obj.top, obj.top-obj.getBoundingRect().top);
                 obj.left = Math.max(obj.left, obj.left-obj.getBoundingRect().left);
             }
             // bot-right corner
-            if(obj.getBoundingRect().top+obj.getBoundingRect().height  > obj.canvas.height || obj.getBoundingRect().left+obj.getBoundingRect().width  > obj.canvas.width){
+            if (obj.getBoundingRect().top+obj.getBoundingRect().height  > obj.canvas.height || obj.getBoundingRect().left+obj.getBoundingRect().width  > obj.canvas.width) {
                 obj.top = Math.min(obj.top, obj.canvas.height-obj.getBoundingRect().height+obj.top-obj.getBoundingRect().top);
                 obj.left = Math.min(obj.left, obj.canvas.width-obj.getBoundingRect().width+obj.left-obj.getBoundingRect().left);
-        }});
+            }
+        });
+        
+        fabricCanvas.on('object:scaling', function(e) {
+            var obj = e.target;
+            obj.setCoords();  
+
+            if (obj.top < 0) {
+                obj.lockScalingY = true
+                obj.top = 0
+            } else if (obj.top+obj.getScaledHeight() > obj.canvas.height) {
+                obj.lockScalingY = true
+                obj.scaleY = (obj.canvas.height - obj.top) / obj.height
+            }
+
+            if (obj.left < 0) {
+                obj.lockScalingX = true
+                obj.left = 0
+            } else if (obj.left+obj.getScaledWidth() > obj.canvas.width) {
+                obj.lockScalingX = true
+                obj.scaleX = (obj.canvas.width - obj.left) / obj.width
+            }
+        })
 
         fabricCanvas.on('object:removed', function(e) {
             const removedSignatureObject = e.target
