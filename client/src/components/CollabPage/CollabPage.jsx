@@ -18,7 +18,8 @@ import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
-import download from 'downloadjs'
+import download from 'downloadjs';
+import Tour from 'reactour';
 
 // PDF document (for dev)
 import PDF from '../docs/sample.pdf';
@@ -88,6 +89,9 @@ class CollabPageNew extends React.Component {
         this.inViewElements = null; 
         this.currentCanvas = null;
         this.fabricCanvases = [];
+
+        // Intro
+        this.closeTour = this.closeTour.bind(this);
     }
     
     
@@ -600,7 +604,9 @@ class CollabPageNew extends React.Component {
     /* #################################################################################################
     ################################################################################################# */
 
-
+    closeTour() {
+        this.setState({isTourOpen: false})
+    }
 
 
 
@@ -618,7 +624,16 @@ class CollabPageNew extends React.Component {
         const action = '' + queryString.parse(this.props.location.search).action
         this.setState({username, roomCode, action}, () => { 
             this.setSocket(username, roomCode, action); // Socket.io
-        })
+        });
+
+        let visited = localStorage["collabPageVisited"];
+        if(visited) {
+            this.setState({isTourOpen: false});
+        } else {
+             //this is the first time
+             localStorage["collabPageVisited"] = true;
+             this.setState({isTourOpen: true});
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -705,6 +720,33 @@ class CollabPageNew extends React.Component {
                     <span class="circle circle-6"></span>
                 </div>
             </div>
+
+        const steps = [
+            {
+                selector: '',
+                content: 'Welcome to the collaboration page! On this page, you can view and sign documents hosted by the owner of the room.',
+            },
+            {
+                selector: '.react-pdf__Document',
+                content: 'The main area is where the selected PDF should appear after the initial setup.',
+            },
+            {
+                selector: '#browser-canvas-container',
+                content: 'The page explorer can be used to navigate between pages faster by clicking on them.',
+            },
+            {
+                selector: '.signature-button',
+                content: 'A signature can be made then placed on the PDF by clicking the signature button.',
+            },
+            {
+                selector: '.clipboard-container',
+                content: 'The room code is a unique string of characters that can be shared with other parties intending on joining the room.',
+            },
+            {
+                selector: '.download-button',
+                content: 'If enabled by the room owner, this document and the signatures placed can be downloaded and saved on to local storage',
+            },
+        ]
 
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
@@ -795,6 +837,10 @@ class CollabPageNew extends React.Component {
                 <Alert variant='danger' show={this.state.disconnected}>
                     You are currently disconnected. The changes you make might not be saved. 
                 </Alert>
+                <Tour
+                steps={steps}
+                isOpen={this.state.isTourOpen}
+                onRequestClose={this.closeTour}/>
             </div>
             )
         }

@@ -25,7 +25,9 @@
     "react-signature-canvas": "^1.0.3",
     "react-signature-pad-wrapper": "^1.2.9",
     "reactjs-popup": "^1.5.0",
-    "socket.io-client": "^2.3.0"
+    "reactour": "^1.17.0",
+    "socket.io-client": "^2.3.0",
+    "styled-components": "^5.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -14,6 +14,19 @@ body {
     grid-template-columns: repeat(8, 1fr);
 }
 
+.nav {
+    position:absolute;
+    padding: 1em;
+    font-size: 20px;
+    color: white;
+    font-family: roboto-light;
+    cursor:pointer;
+}
+
+.nav:hover {
+    text-shadow: 0px 0px #ffffff;
+}
+
 .username {
     text-align: center;
     margin-top: 10rem;
