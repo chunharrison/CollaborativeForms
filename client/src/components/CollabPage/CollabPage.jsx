@@ -603,7 +603,7 @@ class CollabPageNew extends React.Component {
 
     /* #################################################################################################
     ################################################################################################# */
-
+    //Close intro popup
     closeTour() {
         this.setState({isTourOpen: false})
     }
@@ -721,6 +721,7 @@ class CollabPageNew extends React.Component {
                 </div>
             </div>
 
+        //Order in which insturcitons will appear
         const steps = [
             {
                 selector: '',

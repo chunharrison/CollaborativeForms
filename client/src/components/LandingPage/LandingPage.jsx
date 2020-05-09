@@ -253,6 +253,7 @@ class LandingPage extends React.Component {
         )
     }
 
+    //Close intro popup
     closeTour() {
         this.setState({isTourOpen: false})
     }
@@ -287,6 +288,7 @@ class LandingPage extends React.Component {
             fileValue = this.fileInputRef.current.files[0].name;
         }
 
+        //Order in which insturcitons will appear
         const steps = [
             {
                 selector: '',
