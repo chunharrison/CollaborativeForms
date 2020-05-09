@@ -65,6 +65,7 @@ function initialData(roomCode, username, socket) {
         roomCode: roomCode,
         users: [username],
         signatures: {}, 
+        pilotModeActivated: false
     }
 
     db.collection("rooms").insertOne(roomData, function(err, res) {
@@ -241,8 +242,66 @@ io.on('connection', (socket)=>{
             })
         })
 
+        // Pilot Mode
+        socket.on("pilotModeRequested", (requestData) => {
+            // const { requesterUsername, requesterSocketID, currNumUsers } = requestData
+            console.log("pilotModeRequested")
+            // emit to everyone else in the room to either accept or decline the request
+
+            socket.to(roomCode).emit('confirmPilotMode', requestData)
+        })
+
+        var confirmedCount = 0
+        // var pmDenied = false
+        socket.on("pilotModeRequestCallback", (callbackData) => {
+            const {confirmed, confirmingUser, requesterSocketID, currNumUsers} = callbackData
+            console.log(confirmed, confirmingUser)
+            console.log("numUsers", currNumUsers)
+            console.log("confirmedCount before", confirmedCount)
+            if (confirmed) {
+                confirmedCount++;
+            } else {
+                confirmedCount = 0
+                socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUser)
+            }
+            console.log("confirmedCount after", confirmedCount)
+            if (currNumUsers === confirmedCount) {
+                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true}})
+                console.log("pilotModeConfirmed")
+                confirmedCount = 0
+                socket.to(requesterSocketID).emit("pilotModeConfirmed")
+                // socket.in(roomCode).emit("pilotModeConfirmed", requesterSocketID)
+            }
+        })
+
+        socket.on("sendScrollPercent", (scrollPercent) => {
+            socket.to(roomCode).emit("setScrollPercent", scrollPercent)
+        })
+
+
+
+
         socket.on("reconnect", () => {
+            console.log('reconnect')
             socket.emit("reconnect")
+        })
+
+        socket.on('reconnected', () => {
+            console.log('reconnected')
+            // update the list of users in the database
+            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+                if (err) throw err;
+                if (result) {
+                    // remove the first occurence of the username from database
+                    result.users.splice(result.users.indexOf(username), 1);
+                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
+
+                    // broadcast to every other users in the room that this user joined
+                    // with the newly updated list of users 
+                    // socket.to(roomCode).emit('userDisconnected', result.users, username);
+                    socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                }
+            })
         })
 
         socket.on("disconnect", () => {

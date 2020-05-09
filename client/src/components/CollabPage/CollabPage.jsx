@@ -6,10 +6,12 @@ import { Document, Page } from 'react-pdf'; // open source
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
+// import PilotMode from '../PilotMode/PilotMode'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Modal from 'react-bootstrap/Modal';
 
 // Libraries
 import { fabric } from 'fabric';
@@ -21,8 +23,8 @@ import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import Tour from 'reactour';
 
-// PDF document (for dev)
-import PDF from '../docs/sample.pdf';
+// // PDF document (for dev)
+// import PDF from '../docs/sample.pdf';
 
 //CSS
 import './CollabPage.css';
@@ -54,11 +56,19 @@ class CollabPageNew extends React.Component {
 
             // Zoom (To Be Implemented)
             currentZoom: 1,
+
+            // Pilot Mode
+            pmActivated: false,
+            pmWaitingConfirm: false,
+            pmRequesterUsername: null,
+            pmConfirmModalShow: false,
+            // // button
+            pmButtonVariant: null,
+            pmButtonLabel: null,
             
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
-            // socket: null,
-            socket: true,
+            socket: null,
             disconnected: false,
             invalidRoomCodeGiven: false,
             currentUsers: []
@@ -80,10 +90,13 @@ class CollabPageNew extends React.Component {
         this.setSignatureURL = this.setSignatureURL.bind(this);
         this.addImage = this.addImage.bind(this);
         this.delObject = this.delObject.bind(this);
+        
+        // Pilot Mode
+        this.handleClosePilotConfirmModal = this.handleClosePilotConfirmModal.bind(this)
 
         // Backend
         this.setSocket = this.setSocket.bind(this);
-        this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this)
+        this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
 
         // Component Variables
         this.inViewElements = null; 
@@ -92,6 +105,9 @@ class CollabPageNew extends React.Component {
 
         // Intro
         this.closeTour = this.closeTour.bind(this);
+
+
+        this.canvasContainerRef = React.createRef()
     }
     
     
@@ -174,9 +190,7 @@ class CollabPageNew extends React.Component {
         });
 
         fabricCanvas.on('object:modified', function(e) {
-            console.log('modified', e.target.getScaledHeight())
             const modifiedSignatureObject = e.target
-            console.log(modifiedSignatureObject)
             const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
 
             let pageData = {
@@ -481,7 +495,7 @@ class CollabPageNew extends React.Component {
             fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
                 let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
     
-                let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
+                // let origRenderOnAddRemove = fabricCanvasObject.renderOnAddRemove;
                 fabricCanvasObject.renderOnAddRemove = false;
     
                 fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
@@ -572,8 +586,10 @@ class CollabPageNew extends React.Component {
             this.setState({disconnected: true});
         })
         socket.on('reconnect', () => {
+            console.log('reconnected')
             window.location.reload();
             this.setState({disconnected: false});
+            socket.emit('reconnected')
         })
         socket.on('updateCurrentUsers', (currentUsers) => {
             this.setState({
@@ -591,6 +607,36 @@ class CollabPageNew extends React.Component {
         //     console.log(currentUsers)
         // })
 
+        socket.on("confirmPilotMode", (requestData) => {
+            // console.log(currNumUsers)
+            const { requesterUsername, requesterSocketID, currNumUsers } = requestData
+            this.setState({
+                pmConfirmModalShow: true,
+                pmRequesterUsername: requesterUsername,
+                pmRequesterSocketID: requesterSocketID,
+                pmCurrNumUsers: currNumUsers
+            })
+        })
+
+        socket.on("pilotModeDeclined", (username) => {
+            // console.log(`pilot mode activation failed, ${username} declined the request`)
+            this.setState({
+                pmWaitingConfirm:false
+            })
+        })
+
+        socket.on("pilotModeConfirmed", () => {
+            // console.log("pilot mode activated")
+            this.setState({
+                pmActivated: true,
+                pmWaitingConfirm:false
+            })
+        })
+
+        socket.on("setScrollPercent", (scrollPercent) => {
+            console.log("setScrollPercent")
+            this.canvasContainerRef.current.scrollTop = scrollPercent
+        })
 
         // Signatures
         socket.on("addOut", (pageData) => this.receiveAdd(pageData))
@@ -607,6 +653,64 @@ class CollabPageNew extends React.Component {
     closeTour() {
         this.setState({isTourOpen: false})
     }
+
+
+
+    /* #################################################################################################
+    ########################################### Pilot Mode #############################################
+    ################################################################################################# */
+
+    getScrollPercent = () => {
+        // event.preventDefault()
+
+        console.log( this.canvasContainerRef.current.scrollTop );
+    }
+
+    sendScrollPercent = () => {
+        this.state.socket.emit("sendScrollPercent", this.canvasContainerRef.current.scrollTop)
+    }
+
+    requestPilotMode = () => {
+        // request pilot mode to other users via socket.io and then
+        // it returns a callback function 
+        this.setState({pmWaitingConfirm: true})
+
+        const requestData = {
+            requesterUsername: this.state.username,
+            requesterSocketID: this.state.socket.id,
+            currNumUsers: this.state.currentUsers.length-1
+        }
+        this.state.socket.emit("pilotModeRequested", requestData)
+    }
+
+    handleClosePilotConfirmModal = (event, confirmed) => {
+        event.preventDefault()
+        console.log(this.state.pmCurrNumUsers)
+        this.setState({
+            pmConfirmModalShow: false,
+        })
+
+        const callbackData = {
+            confirmed: confirmed,
+            confirmingUser: this.state.username,
+            requesterSocketID: this.state.pmRequesterSocketID,
+            currNumUsers: this.state.pmCurrNumUsers
+        }
+
+        this.state.socket.emit("pilotModeRequestCallback", callbackData)
+    }
+
+    handleClosePilotWaitingModal = (event) => {
+        event.preventDefault()
+        this.setState({
+            pmWaitingConfirm:false
+        })
+    }
+
+    /* #################################################################################################
+    ################################################################################################# */
+
+
 
 
 
@@ -634,6 +738,8 @@ class CollabPageNew extends React.Component {
              localStorage["collabPageVisited"] = true;
              this.setState({isTourOpen: true});
         }
+
+        // document.addEventListener('scroll', this.getScrollPercent, true);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -665,6 +771,10 @@ class CollabPageNew extends React.Component {
             image.style.left = this.state.pageX + 'px';
         }
 
+        // Pilot Mode
+        if (this.state.pmActivated) {
+            document.addEventListener('scroll', this.sendScrollPercent, true);
+        }
     }
 
     componentWillUnmount() {
@@ -677,7 +787,8 @@ class CollabPageNew extends React.Component {
 
     render() {
         // State Variables 
-        const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven } = this.state;
+        const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven,
+            pmWaitingConfirm, pmConfirmModalShow, pmRequesterUsername } = this.state;
 
         if (invalidRoomCodeGiven) {
             return <Redirect to={{pathname: '/invalid-room-code'}}></Redirect>
@@ -755,7 +866,13 @@ class CollabPageNew extends React.Component {
                 <div className='header'>
                     <a className='cosign-header-text' href="/">Cosign</a>
                     <div className='tools'>
-                        <Signature setURL={this.setSignatureURL}/>
+                        {/* <PilotMode socket={socket} /> */}
+                        <Button
+                            className="pilot-mode-button"
+                            onClick={this.requestPilotMode}>
+                            Pilot Mode
+                        </Button>
+                        <Signature setURL={this.setSignatureURL} />
                     </div>
                     {roomCodeCopy}
                 </div>
@@ -775,7 +892,7 @@ class CollabPageNew extends React.Component {
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
                             loading={documentLoader}
                         >
-                                <div id='canvas-container'>
+                                <div id='canvas-container' ref={this.canvasContainerRef}>
                                     {/* just render the first page to get width and height data */}
                                     <div key={1}>
                                         <div className='page-and-number-container' id={`container-1`}>
@@ -834,6 +951,7 @@ class CollabPageNew extends React.Component {
     
     
                 {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
+                <div onScroll={this.getScrollPercent}></div>
                 <Alert variant='danger' show={this.state.disconnected}>
                     You are currently disconnected. The changes you make might not be saved. 
                 </Alert>
@@ -841,6 +959,48 @@ class CollabPageNew extends React.Component {
                 steps={steps}
                 isOpen={this.state.isTourOpen}
                 onRequestClose={this.closeTour}/>
+
+                {/* Pilot Mode */}
+                {/* confirmation window */}
+                <Modal show={pmConfirmModalShow} backdrop="static">
+                    <Modal.Header>
+                        <Modal.Title>Pilot Mode Requested</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className='modal-body'>
+                        <p>{pmRequesterUsername} has requested to be in charge of scrolling through the document.</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="success" onClick={(event) => this.handleClosePilotConfirmModal(event, true)}>
+                        Confirm
+                    </Button>
+                    <Button variant="danger" onClick={(event) => this.handleClosePilotConfirmModal(event, false)}>
+                        Deny
+                    </Button>
+                    </Modal.Footer>
+                </Modal>
+                {/* waiting window */}
+                <Modal show={pmWaitingConfirm} backdrop="static">
+                    <Modal.Header>
+                        <Modal.Title>Waiting Pilot Mode Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className='modal-body'>
+                        <div style={{height: '500px'}}>
+                            <div className="wrapper">
+                                <span className="circle circle-1"></span>
+                                <span className="circle circle-2"></span>
+                                <span className="circle circle-3"></span>
+                                <span className="circle circle-4"></span>
+                                <span className="circle circle-5"></span>
+                                <span className="circle circle-6"></span>
+                            </div>
+                        </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                    <Button variant="danger" onClick={(event) => this.handleClosePilotWaitingModal(event)}>
+                        Cancel 
+                    </Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
             )
         }
