@@ -294,5 +294,9 @@ body {
 
 /* Pilot Mode Button */
 .pilot-mode-button {
-    
+    /* font-size: 80%; */
+    margin-right: 1em;
+}
+.pilot-mode-button-label {
+    /* font-size: 60%; */
 }

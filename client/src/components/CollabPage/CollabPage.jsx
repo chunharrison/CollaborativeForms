@@ -63,8 +63,8 @@ class CollabPageNew extends React.Component {
             pmRequesterUsername: null,
             pmConfirmModalShow: false,
             // // button
-            pmButtonVariant: null,
-            pmButtonLabel: null,
+            pmButtonVariant: 'info',
+            pmButtonLabel: 'Activate',
             
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
@@ -578,7 +578,8 @@ class CollabPageNew extends React.Component {
             });
 
             const creation = action === 'create' ? true : false;
-            socket.emit('join', { username, roomCode, creation })
+            const socketID = socket.id;
+            socket.emit('join', { socketID, username, roomCode, creation })
         });
 
         // Connection
@@ -629,7 +630,9 @@ class CollabPageNew extends React.Component {
             // console.log("pilot mode activated")
             this.setState({
                 pmActivated: true,
-                pmWaitingConfirm:false
+                pmWaitingConfirm:false,
+                pmButtonLabel: 'Cancel',
+                pmButtonVariant: 'danger'
             })
         })
 
@@ -788,7 +791,8 @@ class CollabPageNew extends React.Component {
     render() {
         // State Variables 
         const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven,
-            pmWaitingConfirm, pmConfirmModalShow, pmRequesterUsername } = this.state;
+            pmWaitingConfirm, pmConfirmModalShow, pmRequesterUsername,
+            pmButtonLabel, pmButtonVariant } = this.state;
 
         if (invalidRoomCodeGiven) {
             return <Redirect to={{pathname: '/invalid-room-code'}}></Redirect>
@@ -867,12 +871,6 @@ class CollabPageNew extends React.Component {
                 <div className='header'>
                     <a className='cosign-header-text' href="/">Cosign</a>
                     <div className='tools'>
-                        {/* <PilotMode socket={socket} /> */}
-                        <Button
-                            className="pilot-mode-button"
-                            onClick={this.requestPilotMode}>
-                            Pilot Mode
-                        </Button>
                         <Signature setURL={this.setSignatureURL} />
                     </div>
                     {roomCodeCopy}
@@ -923,6 +921,12 @@ class CollabPageNew extends React.Component {
                 {/* FOOTER */}
                 <div className='header'> 
                     <div className='download-button-container'>
+                        <Button
+                            variant={pmButtonVariant}
+                            className="pilot-mode-button"
+                            onClick={this.requestPilotMode}>
+                                Pilot Mode: {pmButtonLabel}
+                        </Button>
                         <Dropdown drop='up'>
                             <Dropdown.Toggle>
                                 Users: {this.state.currentUsers.length}

@@ -59,15 +59,16 @@ app.get('/api/generate-put-url', (req,res)=>{
 const io = socketio(http);
 
 
-function initialData(roomCode, username, socket) {
+function initialData(socketID, username, roomCode) {
     // data
     let roomData = {
         roomCode: roomCode,
-        users: [username],
+        // users: [username],
+        users: {},
         signatures: {}, 
         pilotModeActivated: false
     }
-
+    roomData[socketID] = username
     db.collection("rooms").insertOne(roomData, function(err, res) {
         if(err) throw err;
     })
@@ -83,7 +84,7 @@ io.on('connection', (socket)=>{
 
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
-    socket.on('join', ({ username, roomCode, creation }) => {
+    socket.on('join', ({ socketID, username, roomCode, creation }) => {
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
@@ -97,7 +98,8 @@ io.on('connection', (socket)=>{
                 console.log(`fetching data from room: ${roomCode}`)
 
                 // update the list of users in the database
-                result.users.push(username);
+                // result.users.push(username);
+                result.users[socketID] = username
                 db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
                 // broadcast to every other users in the room that this user joined
@@ -109,7 +111,7 @@ io.on('connection', (socket)=>{
             // room create
             else if (result === null && creation) {
                 // initial room
-                initialData(roomCode, username, socket)
+                initialData(socketID, username, roomCode)
                 socket.emit('updateCurrentUsers', [username]);
             }
             
@@ -255,9 +257,9 @@ io.on('connection', (socket)=>{
         // var pmDenied = false
         socket.on("pilotModeRequestCallback", (callbackData) => {
             const {confirmed, confirmingUser, requesterSocketID, currNumUsers} = callbackData
-            console.log(confirmed, confirmingUser)
-            console.log("numUsers", currNumUsers)
-            console.log("confirmedCount before", confirmedCount)
+            // console.log(confirmed, confirmingUser)
+            // console.log("numUsers", currNumUsers)
+            // console.log("confirmedCount before", confirmedCount)
             if (confirmed) {
                 confirmedCount++;
             } else {
