@@ -66,9 +66,11 @@ function initialData(socketID, username, roomCode) {
         // users: [username],
         users: {},
         signatures: {}, 
-        pilotModeActivated: false
+        pilotModeActivated: false,
+        pilotModeDriver: null
     }
-    roomData[socketID] = username
+    roomData.users[socketID] = username
+    console.log('roomData', roomData)
     db.collection("rooms").insertOne(roomData, function(err, res) {
         if(err) throw err;
     })
@@ -99,7 +101,9 @@ io.on('connection', (socket)=>{
 
                 // update the list of users in the database
                 // result.users.push(username);
+                console.log(result.users)
                 result.users[socketID] = username
+                console.log(result.users)
                 db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
                 // broadcast to every other users in the room that this user joined
@@ -244,7 +248,7 @@ io.on('connection', (socket)=>{
             })
         })
 
-        // Pilot Mode
+        // Pilot Mode //////////////////////////////////////////////////
         socket.on("pilotModeRequested", (requestData) => {
             // const { requesterUsername, requesterSocketID, currNumUsers } = requestData
             console.log("pilotModeRequested")
@@ -253,31 +257,34 @@ io.on('connection', (socket)=>{
             socket.to(roomCode).emit('confirmPilotMode', requestData)
         })
 
-        var confirmedCount = 0
         // var pmDenied = false
         socket.on("pilotModeRequestCallback", (callbackData) => {
-            const {confirmed, confirmingUser, requesterSocketID, currNumUsers} = callbackData
-            // console.log(confirmed, confirmingUser)
-            // console.log("numUsers", currNumUsers)
-            // console.log("confirmedCount before", confirmedCount)
+            const {confirmed, confirmingUser, confirmingUserSocketID, requesterSocketID, currNumUsers} = callbackData
+            console.log(confirmed, confirmingUser)
+            console.log("numUsers", currNumUsers)
             if (confirmed) {
-                confirmedCount++;
+                socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserSocketID)
             } else {
-                confirmedCount = 0
-                socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUser)
+                socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUserSocketID)
             }
-            console.log("confirmedCount after", confirmedCount)
-            if (currNumUsers === confirmedCount) {
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true}})
-                console.log("pilotModeConfirmed")
-                confirmedCount = 0
-                socket.to(requesterSocketID).emit("pilotModeConfirmed")
-                // socket.in(roomCode).emit("pilotModeConfirmed", requesterSocketID)
-            }
+            // if (currNumUsers === confirmedCount) {
+            //     db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true, pilotModeDriver: ''}})
+            //     console.log("pilotModeConfirmed")
+            //     socket.to(requesterSocketID).emit("pilotModeConfirmed")
+            //     // socket.in(roomCode).emit("pilotModeConfirmed", requesterSocketID)
+            // }
+        })
+
+        socket.on('pilotModeActivated', (driverUsername) => {
+            socket.to(roomCode).emit('pilotModeActivatedByUser', driverUsername)
         })
 
         socket.on("sendScrollPercent", (scrollPercent) => {
             socket.to(roomCode).emit("setScrollPercent", scrollPercent)
+        })
+
+        socket.on("pilotModeStopped", () => {
+            socket.to(roomCode).emit("pilotModeStopped")
         })
 
 
@@ -288,24 +295,6 @@ io.on('connection', (socket)=>{
             socket.emit("reconnect")
         })
 
-        socket.on('reconnected', () => {
-            console.log('reconnected')
-            // update the list of users in the database
-            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
-                if (err) throw err;
-                if (result) {
-                    // remove the first occurence of the username from database
-                    result.users.splice(result.users.indexOf(username), 1);
-                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
-
-                    // broadcast to every other users in the room that this user joined
-                    // with the newly updated list of users 
-                    // socket.to(roomCode).emit('userDisconnected', result.users, username);
-                    socket.to(roomCode).emit('updateCurrentUsers', result.users);
-                }
-            })
-        })
-
         socket.on("disconnect", () => {
             console.log(`${username} just left ${roomCode}`);
             
@@ -314,7 +303,7 @@ io.on('connection', (socket)=>{
                 if (err) throw err;
                 if (result) {
                     // remove the first occurence of the username from database
-                    result.users.splice(result.users.indexOf(username), 1);
+                    delete result.users[socketID]
                     db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
                     // broadcast to every other users in the room that this user joined

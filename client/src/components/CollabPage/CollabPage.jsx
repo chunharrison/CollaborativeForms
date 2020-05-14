@@ -6,12 +6,16 @@ import { Document, Page } from 'react-pdf'; // open source
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
+import {RemoveScroll} from 'react-remove-scroll'; // open source
+import { TacoTable, DataType, SortDirection, Formatters,
+    Summarizers, TdClassNames } from 'react-taco-table'; // open source
 // import PilotMode from '../PilotMode/PilotMode'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
+import Badge from 'react-bootstrap/Badge';
 
 // Libraries
 import { fabric } from 'fabric';
@@ -28,6 +32,7 @@ import Tour from 'reactour';
 
 //CSS
 import './CollabPage.css';
+import 'react-taco-table/dist/react-taco-table.css';
 
 class CollabPageNew extends React.Component {
     constructor(props) {
@@ -59,9 +64,13 @@ class CollabPageNew extends React.Component {
 
             // Pilot Mode
             pmActivated: false,
-            pmWaitingConfirm: false,
+            pmWaitConfirmModalShow: false,
             pmRequesterUsername: null,
             pmConfirmModalShow: false,
+            pmDriver: null,
+            pmIsDriver: false,
+            pmWaitConfirmTableRows: [],
+            pmWaitNumAccepts: 0,
             // // button
             pmButtonVariant: 'info',
             pmButtonLabel: 'Activate',
@@ -71,7 +80,7 @@ class CollabPageNew extends React.Component {
             socket: null,
             disconnected: false,
             invalidRoomCodeGiven: false,
-            currentUsers: []
+            currentUsers: {}
         }
 
         // Render
@@ -93,6 +102,7 @@ class CollabPageNew extends React.Component {
         
         // Pilot Mode
         this.handleClosePilotConfirmModal = this.handleClosePilotConfirmModal.bind(this)
+        this.handlePMButtonClick = this.handlePMButtonClick.bind(this)
 
         // Backend
         this.setSocket = this.setSocket.bind(this);
@@ -587,10 +597,9 @@ class CollabPageNew extends React.Component {
             this.setState({disconnected: true});
         })
         socket.on('reconnect', () => {
-            console.log('reconnected')
+            // console.log('reconnected')
             window.location.reload();
             this.setState({disconnected: false});
-            socket.emit('reconnected')
         })
         socket.on('updateCurrentUsers', (currentUsers) => {
             this.setState({
@@ -608,6 +617,9 @@ class CollabPageNew extends React.Component {
         //     console.log(currentUsers)
         // })
 
+
+        // Pilot Mode
+        
         socket.on("confirmPilotMode", (requestData) => {
             // console.log(currNumUsers)
             const { requesterUsername, requesterSocketID, currNumUsers } = requestData
@@ -619,26 +631,80 @@ class CollabPageNew extends React.Component {
             })
         })
 
-        socket.on("pilotModeDeclined", (username) => {
-            // console.log(`pilot mode activation failed, ${username} declined the request`)
-            this.setState({
-                pmWaitingConfirm:false
+        socket.on("pilotModeUserAccepted", (confirmingUserSocketID) => {
+            this.state.pmWaitConfirmTableRows.forEach((item) => {
+                if (item.socketID === confirmingUserSocketID) {
+                    item['status'] = 'Accepted'
+                }
             })
+
+            this.setState({pmWaitNumAccepts: this.state.pmWaitNumAccepts + 1}, () => {
+                if (this.state.pmWaitConfirmTableRows.length === this.state.pmWaitNumAccepts) {
+                    setTimeout(this.setState({
+                        // send scroll percentage
+                        pmActivated: true,
+        
+                        // 
+                        pmWaitConfirmModalShow:false,
+                        pmButtonLabel: 'Cancel',
+                        pmButtonVariant: 'danger'
+                    }), 2500)
+                    socket.emit('pilotModeActivated', this.state.username)
+                }
+            })
+        })
+
+        socket.on("pilotModeDeclined", (confirmingUserSocketID) => {
+            // console.log(`pilot mode activation failed, ${username} declined the request`)
+
+            this.state.pmWaitConfirmTableRows.forEach((item) => {
+                if (item.socketID === confirmingUserSocketID) {
+                    item['status'] = 'Declined'
+                }
+            })
+
+            setTimeout(this.setState({
+                pmWaitConfirmModalShow:false,
+                pmWaitNumAccepts: 0
+            }), 2500)
         })
 
         socket.on("pilotModeConfirmed", () => {
             // console.log("pilot mode activated")
-            this.setState({
+            setTimeout(this.setState({
+                // send scroll percentage
                 pmActivated: true,
-                pmWaitingConfirm:false,
+
+                // 
+                pmWaitConfirmModalShow:false,
                 pmButtonLabel: 'Cancel',
                 pmButtonVariant: 'danger'
-            })
+            }, () => socket.emit('pilotModeActivated', this.state.username)),
+            2500)
         })
 
         socket.on("setScrollPercent", (scrollPercent) => {
             console.log("setScrollPercent")
             this.canvasContainerRef.current.scrollTop = scrollPercent
+        })
+
+        socket.on('pilotModeStopped', () => {
+            // reactivate scroll effects
+            this.setState({
+                pmDriver: null,
+                pmButtonVariant: 'info',
+                pmButtonLabel: 'Activate'
+            })
+        })
+
+        // person is using the pilot mode right now for the room
+        socket.on('pilotModeActivatedByUser', (driverUsername) => {
+            // console.log("PILOTMODEACTIVATREDDGDKFNGSJGFSGF")
+            this.setState({
+                pmDriver: driverUsername,
+                pmButtonVariant: 'warning',
+                pmButtonLabel: 'Activated'
+            })
         })
 
         // Signatures
@@ -676,14 +742,50 @@ class CollabPageNew extends React.Component {
     requestPilotMode = () => {
         // request pilot mode to other users via socket.io and then
         // it returns a callback function 
-        this.setState({pmWaitingConfirm: true})
+        // let otherUsers = this.state.currentUsers
+        // delete otherUsers[this.state.socket.id]
 
+        // for list of users that need to confirm or decline the request
+        let pmWaitConfirmTableRowsNew = []
+        const currentUsersEntries = Object.entries(this.state.currentUsers)
+        for (const [socketID, username] of currentUsersEntries) {
+            if (socketID === this.state.socket.id) {
+                continue;
+            }
+            const rowValues = {
+                "socketID": socketID, 
+                "user": username,
+                "status": "Pending"
+            }
+            pmWaitConfirmTableRowsNew.push(rowValues)
+        }
+
+        this.setState({
+            pmWaitConfirmModalShow: true,
+            pmWaitConfirmTableRows: pmWaitConfirmTableRowsNew
+        })
+
+        console.log(this.state.currentUsers)
         const requestData = {
             requesterUsername: this.state.username,
             requesterSocketID: this.state.socket.id,
-            currNumUsers: this.state.currentUsers.length-1
+            currNumUsers: Object.keys(this.state.currentUsers).length-1,
+            
         }
         this.state.socket.emit("pilotModeRequested", requestData)
+    }
+
+    handlePMButtonClick = () => {
+        // already activated 
+        if (this.state.pmActivated && this.state.pmIsDriver) {
+            this.setState({
+                pmActivated: false
+            }, () => {
+                this.state.socket.emit('pilotModeStopped')
+            })
+        } else if (!this.state.pmActivated && !this.state.pmIsDriver) {
+            this.requestPilotMode()
+        }
     }
 
     handleClosePilotConfirmModal = (event, confirmed) => {
@@ -696,6 +798,7 @@ class CollabPageNew extends React.Component {
         const callbackData = {
             confirmed: confirmed,
             confirmingUser: this.state.username,
+            confirmingUserSocketID: this.state.socket.id,
             requesterSocketID: this.state.pmRequesterSocketID,
             currNumUsers: this.state.pmCurrNumUsers
         }
@@ -706,7 +809,7 @@ class CollabPageNew extends React.Component {
     handleClosePilotWaitingModal = (event) => {
         event.preventDefault()
         this.setState({
-            pmWaitingConfirm:false
+            pmWaitConfirmModalShow:false
         })
     }
 
@@ -778,6 +881,7 @@ class CollabPageNew extends React.Component {
         if (this.state.pmActivated) {
             document.addEventListener('scroll', this.sendScrollPercent, true);
         }
+
     }
 
     componentWillUnmount() {
@@ -791,8 +895,8 @@ class CollabPageNew extends React.Component {
     render() {
         // State Variables 
         const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven,
-            pmWaitingConfirm, pmConfirmModalShow, pmRequesterUsername,
-            pmButtonLabel, pmButtonVariant } = this.state;
+            pmWaitConfirmModalShow, pmConfirmModalShow, pmRequesterUsername,
+            pmButtonLabel, pmButtonVariant, pmDriver, pmWaitConfirmTableRows } = this.state;
 
         if (invalidRoomCodeGiven) {
             return <Redirect to={{pathname: '/invalid-room-code'}}></Redirect>
@@ -864,6 +968,32 @@ class CollabPageNew extends React.Component {
             },
         ]
 
+
+        // Pilot Mode
+        const pmWaitColumns = [
+            {
+                id: 'user',
+                type: DataType.String,
+                header: 'User',
+            },
+            {
+                id: 'status',
+                type: DataType.String,
+                header: 'Status',
+                tdStyle(cellData) {
+                    if (cellData === "Pending") {
+                        return { color: '#CCCC00' };
+                    } else if (cellData === "Accepted") {
+                        return { color: 'green' };
+                    } else if (cellData === "Declined") {
+                        return { color: '#DC143C' };
+                    }
+              
+                    return undefined;
+                  }
+            }
+        ]
+
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
     
@@ -890,8 +1020,10 @@ class CollabPageNew extends React.Component {
                             file={givenPDFDocument}
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
                             loading={documentLoader}
-                        >
+                        >       
                                 <div id='canvas-container' ref={this.canvasContainerRef}>
+                                {/* <RemoveScroll>
+                                </RemoveScroll>   */}
                                     {/* just render the first page to get width and height data */}
                                     <div key={1}>
                                         <div className='page-and-number-container' id={`container-1`}>
@@ -924,16 +1056,16 @@ class CollabPageNew extends React.Component {
                         <Button
                             variant={pmButtonVariant}
                             className="pilot-mode-button"
-                            onClick={this.requestPilotMode}>
-                                Pilot Mode: {pmButtonLabel}
+                            onClick={this.handlePMButtonClick}>
+                                Pilot Mode: {pmButtonLabel} {pmDriver ? <Badge variant="dark">{pmDriver}</Badge> : null}
                         </Button>
                         <Dropdown drop='up'>
                             <Dropdown.Toggle>
-                                Users: {this.state.currentUsers.length}
+                                Users  <Badge variant="light">{Object.keys(this.state.currentUsers).length}</Badge>  
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                {this.state.currentUsers.map((user) => (
-                                    <Dropdown.Item>{user}</Dropdown.Item>
+                                {Object.entries(this.state.currentUsers).map(([socketid, username], i) => (
+                                    <Dropdown.Item>{username}</Dropdown.Item>
                                 ))}
                             </Dropdown.Menu>
                         </Dropdown>
@@ -984,21 +1116,19 @@ class CollabPageNew extends React.Component {
                     </Modal.Footer>
                 </Modal>
                 {/* waiting window */}
-                <Modal show={pmWaitingConfirm} backdrop="static">
+                <Modal show={pmWaitConfirmModalShow} backdrop="static">
                     <Modal.Header>
                         <Modal.Title>Waiting Pilot Mode Confirmation</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className='modal-body'>
-                        <div style={{height: '500px'}}>
-                            <div className="wrapper">
-                                <span className="circle circle-1"></span>
-                                <span className="circle circle-2"></span>
-                                <span className="circle circle-3"></span>
-                                <span className="circle circle-4"></span>
-                                <span className="circle circle-5"></span>
-                                <span className="circle circle-6"></span>
-                            </div>
-                        </div>
+                        <TacoTable
+                            className="pilot-mode-modal-table"
+                            columns={pmWaitColumns}
+                            columnHighlighting
+                            data={pmWaitConfirmTableRows}
+                            striped
+                            sortable
+                        />
                     </Modal.Body>
                     <Modal.Footer>
                     <Button variant="danger" onClick={(event) => this.handleClosePilotWaitingModal(event)}>

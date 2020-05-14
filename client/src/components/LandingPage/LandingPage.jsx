@@ -401,9 +401,10 @@ class LandingPage extends React.Component {
                         null}
                     </Modal.Body>
                     <Modal.Footer>
-                    <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
-                        Okay
-                    </Button>
+                    {this.state.showProgressBar ? null :
+                        <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
+                            Okay
+                        </Button>}
                     </Modal.Footer>
                 </Modal>
                 <Tour
