@@ -6,9 +6,8 @@ import { Document, Page } from 'react-pdf'; // open source
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
-import {RemoveScroll} from 'react-remove-scroll'; // open source
-import { TacoTable, DataType, SortDirection, Formatters,
-    Summarizers, TdClassNames } from 'react-taco-table'; // open source
+// import {RemoveScroll} from 'react-remove-scroll'; // open source
+import { TacoTable, DataType, SortDirection, Formatters, Summarizers, TdClassNames } from 'react-taco-table'; // open source
 // import PilotMode from '../PilotMode/PilotMode'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
@@ -639,7 +638,9 @@ class CollabPageNew extends React.Component {
             })
 
             this.setState({pmWaitNumAccepts: this.state.pmWaitNumAccepts + 1}, () => {
+                console.log(this.state.pmWaitConfirmTableRows.length, this.state.pmWaitNumAccepts)
                 if (this.state.pmWaitConfirmTableRows.length === this.state.pmWaitNumAccepts) {
+                    document.addEventListener('scroll', this.sendScrollPercent, true);
                     setTimeout(this.setState({
                         // send scroll percentage
                         pmActivated: true,
@@ -647,7 +648,8 @@ class CollabPageNew extends React.Component {
                         // 
                         pmWaitConfirmModalShow:false,
                         pmButtonLabel: 'Cancel',
-                        pmButtonVariant: 'danger'
+                        pmButtonVariant: 'danger',
+                        pmIsDriver: true,
                     }), 2500)
                     socket.emit('pilotModeActivated', this.state.username)
                 }
@@ -669,29 +671,32 @@ class CollabPageNew extends React.Component {
             }), 2500)
         })
 
-        socket.on("pilotModeConfirmed", () => {
-            // console.log("pilot mode activated")
-            setTimeout(this.setState({
-                // send scroll percentage
-                pmActivated: true,
+        // socket.on("pilotModeConfirmed", () => {
+        //     console.log("pilot mode activated")
+        //     setTimeout(this.setState({
+        //         // send scroll percentage
+        //         pmActivated: true,
 
-                // 
-                pmWaitConfirmModalShow:false,
-                pmButtonLabel: 'Cancel',
-                pmButtonVariant: 'danger'
-            }, () => socket.emit('pilotModeActivated', this.state.username)),
-            2500)
-        })
+        //         // 
+        //         pmWaitConfirmModalShow:false,
+        //         pmButtonLabel: 'Cancel',
+        //         pmButtonVariant: 'danger',
+        //         pmIsDriver: true,
+        //     }, () => socket.emit('pilotModeActivated', this.state.username)),
+        //     2500)
+        // })
 
         socket.on("setScrollPercent", (scrollPercent) => {
-            console.log("setScrollPercent")
+            // console.log("setScrollPercent")
             this.canvasContainerRef.current.scrollTop = scrollPercent
         })
 
         socket.on('pilotModeStopped', () => {
             // reactivate scroll effects
+            console.log('pilotModeStopped')
             this.setState({
-                pmDriver: null,
+                pmActivated: false,
+                pmDriver: false,
                 pmButtonVariant: 'info',
                 pmButtonLabel: 'Activate'
             })
@@ -701,6 +706,7 @@ class CollabPageNew extends React.Component {
         socket.on('pilotModeActivatedByUser', (driverUsername) => {
             // console.log("PILOTMODEACTIVATREDDGDKFNGSJGFSGF")
             this.setState({
+                pmActivated: true,
                 pmDriver: driverUsername,
                 pmButtonVariant: 'warning',
                 pmButtonLabel: 'Activated'
@@ -775,15 +781,30 @@ class CollabPageNew extends React.Component {
         this.state.socket.emit("pilotModeRequested", requestData)
     }
 
+    // button that is clicked when the room is in Pilot Mode
+    // if the Driver clicks it, it changes the 
     handlePMButtonClick = () => {
         // already activated 
+        // console.log('handlePMButtonClick')
+        // console.log(this.state.pmActivated, this.state.pmIsDriver)
+
+        // the driver deactivates the Pilot Mode 
         if (this.state.pmActivated && this.state.pmIsDriver) {
+            document.removeEventListener('scroll', this.sendScrollPercent, true);
             this.setState({
-                pmActivated: false
+                pmActivated: false,
+                pmButtonVariant: 'info',
+                pmButtonLabel: 'Activate',
+                pmIsDriver: false,
+
+                pmWaitNumAccepts: 0
             }, () => {
                 this.state.socket.emit('pilotModeStopped')
             })
-        } else if (!this.state.pmActivated && !this.state.pmIsDriver) {
+        } 
+        
+        // 
+        else if (!this.state.pmActivated && !this.state.pmIsDriver) {
             this.requestPilotMode()
         }
     }
@@ -845,7 +866,6 @@ class CollabPageNew extends React.Component {
              this.setState({isTourOpen: true});
         }
 
-        // document.addEventListener('scroll', this.getScrollPercent, true);
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -878,9 +898,11 @@ class CollabPageNew extends React.Component {
         }
 
         // Pilot Mode
-        if (this.state.pmActivated) {
-            document.addEventListener('scroll', this.sendScrollPercent, true);
-        }
+        // prevState.pmActivated !== this.state.pmActivated && 
+        // if (this.state.pmActivated && this.state.pmIsDriver) {
+        //     // console.log(this.state.pmActivated, this.state.pmIsDriver)
+        //     document.addEventListener('scroll', this.sendScrollPercent);
+        // }
 
     }
 
@@ -1071,12 +1093,7 @@ class CollabPageNew extends React.Component {
                         </Dropdown>
                     </div>
                     <div className='tools'>
-                        {/* <Alert variant='success' show={this.state.usersJoinedAlertVisible}>
-                            {this.state.newUser} has entered the room.
-                        </Alert>
-                        <Alert variant='warning ' show={this.state.usersDisconnectedAlertVisible}>
-                            {this.state.disconnectedUser} has left the room.
-                        </Alert> */}
+                        {/*  */}
                     </div>
                     <div className='download-button-container'>
                         <Button className='download-button' onClick={event => this.downloadProc(event)}>
@@ -1093,9 +1110,9 @@ class CollabPageNew extends React.Component {
                     You are currently disconnected. The changes you make might not be saved. 
                 </Alert>
                 <Tour
-                steps={steps}
-                isOpen={this.state.isTourOpen}
-                onRequestClose={this.closeTour}/>
+                    steps={steps}
+                    isOpen={this.state.isTourOpen}
+                    onRequestClose={this.closeTour}/>
 
                 {/* Pilot Mode */}
                 {/* confirmation window */}
