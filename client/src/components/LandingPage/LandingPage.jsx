@@ -5,11 +5,18 @@ import PDFViewer from '../PDFViewer/PDFViewer';
 import axios from 'axios';
 import Tour from 'reactour';
 
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+
+
 // Components
 import Button from 'react-bootstrap/Button';
 // import Form from 'react-bootstrap/Form';
 import Alert from 'react-bootstrap/Alert';
 import Modal from 'react-bootstrap/Modal';
+
+
+import { logoutUser } from "../../actions/authActions";
 
 
 // css
@@ -69,6 +76,11 @@ class LandingPage extends React.Component {
         // Intro
         this.closeTour = this.closeTour.bind(this);
     }
+
+    onLogoutClick = e => {
+        e.preventDefault();
+        this.props.logoutUser();
+    };
 
     uploadFile() {
         const { selectedFile } = this.state;
@@ -339,6 +351,7 @@ class LandingPage extends React.Component {
         return (
             <div className='grid-container'>
                 <p onClick={() => this.setState({isTourOpen: true})} className="nav">Tutorial</p>
+                <p onClick={this.onLogoutClick} className="nav2"> Logout </p>
                 <div className='create-room-container'>
                     <div className='create-room'>
                         <p className='room-header'>CREATE ROOM</p>
@@ -416,4 +429,18 @@ class LandingPage extends React.Component {
     }
 }
 
-export default LandingPage;
+LandingPage.propTypes = {
+    logoutUser: PropTypes.func.isRequired,
+    auth: PropTypes.object.isRequired
+  };
+
+  const mapStateToProps = state => ({
+    auth: state.auth
+  });
+
+  export default connect(
+    mapStateToProps,
+    { logoutUser }
+  )(LandingPage);
+
+// export default LandingPage;

@@ -12,6 +12,39 @@ var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
 var db;
 
+// Users
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+
+const passport = require("passport");
+
+const users = require("./routes/api/users");
+// Bodyparser middleware
+app.use(
+    bodyParser.urlencoded({
+        extended: false
+    })
+);
+app.use(bodyParser.json());
+// DB Config
+const userdb = require("./config/keys").mongoURI;
+// Connect to MongoDB
+mongoose
+  .connect(
+    userdb,
+    { useNewUrlParser: true }
+  )
+  .then(() => console.log("MongoDB successfully connected"))
+  .catch(err => console.log(err));
+
+
+// Passport middleware
+app.use(passport.initialize());
+// Passport config
+require("./config/passport")(passport);
+// Routes
+app.use("/api/users", users);
+
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
     if(err) throw err;
