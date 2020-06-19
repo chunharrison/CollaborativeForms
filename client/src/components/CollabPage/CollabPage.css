@@ -300,3 +300,13 @@ body {
 .pilot-mode-button-label {
     /* font-size: 60%; */
 }
+
+.dropdown {
+    display:block;
+}
+
+.options-container {
+    display:block;
+    position:absolute;
+    top:50px;
+}
