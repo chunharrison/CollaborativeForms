@@ -14,6 +14,7 @@ import { setCurrentUser, logoutUser } from "../actions/authActions";
 
 import Login from './Login/Login'
 import Register from './Register/Register'
+import SignInOrUp from "./SignInOrUp/SignInOrUp";
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";
 // import Dashboard from "./components/dashboard/Dashboard";
@@ -54,6 +55,7 @@ function App() {
           <Route exact path='/register' component={Register}/>
           <Route exact path='/login' component={Login}/>
           <Route path='/component-testing' component={TextOptions}/>
+          <Route exact path='/account' component={SignInOrUp} />
         </Switch>
       </Router>
       </Provider>
