@@ -67,7 +67,7 @@ class Login extends Component {
                 id="login-email"
                 type="email"
                 placeholder="Email"
-                className={classnames("", {
+                className={classnames("login-register-input", {
                   invalid: errors.email || errors.emailnotfound
                 })}/>
               <span className="red-text">
@@ -84,7 +84,7 @@ class Login extends Component {
                 id="login-password"
                 type="password"
                 placeholder="Password"
-                className={classnames("", {
+                className={classnames("login-register-input", {
                   invalid: errors.password || errors.passwordincorrect
                 })}
               />
@@ -98,7 +98,7 @@ class Login extends Component {
 
             <button
               type="submit"
-              className="signin-button"
+              className="signin-button login-register-button"
             >
               Login
             </button>

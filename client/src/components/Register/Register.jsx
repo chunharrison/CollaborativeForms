@@ -64,7 +64,7 @@ class Register extends Component {
                             id="name"
                             type="text"
                             placeholder="Name"
-                            className={classnames("", {
+                            className={classnames("login-register-input", {
                                 invalid: errors.name
                             })}
                         />
@@ -79,7 +79,7 @@ class Register extends Component {
                             id="email"
                             type="email"
                             placeholder="Email"
-                            className={classnames("", {
+                            className={classnames("login-register-input", {
                                 invalid: errors.email
                             })}
                         />
@@ -94,7 +94,7 @@ class Register extends Component {
                             id="password"
                             type="password"
                             placeholder="Password"
-                            className={classnames("", {
+                            className={classnames("login-register-input", {
                                 invalid: errors.password
                             })}
                         />
@@ -108,7 +108,7 @@ class Register extends Component {
                             id="password2"
                             type="password"
                             placeholder="Confirm Password"
-                            className={classnames("", {
+                            className={classnames("login-register-input", {
                                 invalid: errors.password2
                             })}
                         />
@@ -116,7 +116,7 @@ class Register extends Component {
                     </div>
                     <button
                         type="submit"
-                        className="signup-button"
+                        className="signup-button login-register-button"
                     >
                         Sign up
                     </button>

@@ -2,7 +2,7 @@
 	box-sizing: border-box;
 }
 
-body {
+/* body {
 	background: #f6f5f7; 
 	display: flex;
 	justify-content: center;
@@ -11,9 +11,9 @@ body {
 	font-family: 'Montserrat', sans-serif;
 	height: 100vh;
 	margin: -20px 0 50px;
-}
+} */
 
-p {
+.panel-description {
     font-size: 14px;
 	font-weight: 100;
 	line-height: 20px;
@@ -21,7 +21,7 @@ p {
 	margin: 20px 0 30px;
 }
 
-input {
+.login-register-input {
 	background-color: #eee;
 	border: none;
 	padding: 12px 15px;
@@ -29,7 +29,8 @@ input {
 	width: 100%;
 }
 
-button {
+/* Button */
+.login-register-button {
 	border-radius: 20px;
 	border: 1px solid #eb6f69;
 	background-color: #eb6f69;
@@ -42,15 +43,15 @@ button {
 	transition: transform 80ms ease-in;
 }
 
-button:active {
+.login-register-button:active {
 	transform: scale(0.95);
 }
 
-button:focus {
+.login-register-button:focus {
 	outline: none;
 }
 
-button.ghost {
+.login-register-button.ghost {
 	background-color: transparent;
 	border-color: #FFFFFF;
 }
