@@ -28,9 +28,11 @@ import axios from 'axios';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import Tour from 'reactour';
+import jwt_decode from "jwt-decode";
 
 // // PDF document (for dev)
 // import PDF from '../docs/sample.pdf';
+import setAuthToken from "../../utils/setAuthToken";
 
 //CSS
 import './CollabPage.css';
@@ -879,7 +881,14 @@ class CollabPageNew extends React.Component {
 
             const creation = action === 'create' ? true : false;
             const socketID = socket.id;
-            socket.emit('join', { socketID, username, roomCode, creation })
+
+            const token = localStorage.jwtToken;
+            setAuthToken(token);
+            // Decode token and get user info and exp
+            const decoded = jwt_decode(token);
+            
+
+            socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
         });
 
         // Connection
@@ -928,10 +937,17 @@ class CollabPageNew extends React.Component {
                 }
             })
 
+            
             this.setState({ pmWaitNumAccepts: this.state.pmWaitNumAccepts + 1 }, () => {
                 console.log(this.state.pmWaitConfirmTableRows.length, this.state.pmWaitNumAccepts)
                 if (this.state.pmWaitConfirmTableRows.length === this.state.pmWaitNumAccepts) {
                     document.addEventListener('scroll', this.sendScrollPercent, true);
+
+                    const token = localStorage.jwtToken;
+                    setAuthToken(token);
+                    // Decode token and get user info and exp
+                    const decoded = jwt_decode(token);
+
                     setTimeout(this.setState({
                         // send scroll percentage
                         pmActivated: true,
@@ -942,7 +958,7 @@ class CollabPageNew extends React.Component {
                         pmButtonVariant: 'danger',
                         pmIsDriver: true,
                     }), 2500)
-                    socket.emit('pilotModeActivated', this.state.username)
+                    socket.emit('pilotModeActivated', {username: this.state.username, driverID: decoded.id})
                 }
             })
         })
@@ -1002,6 +1018,21 @@ class CollabPageNew extends React.Component {
                 pmButtonVariant: 'warning',
                 pmButtonLabel: 'Activated'
             })
+        })
+
+        socket.on('welcomeBackDriver', () => {
+            document.addEventListener('scroll', this.sendScrollPercent, true);
+            
+            setTimeout(this.setState({
+                // send scroll percentage
+                pmActivated: true,
+
+                // 
+                pmWaitConfirmModalShow: false,
+                pmButtonLabel: 'Cancel',
+                pmButtonVariant: 'danger',
+                pmIsDriver: true,
+            }), 2500)
         })
 
         // Signatures

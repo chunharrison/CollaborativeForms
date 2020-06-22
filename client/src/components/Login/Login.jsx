@@ -64,7 +64,7 @@ class Login extends Component {
                 onChange={this.onChange}
                 value={this.state.email}
                 error={errors.email}
-                id="login-email"
+                id="email"
                 type="email"
                 placeholder="Email"
                 className={classnames("login-register-input", {
@@ -81,7 +81,7 @@ class Login extends Component {
                 onChange={this.onChange}
                 value={this.state.password}
                 error={errors.password}
-                id="login-password"
+                id="password"
                 type="password"
                 placeholder="Password"
                 className={classnames("login-register-input", {

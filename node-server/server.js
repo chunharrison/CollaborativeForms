@@ -119,7 +119,7 @@ io.on('connection', (socket)=>{
 
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
-    socket.on('join', ({ socketID, username, roomCode, creation }) => {
+    socket.on('join', ({ socketID, username, roomCode, creation, userID }) => {
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
@@ -145,6 +145,7 @@ io.on('connection', (socket)=>{
                 socket.to(roomCode).emit('updateCurrentUsers', result.users);
                 socket.emit('updateCurrentUsers', result.users);
             } 
+
             // room create
             else if (result === null && creation) {
                 // initial room
@@ -156,6 +157,14 @@ io.on('connection', (socket)=>{
             // (the room does not exist)
             else {
                 socket.emit('invalidRoomCode')
+            }
+
+            if (result && result.pilotModeActivated) {
+                if(result.pilotModeDriver === userID) {
+                    socket.emit('welcomeBackDriver') 
+                } else {
+                    socket.emit('pilotModeActivatedByUser', result.pilotModeDriver.name)
+                }
             }
         });
 
@@ -308,8 +317,18 @@ io.on('connection', (socket)=>{
             // }
         })
 
-        socket.on('pilotModeActivated', (driverUsername) => {
-            socket.to(roomCode).emit('pilotModeActivatedByUser', driverUsername)
+        socket.on('pilotModeActivated', (data) => {
+            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+                if (err) throw err;
+
+                pilotModeDriverData = {
+                    name: data.username,
+                    id: data.driverID
+                }
+                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true, pilotModeDriver: pilotModeDriverData}})
+            })
+
+            socket.to(roomCode).emit('pilotModeActivatedByUser', data.username)
         })
 
         socket.on("sendScrollPercent", (scrollPercent) => {
