@@ -171,9 +171,16 @@ body {
 
 .pattern {
     position: absolute;
-    right: 1vw;
-    bottom: 8vw;
+    right: -4vw;
+    bottom: 20vw;
     width:14vw;
+}
+
+.rectangle {
+    position: absolute;
+    right: 1vw;
+    bottom: 0vw;
+    width:12vw;
 }
 
 .circle-edit {
@@ -181,6 +188,13 @@ body {
     left: 1vw;
     bottom: 2vw;
     width:9vw;
+}
+
+.triangle {
+    position:absolute;
+    left: -8vw;
+    top: 3vw;
+    width:20vw;
 }
 
 .description {

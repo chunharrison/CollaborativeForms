@@ -25,6 +25,8 @@ import underline from './underline.png';
 import typeIndicator from './type-indicator.png';
 import circleEdit from './circle.png';
 import pattern from './pattern.png';
+import triangle from './triangle.png';
+import rectangle from './rectangle.png';
 import downArrow from './down-arrow.png';
 import featureOne from './feature-one.png';
 import rectangleOne from './rectangle-1.png';
@@ -124,6 +126,8 @@ class LandingPage extends React.Component {
                     <p className='description'>Sign PDF documents real time with clients <br/> and team members alike with our online <br/> collaborative platform</p>
                     <img src={pattern} className='pattern'/>
                     <img src={circleEdit} className='circle-edit'/>
+                    <img src={triangle} className='triangle'/>
+                    <img src={rectangle} className='rectangle'/>
                     <div className='welcome-button-container'>
                         <p className='welcome-demo-button'>Try our demo</p>
                     </div>
