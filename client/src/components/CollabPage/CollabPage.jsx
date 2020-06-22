@@ -135,6 +135,8 @@ class CollabPageNew extends React.Component {
         this.updateTextFontSize = this.updateTextFontSize.bind(this);
         this.updateTextOpacity = this.updateTextOpacity.bind(this);
         this.updateTextColor = this.updateTextColor.bind(this);
+        this.zoomIn = this.zoomIn.bind(this);
+        this.zoomOut = this.zoomOut.bind(this);
         // Signature
         this.mouseMove = this.mouseMove.bind(this);
         this.setSignatureURL = this.setSignatureURL.bind(this);
@@ -178,14 +180,15 @@ class CollabPageNew extends React.Component {
         let self = this
 
         // get the canvas element created by react-pdf
-        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0]
+        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0];
         const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
         pageCanvasElement.id = pageNum.toString()
-        const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat) // maybe turn this into JSON
+        const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat); // maybe turn this into JSON
+        console.log(backgroundImg);
         let browserElement = document.getElementById(`browser-${pageNum}`);
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
         // create fabric canvas element with correct dimensions of the document
-        let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false })
+        let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false });
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function (img) {
@@ -242,7 +245,6 @@ class CollabPageNew extends React.Component {
         //triggers when mouse is clicked down
         fabricCanvas.on('mouse:down', function (o) {
             var pointer = fabricCanvas.getPointer(o.e);
-            console.log(self.state.mode);
             //add rectangle if highlither tool is used
             if (self.state.mode === 'highlighter') {
                 self.setState({
@@ -359,7 +361,6 @@ class CollabPageNew extends React.Component {
                 pageNum: pageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
             }
-            console.log(self.state.toSend);
             if (self.state.toSend) {
                 socket.emit('addIn', pageData)
                 self.setState({ toSend: false });
@@ -691,6 +692,34 @@ class CollabPageNew extends React.Component {
         this.setState({ textColor: e.target.style.backgroundColor });
     }
 
+    //Zoom
+    zoomOut() {
+        let fabricCanvasObject = document.getElementById('3').fabric;
+        fabricCanvasObject.setZoom(1);
+        fabricCanvasObject.setWidth(this.state.originalWidth * fabricCanvasObject.getZoom());
+        fabricCanvasObject.setHeight(this.state.originalHeight * fabricCanvasObject.getZoom());
+    }
+
+    zoomIn() {
+        let fabricCanvasObject = document.getElementById('3').fabric;
+        fabricCanvasObject.setZoom(2);
+        let pdfPage =   <LoadPage
+                            socket={this.state.socket}
+                            pageNum={3}
+                            width={this.state.originalWidth * fabricCanvasObject.getZoom()}
+                            height={this.state.originalWidth * fabricCanvasObject.getZoom()}
+                            dataURLFormat={this.state.dataURLFormat}
+                            roomCode={this.state.roomCode}
+                            renderFabricCanvas={this.renderFabricCanvas}
+                        />
+        console.log(pdfPage);
+        console.log(fabricCanvasObject.getZoom());
+        fabricCanvasObject.setWidth(this.state.originalWidth * fabricCanvasObject.getZoom());
+        fabricCanvasObject.setHeight(this.state.originalWidth * fabricCanvasObject.getZoom());
+        fabricCanvasObject.backgroundImage.scaleToHeight(Math.floor(fabricCanvasObject.height));
+        fabricCanvasObject.backgroundImage.scaleToWidth(Math.floor(fabricCanvasObject.width));
+        console.log(this.state.numpages);
+    }
 
     /* #################################################################################################
     ############################################ Signature #############################################
@@ -1385,6 +1414,8 @@ class CollabPageNew extends React.Component {
                                     updateTextColor={this.updateTextColor} />
                                 : null}
                         </div>
+                        <button onClick={this.zoomOut}>Zoom Out</button>
+                        <button onClick={this.zoomIn}>Zoom In</button>
                     </div>
                     {roomCodeCopy}
                 </div>

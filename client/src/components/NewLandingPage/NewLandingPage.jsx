@@ -1,23 +1,6 @@
 import React from "react";
-import { Link, Redirect } from 'react-router-dom';
-import { nanoid } from 'nanoid';
-import PDFViewer from '../PDFViewer/PDFViewer';
-import axios from 'axios';
-import Tour from 'reactour';
 import { InView } from 'react-intersection-observer'
 
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
-
-
-// Components
-import Button from 'react-bootstrap/Button';
-// import Form from 'react-bootstrap/Form';
-import Alert from 'react-bootstrap/Alert';
-import Modal from 'react-bootstrap/Modal';
-
-
-import { logoutUser } from "../../actions/authActions";
 
 //images
 import redCursor from './cursor.png';
