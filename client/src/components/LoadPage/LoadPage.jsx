@@ -19,6 +19,8 @@ function LoadPage(props) {
     const [pageWidth, setPageWidth] = useState(0);
     const [pageHeight, setPageHeight] = useState(0);
 
+    const [scale, setScale] = useState(1);
+
     // Use `useCallback` so we don't recreate the function on each render - Could result in infinite loop
     const setRefs = useCallback(
         (node) => {
@@ -47,7 +49,7 @@ function LoadPage(props) {
         }
 
         if (pageLoaded && pageRendered && !fabricRendered) {
-            console.log(pageWidth, pageHeight)
+            // console.log(pageWidth, pageHeight)
             props.renderFabricCanvas(
                 props.dataURLFormat,
                 props.pageNum, 
@@ -61,11 +63,19 @@ function LoadPage(props) {
     });
 
     function onPageLoadSuccess(page) {
-        console.log(page)
-        console.log(page.view[2], page.view[3])
         setPageWidth(page.view[2])
         setPageHeight(page.view[3])
         setPageLoaded(true)
+    }
+
+    function zoomIn(e) {
+        e.preventDefault()
+        setScale(1.5)
+    }
+
+    function zoomOut(e) {
+        e.preventDefault()
+        setScale(0.5)
     }
 
     return (<div 
@@ -77,7 +87,20 @@ function LoadPage(props) {
                     {
                         (oneSecondReached) 
                         ? 
-                        (<Page 
+                        (
+                        <div className="father-of-two">
+                        {/* PDF CANVAS */}
+                        <Page 
+                            scale={scale}
+                            pageNumber={props.pageNum}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            className={'lowest-canvas'}
+                            onLoadSuccess={(page) => onPageLoadSuccess(page)}
+                            onRenderSuccess={() => setPageRenderd(true)}
+                        />
+                        {/* FABRIC CANVAS */}
+                        <Page 
                             scale={1}
                             pageNumber={props.pageNum}
                             renderTextLayer={false}
@@ -85,12 +108,23 @@ function LoadPage(props) {
                             className={props.pageNum.toString()}
                             onLoadSuccess={(page) => onPageLoadSuccess(page)}
                             onRenderSuccess={() => setPageRenderd(true)}
-                        />) 
+                        />
+                        </div>) 
                         : 
                         null
                     }
                     </div> 
                 <p className='page-number'>{props.pageNum}</p>
+                {
+                    (props.pageNum === 3)
+                    ?
+                    (<div>
+                    <button onClick={e => zoomIn(e)}>zoom in</button>
+                    <button onClick={e => zoomOut(e)}>zoom out</button>
+                    </div>)
+                    :
+                    null
+                }
             </div>)
 }
 
