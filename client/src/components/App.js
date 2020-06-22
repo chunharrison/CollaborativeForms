@@ -1,8 +1,8 @@
 import React from "react";
-import LandingPage from './LandingPage/LandingPage';
+import LandingPage from './LandingPage/LandingPage'
 import InvalidRoomCodePage from './InvalidRoomCodePage/InvalidRoomCodePage'
 import CollabPage from './CollabPage/CollabPage'
-import TextOptions from './TextOptions/TextOptions'
+import NewLandingPage from './NewLandingPage/NewLandingPage'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Provider } from "react-redux"
@@ -54,7 +54,7 @@ function App() {
           <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
           <Route exact path='/register' component={Register}/>
           <Route exact path='/login' component={Login}/>
-          <Route path='/component-testing' component={TextOptions}/>
+          <Route path='/component-testing' component={NewLandingPage}/>
           <Route exact path='/account' component={SignInOrUp} />
         </Switch>
       </Router>

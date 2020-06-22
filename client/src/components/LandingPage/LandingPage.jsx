@@ -350,7 +350,6 @@ class LandingPage extends React.Component {
 
         return (
             <div className='grid-container'>
-                <p onClick={() => this.setState({isTourOpen: true})} className="nav">Tutorial</p>
                 <p onClick={this.onLogoutClick} className="nav2"> Logout </p>
                 <div className='create-room-container'>
                     <div className='create-room'>
