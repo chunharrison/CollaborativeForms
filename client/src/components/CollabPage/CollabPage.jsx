@@ -48,6 +48,7 @@ class CollabPageNew extends React.Component {
 
             // Document info
             numPages: 0, // number of pages the document have
+            pagesArray: [],
             width: 0, // width of the document pages after being scaled up/down
             originalWidth: 0, // orignal width of the document pages
             height: 0, // height of the document pages after being scaled up/down
@@ -171,12 +172,17 @@ class CollabPageNew extends React.Component {
     // procs when the document is successfully loaded by the Document component from react-pdf
     // retrieves the number of pdf pages and store it in state
     onDocumentLoadSuccess = (pdf) => {
+        console.log(pdf)
+        const PA = Array.from(Array(pdf.numPages), (_, i) => i + 1)
+        console.log(PA)
         this.setState({
-            numPages: pdf.numPages
+            numPages: pdf.numPages,
+            pagesArray: PA
         })
     }
 
     renderFabricCanvas = (dataURLFormat, pageNum, width, height, socket, roomCode) => {
+        console.log(dataURLFormat, pageNum, width, height, socket, roomCode)
         let self = this
 
         // get the canvas element created by react-pdf
@@ -185,20 +191,27 @@ class CollabPageNew extends React.Component {
         pageCanvasElement.id = pageNum.toString()
         const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat); // maybe turn this into JSON
         console.log(backgroundImg);
+
+        // browser
         let browserElement = document.getElementById(`browser-${pageNum}`);
         browserElement.style.backgroundImage = `url(${backgroundImg})`;
+
         // create fabric canvas element with correct dimensions of the document
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false });
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
         // set the background image as what is on the document
         fabric.Image.fromURL(backgroundImg, function (img) {
             // // set correct dimensions of the image
-            img.scaleToWidth(Math.floor(self.state.width));
-            img.scaleToHeight(Math.floor(self.state.height));
+            // img.scaleToWidth(Math.floor(self.state.width));
+            // img.scaleToHeight(Math.floor(self.state.height));
+            img.scaleToWidth(Math.floor(width));
+            img.scaleToHeight(Math.floor(height));
             // set the image as background and then render
             fabricCanvas.setBackgroundImage(img);
             fabricCanvas.requestRenderAll();
         })
+
+        console.log(fabricCanvas)
 
         // if you are joinging and existing room and there are signatures that were already placed
         socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
@@ -703,16 +716,6 @@ class CollabPageNew extends React.Component {
     zoomIn() {
         let fabricCanvasObject = document.getElementById('3').fabric;
         fabricCanvasObject.setZoom(2);
-        let pdfPage =   <LoadPage
-                            socket={this.state.socket}
-                            pageNum={3}
-                            width={this.state.originalWidth * fabricCanvasObject.getZoom()}
-                            height={this.state.originalWidth * fabricCanvasObject.getZoom()}
-                            dataURLFormat={this.state.dataURLFormat}
-                            roomCode={this.state.roomCode}
-                            renderFabricCanvas={this.renderFabricCanvas}
-                        />
-        console.log(pdfPage);
         console.log(fabricCanvasObject.getZoom());
         fabricCanvasObject.setWidth(this.state.originalWidth * fabricCanvasObject.getZoom());
         fabricCanvasObject.setHeight(this.state.originalWidth * fabricCanvasObject.getZoom());
@@ -911,13 +914,14 @@ class CollabPageNew extends React.Component {
             const creation = action === 'create' ? true : false;
             const socketID = socket.id;
 
-            const token = localStorage.jwtToken;
-            setAuthToken(token);
-            // Decode token and get user info and exp
-            const decoded = jwt_decode(token);
+            // const token = localStorage.jwtToken;
+            // setAuthToken(token);
+            // // Decode token and get user info and exp
+            // const decoded = jwt_decode(token);
             
 
-            socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
+            // socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
+            socket.emit('join', { socketID, username, roomCode, creation })
         });
 
         // Connection
@@ -1223,12 +1227,12 @@ class CollabPageNew extends React.Component {
 
         // after we extract the correct number of pages, width and height, 
         // generate inview elements for rest of the pages
-        if (0 !== this.state.numPages &&
-            0 !== this.state.width &&
-            0 !== this.state.height &&
-            this.inViewElements === null) {
-            this.inViewElements = this.createInViewElements();
-        }
+        // if (0 !== this.state.numPages &&
+        //     0 !== this.state.width &&
+        //     0 !== this.state.height &&
+        //     this.inViewElements === null) {
+        //     this.inViewElements = this.createInViewElements();
+        // }
 
         // after the first page is fully rendered, convert it into a fabricJS canvas element
         if (prevState.firstPageRendered !== this.state.firstPageRendered && this.state.firstPageRendered) {
@@ -1434,29 +1438,20 @@ class CollabPageNew extends React.Component {
                             file={givenPDFDocument}
                             onLoadSuccess={(pdf) => this.onDocumentLoadSuccess(pdf)}
                             loading={documentLoader}
-                        >
+                        >   
                             <div id='canvas-container' ref={this.canvasContainerRef}>
-                                {/* <RemoveScroll>
-                                </RemoveScroll>   */}
-                                {/* just render the first page to get width and height data */}
-                                <div key={1}>
-                                    <div className='page-and-number-container' id={`container-1`}>
-                                        <Page
-                                            scale={1.5}
-                                            pageNumber={1}
-                                            renderTextLayer={false}
-                                            renderAnnotationLayer={false}
-                                            onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
-                                            className={'1'}
-                                            onRenderSuccess={() => this.setState({
-                                                firstPageRendered: true
-                                            })}
+                                {/* Render the pages of the PDF */}
+                                {
+                                    this.state.pagesArray.map((value, index) => {
+                                        return <LoadPage 
+                                            pageNum={value}
+                                            dataURLFormat={this.state.dataURLFormat}
+                                            socket={this.state.socket}
+                                            roomCode={this.state.roomCode}
+                                            renderFabricCanvas={this.renderFabricCanvas}
                                         />
-                                        <p className='page-number'>1</p>
-                                    </div>
-                                </div>
-                                {/* rest of the pages are to be loaded if they are in view */}
-                                {this.inViewElements}
+                                    })
+                                }
                             </div>
 
                         </Document>

@@ -15,6 +15,10 @@ function LoadPage(props) {
     const [pageRendered, setPageRenderd] = useState(false);
     const [fabricRendered, setFabricRendered] = useState(false);
 
+    const [pageLoaded, setPageLoaded] = useState(false);
+    const [pageWidth, setPageWidth] = useState(0);
+    const [pageHeight, setPageHeight] = useState(0);
+
     // Use `useCallback` so we don't recreate the function on each render - Could result in infinite loop
     const setRefs = useCallback(
         (node) => {
@@ -42,12 +46,13 @@ function LoadPage(props) {
             }
         }
 
-        if (pageRendered && !fabricRendered) {
+        if (pageLoaded && pageRendered && !fabricRendered) {
+            console.log(pageWidth, pageHeight)
             props.renderFabricCanvas(
                 props.dataURLFormat,
                 props.pageNum, 
-                props.width, 
-                props.height,
+                pageWidth, 
+                pageHeight,
                 props.socket,
                 props.roomCode
             )
@@ -55,31 +60,36 @@ function LoadPage(props) {
         }
     });
 
+    function onPageLoadSuccess(page) {
+        console.log(page)
+        console.log(page.view[2], page.view[3])
+        setPageWidth(page.view[2])
+        setPageHeight(page.view[3])
+        setPageLoaded(true)
+    }
+
     return (<div 
                 className='page-and-number-container' id={`container-${props.pageNum}`}
-                style= {{
-                    width:(props.width !== 0 ? props.width : 595),
-                    height:(props.height !== 0 ? props.height : 842)
-                }}>
-                <div 
-                    className='page-wrapper' 
-                    style={{
-                        width:(props.width !== 0 ? props.width : 595),
-                        height:(props.height !== 0 ? props.height : 842)
-                    }}
-                    ref={setRefs}>
-                    {(oneSecondReached) ? (
-                        <Page 
-                            scale={1.5}
+                >
+                    <div 
+                        className='page-wrapper' id={`wrapper-${props.pageNum}`} 
+                        ref={setRefs}>
+                    {
+                        (oneSecondReached) 
+                        ? 
+                        (<Page 
+                            scale={1}
                             pageNumber={props.pageNum}
                             renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className={props.pageNum.toString()}
+                            onLoadSuccess={(page) => onPageLoadSuccess(page)}
                             onRenderSuccess={() => setPageRenderd(true)}
-                        />
-                        
-                    ) : null }
-                </div>
+                        />) 
+                        : 
+                        null
+                    }
+                    </div> 
                 <p className='page-number'>{props.pageNum}</p>
             </div>)
 }

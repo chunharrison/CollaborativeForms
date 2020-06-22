@@ -109,7 +109,8 @@ body {
     flex-direction: column;
     background-color: white;
     z-index: 1;
-    height:100%;
+    width: 595px;
+    height: 842px;
 }
 
 .page-and-number-container {
@@ -120,7 +121,6 @@ body {
     align-items: center;
     flex-direction: column;
     z-index: 1;
-    height:100%;
 }
 
 .popup-content {
