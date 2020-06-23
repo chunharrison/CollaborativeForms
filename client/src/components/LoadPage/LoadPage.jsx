@@ -68,22 +68,9 @@ function LoadPage(props) {
         setPageLoaded(true)
     }
 
-    function zoomIn(e) {
-        e.preventDefault()
-        setScale(1.5)
-    }
-
-    function zoomOut(e) {
-        e.preventDefault()
-        setScale(0.5)
-    }
-
     return (<div 
                 className='page-and-number-container' id={`container-${props.pageNum}`}
                 >
-                    <div 
-                        className='page-wrapper' id={`wrapper-${props.pageNum}`} 
-                        ref={setRefs}>
                     {
                         (oneSecondReached) 
                         ? 
@@ -91,19 +78,20 @@ function LoadPage(props) {
                         <div className="father-of-two">
                         {/* PDF CANVAS */}
                         <Page 
-                            scale={scale}
+                            scale={props.scale}
                             pageNumber={props.pageNum}
                             renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className={'lowest-canvas'}
                             onLoadSuccess={(page) => onPageLoadSuccess(page)}
                             onRenderSuccess={() => setPageRenderd(true)}
+                            // renderMode={'svg'}
                         />
                         {/* FABRIC CANVAS */}
                         <Page 
                             scale={1}
                             pageNumber={props.pageNum}
-                            renderTextLayer={false}
+                            // renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className={props.pageNum.toString()}
                             onLoadSuccess={(page) => onPageLoadSuccess(page)}
@@ -111,20 +99,11 @@ function LoadPage(props) {
                         />
                         </div>) 
                         : 
-                        null
+                        <div 
+                        className='page-wrapper' id={`wrapper-${props.pageNum}`} 
+                        ref={setRefs} />
                     }
-                    </div> 
                 <p className='page-number'>{props.pageNum}</p>
-                {
-                    (props.pageNum === 3)
-                    ?
-                    (<div>
-                    <button onClick={e => zoomIn(e)}>zoom in</button>
-                    <button onClick={e => zoomOut(e)}>zoom out</button>
-                    </div>)
-                    :
-                    null
-                }
             </div>)
 }
 

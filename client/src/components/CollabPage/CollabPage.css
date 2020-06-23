@@ -113,6 +113,20 @@ body {
     height: 842px;
 }
 
+/* .react-pdf__Page__textContent {
+    z-index: 2;
+}
+
+.upper-canvas {
+    z-index: 2;
+} */
+
+
+.react-pdf__Page__textContent span::selection {
+    color: rgba(51, 143, 255, 0)  !important;
+    background: rgba(51, 143, 255, 0.4)  !important;
+} 
+
 .page-and-number-container {
     flex-shrink: 0;
     margin-top: 1.5em;

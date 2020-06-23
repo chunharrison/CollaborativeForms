@@ -55,7 +55,6 @@ class CollabPageNew extends React.Component {
             originalHeight: 0, // orignal height of the document pages
 
             // Render
-            firstPageRendered: false,
             dataURLFormat: 'image/png', // the argument we pass into all toDataURL functions
 
             // Signature
@@ -90,6 +89,7 @@ class CollabPageNew extends React.Component {
             currentZoom: 1,
             testScale: 1,
             testPageRendered: false,
+            pageDimensions: [],
 
 
             // Pilot Mode
@@ -116,7 +116,6 @@ class CollabPageNew extends React.Component {
         // Render
         this.onDocumentLoadSuccess = this.onDocumentLoadSuccess.bind(this);
         this.renderFabricCanvas = this.renderFabricCanvas.bind(this);
-        this.onPageLoadSuccess = this.onPageLoadSuccess.bind(this);
 
         // Download 
         this.downloadProc = this.downloadProc.bind(this);
@@ -179,15 +178,20 @@ class CollabPageNew extends React.Component {
     onDocumentLoadSuccess = (pdf) => {
         // console.log(pdf)
         const PA = Array.from(Array(pdf.numPages), (_, i) => i + 1) // [1, 2, ..., pdf.numPages]
+        const dimensionArray = new Array(pdf.numPages)
         // console.log(PA)
         this.setState({
             numPages: pdf.numPages,
-            pagesArray: PA
+            pagesArray: PA,
+            pageDimensions: dimensionArray
         })
     }
 
     renderFabricCanvas = (dataURLFormat, pageNum, width, height, socket, roomCode) => {
-        console.log(dataURLFormat, pageNum, width, height, socket, roomCode)
+        let newPageDimensions = this.state.pageDimensions
+        newPageDimensions[pageNum - 1] = { 'width': width,  'height': height}
+        this.setState({ pageDimensions: newPageDimensions })
+        // console.log(dataURLFormat, pageNum, width, height, socket, roomCode)
         let self = this
 
         // get the canvas element created by react-pdf
@@ -206,6 +210,21 @@ class CollabPageNew extends React.Component {
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false });
         // console.log(document.getElementById(pageNum.toString()))
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
+
+        fabricCanvas.setZoom(this.state.currentZoom)
+        fabricCanvas.setWidth(this.state.pageDimensions[pageNum - 1].width * this.state.currentZoom)
+        fabricCanvas.setHeight(this.state.pageDimensions[pageNum - 1].height * this.state.currentZoom)
+
+        // let fabricCanvasElementObjects = document.getElementById(pageNum.toString()).fabric._objects
+        // console.log(fabricCanvasElementObjects, fabricCanvasElementObjects.length)
+
+        // for(let i = 0; i < fabricCanvasElementObjects.length; i++) {
+        //     console.log(fabricCanvasElementObjects[i])
+        //     fabricCanvasElementObjects[i].scaleX = this.state.currentZoom
+        //     fabricCanvasElementObjects[i].scaleY = this.state.currentZoom
+        // }
+
+        console.log(document.getElementById(pageNum.toString()).fabric)
         // set the background image as what is on the document
         // fabric.Image.fromURL(backgroundImg, function (img) {
         //     // // set correct dimensions of the image
@@ -495,329 +514,6 @@ class CollabPageNew extends React.Component {
         });
     }
 
-    renderFabricCanvas2 = (dataURLFormat, pageNum, width, height, socket, roomCode) => {
-        console.log(dataURLFormat, pageNum, width, height, socket, roomCode)
-        let self = this
-
-
-        // get the canvas element created by react-pdf
-        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0];
-        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
-        console.log(pageCanvasElement)
-        pageCanvasElement.id = pageNum.toString()
-        const backgroundImg = pageCanvasElement.toDataURL(dataURLFormat); // maybe turn this into JSON
-        console.log(backgroundImg);
-
-        // browser
-        // let browserElement = document.getElementById(`browser-${pageNum}`);
-        // browserElement.style.backgroundImage = `url(${backgroundImg})`;
-
-        // create fabric canvas element with correct dimensions of the document
-        let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false });
-        console.log(document.getElementById(pageNum.toString()))
-        document.getElementById(pageNum.toString()).fabric = fabricCanvas;
-        // set the background image as what is on the document
-        fabric.Image.fromURL(backgroundImg, function (img) {
-            // // set correct dimensions of the image
-            // img.scaleToWidth(Math.floor(self.state.width));
-            // img.scaleToHeight(Math.floor(self.state.height));
-            img.scaleToWidth(Math.floor(width));
-            img.scaleToHeight(Math.floor(height));
-            // set the image as background and then render
-            fabricCanvas.setBackgroundImage(img);
-            fabricCanvas.requestRenderAll();
-        })
-
-        // console.log(fabricCanvas)
-
-        // if you are joinging and existing room and there are signatures that were already placed
-        socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
-            // Array of JSON -> Array of FabricJS Objects
-            fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
-                // loop through the array
-                signatureObjects.forEach(function (signatureObject) {
-                    // add the signature to the page
-                    document.getElementById(pageNum.toString()).fabric.add(signatureObject)
-                })
-            })
-        })
-
-        //triggered when mousing over canvas or object
-        fabricCanvas.on('mouse:over', function (o) {
-            //different conditions for different tools
-            //o.target is null when mousing out of canvas
-            if (o.target && self.state.mode !== 'select') {
-                o.target.hoverCursor = fabricCanvas.defaultCursor;
-            } else if (o.target) {
-                o.target.hoverCursor = fabricCanvas.hoverCursor;
-            } else {
-                fabricCanvas.discardActiveObject().renderAll();
-            }
-
-            if (self.state.mode === 'freedraw') {
-                fabricCanvas.isDrawingMode = true;
-                fabricCanvas.freeDrawingBrush.width = parseInt(self.state.brushSize);
-                let match = self.state.selectedColor.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
-                fabricCanvas.freeDrawingBrush.color = `rgb(${match[1]}, ${match[2]}, ${match[3]}, ${self.state.opacity / 100})`;
-
-            }
-        });
-
-        //triggered when mousing out of canvas or object
-        fabricCanvas.on('mouse:out', function (o) {
-            //o.target is null when mousing out of canvas
-            if (!o.target) {
-                fabricCanvas.discardActiveObject().renderAll();
-            }
-            fabricCanvas.isDrawingMode = false;
-        });
-
-        //triggers when mouse is clicked down
-        fabricCanvas.on('mouse:down', function (o) {
-            var pointer = fabricCanvas.getPointer(o.e);
-            //add rectangle if highlither tool is used
-            if (self.state.mode === 'highlighter') {
-                self.setState({
-                    isDown: true,
-                    origX: pointer.x,
-                    origY: pointer.y
-                }, () => {
-                    let rect = new fabric.Rect({
-                        id: nanoid(),
-                        left: self.state.origX,
-                        top: self.state.origY,
-                        originX: 'left',
-                        originY: 'top',
-                        width: pointer.x - self.state.origX,
-                        height: pointer.y - self.state.origY,
-                        angle: 0,
-                        opacity: self.state.highlighterOpacity / 100,
-                        fill: self.state.highlighterFillColor,
-                        stroke: self.state.highlighterBorderColor,
-                        strokeWidth: parseInt(self.state.highlighterBorderThickness),
-                        transparentCorners: false
-                    });
-                    self.setState({
-                        rect: rect,
-                        toSend: true
-                    }, () => {
-                        fabricCanvas.add(rect);
-                    })
-                });
-            }
-        });
-
-        //triggers when mouse is moved on canvas
-        fabricCanvas.on('mouse:move', function (o) {
-            //trigger if left mouse button is pressed
-            if (!self.state.isDown) return;
-            var pointer = fabricCanvas.getPointer(o.e);
-            //resize rectangle if highlighter is selected
-            if (self.state.mode === 'highlighter') {
-                if (self.state.origX > pointer.x) {
-                    self.state.rect.set({ left: Math.abs(pointer.x) });
-                }
-                if (self.state.origY > pointer.y) {
-                    self.state.rect.set({ top: Math.abs(pointer.y) });
-                }
-
-                self.state.rect.set({ width: Math.abs(self.state.origX - pointer.x) });
-                self.state.rect.set({ height: Math.abs(self.state.origY - pointer.y) });
-            }
-
-            fabricCanvas.renderAll();
-        });
-
-        //triggers when left mouse button is released
-        fabricCanvas.on('mouse:up', function (e) {
-            var pointer = fabricCanvas.getPointer(e.e);
-            self.setState({ isDown: false });
-
-            if (self.state.mode === 'highlighter') {
-                self.state.rect.setCoords();
-                const modifiedSignatureObject = self.state.rect;
-                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
-
-                let pageData = {
-                    pageNum: pageNum,
-                    modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
-                }
-
-                socket.emit('editIn', pageData)
-            } else if (self.state.mode === 'freedraw') {
-                fabricCanvas.isDrawingMode = false;
-            } else if (self.state.mode === 'text') {
-                self.setState({ toSend: true }, () => {
-                    fabricCanvas.add(new fabric.IText('Insert Text', {
-                        fontFamily: 'roboto',
-                        fontSize: self.state.textFontSize,
-                        fill: self.state.textColor,
-                        opacity: self.state.textOpacity / 100,
-                        left: pointer.x,
-                        top: pointer.y,
-                        id: nanoid()
-                    }));
-                    fabricCanvas.renderAll();
-                })
-
-                self.setState({ mode: 'select' });
-            }
-
-            if (e.target) {
-                e.target.lockScalingX = false
-                e.target.lockScalingY = false
-            }
-            if (e.e.target.previousElementSibling !== null) {
-                if (self.state.holding) {
-                    self.addImage(fabricCanvas, self.state.signatureURL, e.pointer.x, e.pointer.y);
-                    self.setState({
-                        holding: false,
-                        toSend: true
-                    });
-                }
-            }
-        });
-
-        fabricCanvas.on('object:selected', function (e) {
-            if (self.state.mode !== 'select') {
-                fabricCanvas.discardActiveObject().renderAll();
-            }
-        });
-
-        fabricCanvas.on('object:added', function (e) {
-            const newSignatureObject = e.target
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id'])))
-            let pageData = {
-                pageNum: pageNum,
-                newSignatureObjectJSON: newSignatureObjectJSON
-            }
-            if (self.state.toSend) {
-                socket.emit('addIn', pageData)
-                self.setState({ toSend: false });
-            }
-        });
-
-        fabricCanvas.on('object:modified', function (e) {
-            const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
-
-            let pageData = {
-                pageNum: pageNum,
-                modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
-            }
-
-            socket.emit('editIn', pageData)
-        });
-
-        fabricCanvas.on('object:moving', function (e) {
-            var obj = e.target;
-
-            // if object is too big ignore
-            if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
-                return;
-            }
-            obj.setCoords();
-            // top-left  corner
-            if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
-                obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
-                obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
-            }
-            // bot-right corner
-            if (obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height || obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width) {
-                obj.top = Math.min(obj.top, obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top);
-                obj.left = Math.min(obj.left, obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left);
-            }
-        });
-
-        fabricCanvas.on('object:scaling', function (e) {
-            var obj = e.target;
-            obj.setCoords();
-
-            if (obj.top < 0) {
-                obj.lockScalingY = true
-                obj.top = 0
-            } else if (obj.top + obj.getScaledHeight() > obj.canvas.height) {
-                obj.lockScalingY = true
-                obj.scaleY = (obj.canvas.height - obj.top) / obj.height
-            }
-
-            if (obj.left < 0) {
-                obj.lockScalingX = true
-                obj.left = 0
-            } else if (obj.left + obj.getScaledWidth() > obj.canvas.width) {
-                obj.lockScalingX = true
-                obj.scaleX = (obj.canvas.width - obj.left) / obj.width
-            }
-        })
-
-        fabricCanvas.on('object:removed', function (e) {
-            const removedSignatureObject = e.target
-            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id'])))
-
-            let pageData = {
-                pageNum: pageNum,
-                removedSignatureObjectJSON: removedSignatureObjectJSON
-            }
-
-            if (self.state.toSend) {
-                socket.emit("deleteIn", pageData)
-                self.setState({ toSend: false });
-            }
-
-        });
-
-        fabricCanvas.on('text:changed', function (e) {
-            const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
-
-            let pageData = {
-                pageNum: pageNum,
-                modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
-            }
-
-            socket.emit('editIn', pageData)
-        });
-
-        fabricCanvas.on("path:created", function (o) {
-            o.path.id = nanoid();
-            const newSignatureObject = o.path
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id'])))
-            let pageData = {
-                pageNum: pageNum,
-                newSignatureObjectJSON: newSignatureObjectJSON
-            }
-
-            socket.emit('addIn', pageData);
-            self.setState({ toSend: false });
-        });
-
-        fabricCanvas.on('selection:created', function (e) {
-            for (let i = 1; i <= self.state.numPages; i++) {
-                if (i === pageNum) {
-                    continue;
-                }
-                let canvasObject = document.getElementById(i.toString())
-                if (canvasObject) {
-                    let fabricCanvasObject = canvasObject.fabric
-                    fabricCanvasObject.discardActiveObject().renderAll();
-                }
-            }
-        });
-    }
-
-    // procs when the first page is successfully loaded by the Page component from react-pdf
-    // retrieves the (scaled and orignal) width, height and store them in state
-    onPageLoadSuccess = (page) => {
-        this.setState({
-            width: page.width,
-            originalWidth: page.originalWidth,
-            height: page.height,
-            originalHeight: page.originalHeight,
-
-            firstPageRendered: true
-        })
-    }
-
     // generates InView elements (with wrapper) for each pages for the document after the first page loads
     // this is so that the pages do not render all at once only when the page is in view of the browser window
     createInViewElements = () => {
@@ -1026,27 +722,39 @@ class CollabPageNew extends React.Component {
 
     //Zoom
     zoomOut() {
-        // let fabricCanvasObject = document.getElementById('3').fabric;
-        // fabricCanvasObject.setZoom(1);
-        // fabricCanvasObject.setWidth(this.state.originalWidth * fabricCanvasObject.getZoom());
-        // fabricCanvasObject.setHeight(this.state.originalHeight * fabricCanvasObject.getZoom());
-        this.setState({
-            testScale: 0.5
-        })
+        if (this.state.currentZoom >= 0.4) {
+            this.setState({
+                currentZoom: this.state.currentZoom-0.2
+            }, () => {
+                for (let i = 0; i < this.state.pagesArray.length; i++) {
+                    const currentPageNum = this.state.pagesArray[i]
+                    if (document.getElementById(currentPageNum.toString())) {
+                        let fabricElement = document.getElementById(currentPageNum.toString()).fabric
+                        fabricElement.setZoom(this.state.currentZoom)
+                        fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
+                        fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
+                    }
+                }
+            })
+        }
     }
 
     zoomIn() {
-        // let fabricCanvasObject = document.getElementById('3').fabric;
-        // fabricCanvasObject.setZoom(2);
-        // console.log(fabricCanvasObject.getZoom());
-        // fabricCanvasObject.setWidth(this.state.originalWidth * fabricCanvasObject.getZoom());
-        // fabricCanvasObject.setHeight(this.state.originalHeight * fabricCanvasObject.getZoom());
-        // fabricCanvasObject.backgroundImage.scaleToHeight(Math.floor(fabricCanvasObject.height));
-        // fabricCanvasObject.backgroundImage.scaleToWidth(Math.floor(fabricCanvasObject.width));
-        // console.log(this.state.numPages);
-        this.setState({
-            testScale: 1.5
-        })
+        if (this.state.currentZoom <= 5) {
+            this.setState({
+                currentZoom: this.state.currentZoom+0.2
+            }, () => {
+                for (let i = 0; i < this.state.pagesArray.length; i++) {
+                    const currentPageNum = this.state.pagesArray[i]
+                    if (document.getElementById(currentPageNum.toString())) {
+                        let fabricElement = document.getElementById(currentPageNum.toString()).fabric
+                        fabricElement.setZoom(this.state.currentZoom)
+                        fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
+                        fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
+                    }
+                }
+            })
+        }
     }
 
     /* #################################################################################################
@@ -1555,29 +1263,6 @@ class CollabPageNew extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
 
-        // // after we extract the correct number of pages, width and height, 
-        // // generate inview elements for rest of the pages
-        // if (0 !== this.state.numPages &&
-        //     0 !== this.state.width &&
-        //     0 !== this.state.height &&
-        //     this.inViewElements === null) {
-        //     this.inViewElements = this.createInViewElements();
-        // }
-
-        // after the first page is fully rendered, convert it into a fabricJS canvas element
-        // prevState.firstPageRendered !== this.state.firstPageRendered && this.state.firstPageRendered && 
-        if (prevState.testPageRendered !== this.state.testPageRendered && this.state.testPageRendered) {
-            console.log('wtf')
-            this.renderFabricCanvas2(
-                this.state.dataURLFormat,
-                0,                          // pageNum
-                this.state.width,
-                this.state.height,
-                this.state.socket,
-                this.state.roomCode
-            )
-        }
-
         if (prevState.holding === false && this.state.holding === true) {
             let image = document.getElementById('signature-placeholder')
             image.style.top = this.state.pageY + 'px';
@@ -1752,6 +1437,7 @@ class CollabPageNew extends React.Component {
                         </div>
                         <button onClick={this.zoomOut}>Zoom Out</button>
                         <button onClick={this.zoomIn}>Zoom In</button>
+                        <p className="page-number">{Math.floor(this.state.currentZoom * 100)}%</p>
                     </div>
                     {roomCodeCopy}
                 </div>
@@ -1773,26 +1459,6 @@ class CollabPageNew extends React.Component {
                         >   
                             <div id='canvas-container' ref={this.canvasContainerRef}>
 
-                                {/* TEST */}
-                                <div className='page-and-number-container' id='container-0' >
-                                        <div className='page-wrapper'>
-                                            <Page 
-                                                scale={this.state.testScale}
-                                                pageNumber={1}
-                                                renderTextLayer={false}
-                                                className={'0'}
-                                                renderAnnotationLayer={false}
-                                                onLoadSuccess={(page) => this.onPageLoadSuccess(page)}
-                                                onRenderSuccess={() => this.test()}
-                                            />
-                                        </div> 
-                                    <p className='page-number'>0</p>
-                                </div>
-
-
-
-
-
                                 {/* Render the pages of the PDF */}
                                 {
                                     this.state.pagesArray.map((value, index) => {
@@ -1802,6 +1468,7 @@ class CollabPageNew extends React.Component {
                                             socket={this.state.socket}
                                             roomCode={this.state.roomCode}
                                             renderFabricCanvas={this.renderFabricCanvas}
+                                            scale={this.state.currentZoom}
                                         />
                                     })
                                 }
