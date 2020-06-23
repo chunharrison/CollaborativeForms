@@ -1245,7 +1245,7 @@ class CollabPageNew extends React.Component {
             
 
             // socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
-            socket.emit('join', { socketID, username, roomCode, creation })
+            socket.emit('join', { socketID, username, roomCode, creation });
         });
 
         // Connection
