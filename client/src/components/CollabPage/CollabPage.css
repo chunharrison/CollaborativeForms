@@ -114,11 +114,7 @@ body {
     height: 842px;
 }
 
-/* .react-pdf__Page__textContent {
-    z-index: 2;
-}
-
-.upper-canvas {
+/* .upper-canvas {
     z-index: 2;
 } */
 
@@ -334,6 +330,9 @@ body {
     position: absolute !important;
     top: 0;
     left: 0;
+}
+
+.lowest-canvas .react-pdf__Page__canvas {
     z-index: -1;
 }
 
@@ -341,5 +340,8 @@ body {
     position: absolute;
     top:0;
     left:0;
-    
+}    
+
+.react-pdf__Page__textContent {
+    z-index: 2;
 }

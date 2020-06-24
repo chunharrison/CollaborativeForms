@@ -243,6 +243,14 @@ class CollabPageNew extends React.Component {
 
         // console.log(fabricCanvas)
 
+        // // TEXT LAYER
+        // let pageWrapper = document.getElementById(`container-${pageNum}`)
+        // let textContent = pageWrapper.firstElementChild.firstElementChild.children[1]
+
+        // let fabricWrapper = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0]
+        // fabricWrapper.appendChild(textContent)
+
+
         // if you are joinging and existing room and there are signatures that were already placed
         socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
             // Array of JSON -> Array of FabricJS Objects

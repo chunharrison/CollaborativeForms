@@ -62,6 +62,17 @@ function LoadPage(props) {
         }
     });
 
+    function onLowerPageLoadSuccess() {
+
+        // let pageWrapper = document.getElementById(`container-${props.pageNum}`)
+        // let textContent = pageWrapper.firstElementChild.firstElementChild.children[1]
+
+        // let fabricWrapper = document.getElementsByClassName(`react-pdf__Page ${props.pageNum}`)[0]
+        // fabricWrapper.removeChild(textContent)
+
+
+    }
+
     function onPageLoadSuccess(page) {
         setPageWidth(page.view[2])
         setPageHeight(page.view[3])
@@ -80,18 +91,18 @@ function LoadPage(props) {
                         <Page 
                             scale={props.scale}
                             pageNumber={props.pageNum}
-                            renderTextLayer={false}
+                            // renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className={'lowest-canvas'}
-                            onLoadSuccess={(page) => onPageLoadSuccess(page)}
-                            onRenderSuccess={() => setPageRenderd(true)}
+                            // onLoadSuccess={(page) => onLowerPageLoadSuccess(page)}
+                            onRenderSuccess={() => onLowerPageLoadSuccess()}
                             // renderMode={'svg'}
                         />
                         {/* FABRIC CANVAS */}
                         <Page 
                             scale={1}
                             pageNumber={props.pageNum}
-                            // renderTextLayer={false}
+                            renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className={props.pageNum.toString()}
                             onLoadSuccess={(page) => onPageLoadSuccess(page)}
