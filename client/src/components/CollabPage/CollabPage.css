@@ -87,6 +87,7 @@ body {
 }
 
 #canvas-container {
+    position:relative;
     display:flex;
     width: 100%;
     align-items: center;
@@ -334,4 +335,11 @@ body {
     top: 0;
     left: 0;
     z-index: -1;
+}
+
+.current-object-owner {
+    position: absolute;
+    top:0;
+    left:0;
+    
 }

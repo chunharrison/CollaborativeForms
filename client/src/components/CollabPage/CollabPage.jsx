@@ -57,6 +57,10 @@ class CollabPageNew extends React.Component {
             // Render
             dataURLFormat: 'image/png', // the argument we pass into all toDataURL functions
 
+            //User info
+            username:'',
+            currentObjectOwner: null,
+            
             // Signature
             signatureURL: null,
             pageX: 0,
@@ -259,8 +263,6 @@ class CollabPageNew extends React.Component {
                 o.target.hoverCursor = fabricCanvas.defaultCursor;
             } else if (o.target) {
                 o.target.hoverCursor = fabricCanvas.hoverCursor;
-            } else {
-                fabricCanvas.discardActiveObject().renderAll();
             }
 
             if (self.state.mode === 'freedraw') {
@@ -274,10 +276,6 @@ class CollabPageNew extends React.Component {
 
         //triggered when mousing out of canvas or object
         fabricCanvas.on('mouse:out', function (o) {
-            //o.target is null when mousing out of canvas
-            if (!o.target) {
-                fabricCanvas.discardActiveObject().renderAll();
-            }
             fabricCanvas.isDrawingMode = false;
         });
 
@@ -306,11 +304,14 @@ class CollabPageNew extends React.Component {
                         strokeWidth: parseInt(self.state.highlighterBorderThickness),
                         transparentCorners: false
                     });
+                    let obj={owner: self.state.username};
+                    rect.set('owner',obj);
                     self.setState({
                         rect: rect,
                         toSend: true
                     }, () => {
                         fabricCanvas.add(rect);
+
                     })
                 });
             }
@@ -345,7 +346,7 @@ class CollabPageNew extends React.Component {
             if (self.state.mode === 'highlighter') {
                 self.state.rect.setCoords();
                 const modifiedSignatureObject = self.state.rect;
-                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
+                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
                 let pageData = {
                     pageNum: pageNum,
@@ -390,12 +391,40 @@ class CollabPageNew extends React.Component {
         fabricCanvas.on('object:selected', function (e) {
             if (self.state.mode !== 'select') {
                 fabricCanvas.discardActiveObject().renderAll();
+            } else {
+                self.setState({currentObjectOwner: e.target.get('owner').owner});
+                if (self.state.username !== e.target.get('owner').owner) {
+                    e.target.set({'borderColor':'#fbb802','cornerColor':'#fbb802'});
+                }
             }
+
+
+        });
+
+        fabricCanvas.on('selection:updated', function (e) {
+            if (self.state.mode !== 'select') {
+                fabricCanvas.discardActiveObject().renderAll();
+            } else {
+                self.setState({currentObjectOwner: e.target.get('owner').owner});
+                if (self.state.username !== e.target.get('owner').owner) {
+                    e.target.set({'borderColor':'#fbb802','cornerColor':'#fbb802'});
+                }
+            }
+
+
+        });
+
+        fabricCanvas.on('before:selection:cleared', function() {
+            self.setState({currentObjectOwner: null});
         });
 
         fabricCanvas.on('object:added', function (e) {
             const newSignatureObject = e.target
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id'])))
+            if (!e.target.get('owner')) {
+                let obj={owner: self.state.username};
+                newSignatureObject.set('owner',obj);
+            }
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
             let pageData = {
                 pageNum: pageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
@@ -408,7 +437,7 @@ class CollabPageNew extends React.Component {
 
         fabricCanvas.on('object:modified', function (e) {
             const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -461,7 +490,7 @@ class CollabPageNew extends React.Component {
 
         fabricCanvas.on('object:removed', function (e) {
             const removedSignatureObject = e.target
-            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id'])))
+            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -477,7 +506,7 @@ class CollabPageNew extends React.Component {
 
         fabricCanvas.on('text:changed', function (e) {
             const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id'])))
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -490,7 +519,7 @@ class CollabPageNew extends React.Component {
         fabricCanvas.on("path:created", function (o) {
             o.path.id = nanoid();
             const newSignatureObject = o.path
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id'])))
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
             let pageData = {
                 pageNum: pageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
@@ -1472,6 +1501,9 @@ class CollabPageNew extends React.Component {
                                         />
                                     })
                                 }
+                                {this.state.currentObjectOwner ? <div className='current-object-owner'>
+                                    {this.state.currentObjectOwner}
+                                </div> : null}
                             </div>
 
                         </Document>
