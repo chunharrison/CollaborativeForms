@@ -1,21 +1,32 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react'
 
 // Components
-import { Page } from 'react-pdf';
+import { Document, Page } from 'react-pdf'; // open source
 
 // Libraries
+import { connect } from 'react-redux';
 import { useInView } from 'react-intersection-observer'
 
-// props: pageNum, dataURLFormat, width, height
-function LoadPage(props) {
-    
+// Redux
+import PropTypes from "prop-types";
+import { setDocInfo } from '../../actions/docActions'
+
+const LoadDoc = (props) => {
+
+    // document
+    const [numPages, setNumPages] = useState(0);
+    const [pagesArray, setPagesArray] = useState([]);
+
+    // page inview
     const ref = useRef()
     const [inViewRef, inView, entry] = useInView()
     const [oneSecondReached, setOneSecondReached] = useState(false);
-    const [pageRendered, setPageRenderd] = useState(false);
-    const [fabricRendered, setFabricRendered] = useState(false);
 
+    // pages
     const [pageLoaded, setPageLoaded] = useState(false);
+    const [pageRendered, setPageRenderd] = useState(false);
+    const [currentPageNum, setCurrentPageNum] = useState(1);
+    const [fabricRendered, setFabricRendered] = useState(false);
     const [pageWidth, setPageWidth] = useState(0);
     const [pageHeight, setPageHeight] = useState(0);
 
@@ -47,56 +58,49 @@ function LoadPage(props) {
         }
 
         if (pageLoaded && pageRendered && !fabricRendered) {
-            // console.log(pageWidth, pageHeight)
-            props.renderFabricCanvas(
-                props.pageNum, 
-                pageWidth, 
-                pageHeight,
-                props.socket,
-                props.roomCode
-            )
+            renderFabricCanvas()
             setFabricRendered(true)
         }
     });
 
-    renderFabricCanvas = (pageNum, width, height, socket, roomCode) => {
+    renderFabricCanvas = () => {
         let newPageDimensions = this.state.pageDimensions
-        newPageDimensions[pageNum - 1] = { 'width': width,  'height': height}
+        newPageDimensions[currentPageNum - 1] = { 'width': pageWidth,  'height': pageHeight}
         this.setState({ pageDimensions: newPageDimensions })
-        let self = this
 
         // get the canvas element created by react-pdf
-        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0];
+        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${currentPageNum}`)[0];
         const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
-        pageCanvasElement.id = pageNum.toString()
+        pageCanvasElement.id = currentPageNum.toString()
 
         // browser
-        // let browserElement = document.getElementById(`browser-${pageNum}`);
+        // let browserElement = document.getElementById(`browser-${currentPageNum}`);
         // browserElement.style.backgroundImage = `url(${backgroundImg})`;
 
         // create fabric canvas element with correct dimensions of the document
-        let fabricCanvas = new fabric.Canvas(pageNum.toString(), { width: Math.floor(width), height: Math.floor(height), selection: false });
-        // console.log(document.getElementById(pageNum.toString()))
-        document.getElementById(pageNum.toString()).fabric = fabricCanvas;
+        let fabricCanvas = new fabric.Canvas(currentPageNum.toString(), { width: Math.floor(pageWidth), height: Math.floor(pageHeight), selection: false });
+        // console.log(document.getElementById(currentPageNum.toString()))
+        document.getElementById(currentPageNum.toString()).fabric = fabricCanvas;
 
         fabricCanvas.setZoom(this.state.currentZoom)
-        fabricCanvas.setWidth(this.state.pageDimensions[pageNum - 1].width * this.state.currentZoom)
-        fabricCanvas.setHeight(this.state.pageDimensions[pageNum - 1].height * this.state.currentZoom)
+        fabricCanvas.setWidth(this.state.pageDimensions[currentPageNum - 1].pageWidth * this.state.currentZoom)
+        fabricCanvas.setHeight(this.state.pageDimensions[currentPageNum - 1].pageHeight * this.state.currentZoom)
 
 
         // if you are joinging and existing room and there are signatures that were already placed
-        socket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
+        props.socket.emit('getCurrentPageSignatures', currentPageNum, (currentPageSignaturesJSONList) => {
             // Array of JSON -> Array of FabricJS Objects
             fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
                 // loop through the array
                 signatureObjects.forEach(function (signatureObject) {
                     // add the signature to the page
-                    document.getElementById(pageNum.toString()).fabric.add(signatureObject)
+                    document.getElementById(currentPageNum.toString()).fabric.add(signatureObject)
                 })
             })
         })
 
 
+        let self = this
         //triggered when mousing over canvas or object
         fabricCanvas.on('mouse:over', function (o) {
             //different conditions for different tools
@@ -191,11 +195,11 @@ function LoadPage(props) {
                 const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
                 let pageData = {
-                    pageNum: pageNum,
+                    pageNum: currentPageNum,
                     modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
                 }
 
-                socket.emit('editIn', pageData)
+                props.socket.emit('editIn', pageData)
             } else if (self.state.mode === 'freedraw') {
                 fabricCanvas.isDrawingMode = false;
             } else if (self.state.mode === 'text') {
@@ -268,11 +272,11 @@ function LoadPage(props) {
             }
             const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
             let pageData = {
-                pageNum: pageNum,
+                pageNum: currentPageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
             }
             if (self.state.toSend) {
-                socket.emit('addIn', pageData)
+                props.socket.emit('addIn', pageData)
                 self.setState({ toSend: false });
             }
         });
@@ -282,11 +286,11 @@ function LoadPage(props) {
             const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
-                pageNum: pageNum,
+                pageNum: currentPageNum,
                 modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
             }
 
-            socket.emit('editIn', pageData)
+            props.socket.emit('editIn', pageData)
         });
 
         fabricCanvas.on('object:moving', function (e) {
@@ -335,12 +339,12 @@ function LoadPage(props) {
             const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
-                pageNum: pageNum,
+                pageNum: currentPageNum,
                 removedSignatureObjectJSON: removedSignatureObjectJSON
             }
 
             if (self.state.toSend) {
-                socket.emit("deleteIn", pageData)
+                props.socket.emit("deleteIn", pageData)
                 self.setState({ toSend: false });
             }
 
@@ -351,11 +355,11 @@ function LoadPage(props) {
             const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
             let pageData = {
-                pageNum: pageNum,
+                pageNum: currentPageNum,
                 modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
             }
 
-            socket.emit('editIn', pageData)
+            props.socket.emit('editIn', pageData)
         });
 
         fabricCanvas.on("path:created", function (o) {
@@ -363,17 +367,17 @@ function LoadPage(props) {
             const newSignatureObject = o.path
             const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
             let pageData = {
-                pageNum: pageNum,
+                pageNum: currentPageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
             }
 
-            socket.emit('addIn', pageData);
+            props.socket.emit('addIn', pageData);
             self.setState({ toSend: false });
         });
 
         fabricCanvas.on('selection:created', function (e) {
-            for (let i = 1; i <= self.state.numPages; i++) {
-                if (i === pageNum) {
+            for (let i = 1; i <= numPages; i++) {
+                if (i === currentPageNum) {
                     continue;
                 }
                 let canvasObject = document.getElementById(i.toString())
@@ -385,46 +389,93 @@ function LoadPage(props) {
         });
     }
 
+    // procs when the document is successfully loaded by the Document component from react-pdf
+    // retrieves the number of pdf pages and store it in state
+    function onDocumentLoadSuccess(pdf) {
+
+        const pagesArray = new Array.from(Array(pdf.numPages), (_, i) => i + 1) // [1, 2, ..., pdf.numPages]
+        const dimensionArray = new Array(pdf.numPages)
+
+        setNumPages(pdf.numPages)
+        setPagesArray(pagesArray)
+    }
+
     function onPageLoadSuccess(page) {
         setPageWidth(page.view[2])
         setPageHeight(page.view[3])
         setPageLoaded(true)
     }
 
-    return (<div 
-                className='page-and-number-container' id={`container-${props.pageNum}`}
-                >
-                    {
-                            (oneSecondReached) 
-                        ? 
-                            (<div className="father-of-two">
-                                {/* PDF CANVAS */}
-                                <Page 
-                                    scale={props.scale}
-                                    pageNumber={props.pageNum}
-                                    // renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    className={'lowest-canvas'}
-                                />
+    function onPageLoadSuccess(currentPageNum) {
+        setPageRenderd(true)
+        setCurrentPageNum(currentPageNum)
+    }
 
-                                {/* FABRIC CANVAS */}
-                                <Page 
-                                    scale={1}
-                                    pageNumber={props.pageNum}
-                                    renderTextLayer={false}
-                                    renderAnnotationLayer={false}
-                                    className={props.pageNum.toString()}
-                                    onLoadSuccess={(page) => onPageLoadSuccess(page)}
-                                    onRenderSuccess={() => setPageRenderd(true)}
-                                />
-                            </div>) 
-                        : 
-                            <div 
-                                className='page-wrapper' id={`wrapper-${props.pageNum}`} 
-                                ref={setRefs} />
+    const documentLoader = <div style={{ height: '500px' }}>
+        <div class="loader-wrapper">
+            <span class="circle circle-1"></span>
+            <span class="circle circle-2"></span>
+            <span class="circle circle-3"></span>
+            <span class="circle circle-4"></span>
+            <span class="circle circle-5"></span>
+            <span class="circle circle-6"></span>
+        </div>
+    </div>
+
+    return (<Document
+        file={props.document}
+        onLoadSuccess={(pdf) => onDocumentLoadSuccess(pdf)}
+        loading={documentLoader}
+        >  
+            {/* Render the pages of the PDF */}
+            {pagesArray.map((pageNum, i) => {
+                <div className='page-and-number-container' id={`container-${pageNum}`}>
+                    {
+                        (oneSecondReached) 
+                            ? 
+                        (<div className="father-of-two">
+                            {/* PDF CANVAS */}
+                            <Page 
+                                scale={props.scale}
+                                pageNumber={pageNum}
+                                // renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                className={'lowest-canvas'}
+                            />
+
+                            {/* FABRIC CANVAS */}
+                            <Page 
+                                scale={1}
+                                pageNumber={pageNum}
+                                renderTextLayer={false}
+                                renderAnnotationLayer={false}
+                                className={pageNum.toString()}
+                                onLoadSuccess={(page) => onPageLoadSuccess(page)}
+                                onRenderSuccess={() => onPageRenderSuccess(pageNum)}
+                            />
+                        </div>) 
+                            : 
+                        <div className='page-wrapper' id={`wrapper-${pageNum}`} ref={setRefs} />
                     }
-                <p className='page-number'>{props.pageNum}</p>
-            </div>)
+                    <p className='page-number'>{pageNum}</p>
+                </div>
+            })}
+
+            {/* Object Label */}
+            {
+                this.state.currentObjectOwner 
+                    ? 
+                <div className='current-object-owner'>
+                    {this.state.currentObjectOwner}
+                </div> 
+                    : 
+                null
+            }
+    </Document>)
 }
 
-export default LoadPage;
+const mapStateToProps = state =>  ({
+    
+})
+
+export default connect(null, { setDocInfo })(LoadDoc);

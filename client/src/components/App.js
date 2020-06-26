@@ -48,17 +48,17 @@ function App() {
   return (
     <div id="main">
       <Provider store={store}>
-      <Router>
-        <Switch>
-          <Route exact path='/' component={LandingPage}/>
-          <Route path='/collab' component={CollabPage}/>
-          <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
-          <Route exact path='/register' component={Register}/>
-          <Route exact path='/login' component={Login}/>
-          <Route path='/component-testing' component={NewLandingPage}/>
-          <Route exact path='/account' component={SignInOrUp} />
-        </Switch>
-      </Router>
+        <Router>
+          <Switch>
+            <Route exact path='/' component={LandingPage}/>
+            <Route path='/collab' component={CollabPage}/>
+            <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
+            <Route exact path='/register' component={Register}/>
+            <Route exact path='/login' component={Login}/>
+            <Route path='/component-testing' component={NewLandingPage}/>
+            <Route exact path='/account' component={SignInOrUp} />
+          </Switch>
+        </Router>
       </Provider>
     </div>
   );
