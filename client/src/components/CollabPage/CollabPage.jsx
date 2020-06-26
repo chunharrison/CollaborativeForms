@@ -1054,7 +1054,7 @@ class CollabPage extends React.Component {
                     <a className='cosign-header-text' href="/">Cosign</a>
                     <div className='tools'>
                         <Signature setURL={this.setSignatureURL} />
-                        <button onClick={this.toggleSelect}>Select</button>
+                        <button onClick={this.toggleSelect}>Selectt</button>
                         <div className='dropdown'>
                             <button onClick={this.toggleHighlighter}>Highlighter</button>
                             {(this.state.dropdown && this.state.mode === 'highlighter') ?
