@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Redirect } from 'react-router-dom';
 import { nanoid } from 'nanoid';
-import PDFViewer from '../PDFViewer/PDFViewer';
+import PDFViewer from './PDFViewer/PDFViewer';
 import axios from 'axios';
 import Tour from 'reactour';
 

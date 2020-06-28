@@ -3,20 +3,20 @@ import React from 'react';
 // Components
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
-import CopyRoomCode from '../CopyRoomCode/CopyRoomCode';
+import CopyRoomCode from './CopyRoomCode/CopyRoomCode';
 import FreedrawOptions from '../FreedrawOptions/FreedrawOptions';
 import HighlighterOptions from '../HighlighterOptions/HighlighterOptions';
 import TextOptions from '../TextOptions/TextOptions';
-import { TacoTable, DataType, SortDirection, Formatters, Summarizers, TdClassNames } from 'react-taco-table'; // open source
-import LoadDoc from '../LoadDoc/LoadDoc'
-// import PilotMode from '../PilotMode/PilotMode'
+import LoadDoc from './LoadDoc/LoadDoc'
+import DownloadDoc from './DownloadDoc/DownloadDoc';
+// footer
+import PilotMode from './PilotMode/PilotMode'
+import PMWaitWindow from './PilotMode/PMWaitWindow'
+import PMConfirmWindow from './PilotMode/PMConfirmWindow'
+import UsersList from './UsersList/UsersList'
 
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Modal from 'react-bootstrap/Modal';
-import Badge from 'react-bootstrap/Badge';
 
 // Libraries
 import { fabric } from 'fabric';
@@ -24,40 +24,31 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
-import { PDFDocument } from 'pdf-lib';
-import download from 'downloadjs';
 import Tour from 'reactour';
-import jwt_decode from "jwt-decode";
+
 // redux
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { setCurrentDoc } from '../../actions/docActions'
-import { setUserSocket } from '../../actions/roomActions'
-
-// // PDF document (for dev)
-// import PDF from '../docs/sample.pdf';
-import setAuthToken from "../../utils/setAuthToken";
+import { 
+    setCurrentDoc, 
+    setCanvasContainerRef, 
+    setRenderFabricCanvasFunc
+} from '../../actions/docActions'
+import { 
+    setUserSocket, 
+    setRoomCode,
+    updateCurrentUsers
+} from '../../actions/roomActions'
+import { setCurrentZoom } from '../../actions/toolActions'
 
 //CSS
 import './CollabPage.css';
-import 'react-taco-table/dist/react-taco-table.css';
 
 class CollabPage extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-
-            givenPDFDocument: null,
-
-            // Document info
-            numPages: 0, // number of pages the document have
-            pagesArray: [],
-            pageDimensions: [],
-
-            // Render
-            dataURLFormat: 'image/png', // the argument we pass into all toDataURL functions
-
             //User info
             username:'',
             currentObjectOwner: null,
@@ -90,40 +81,18 @@ class CollabPage extends React.Component {
             textOpacity: 100,
             textColor: 'rgb(0, 0, 0)',
 
-            // Zoom (To Be Implemented)
+            // Zoom
             currentZoom: 1,
             testScale: 1,
             testPageRendered: false,
             pageDimensions: [],
-
-
-            // Pilot Mode
-            pmActivated: false,
-            pmWaitConfirmModalShow: false,
-            pmRequesterUsername: null,
-            pmConfirmModalShow: false,
-            pmDriver: null,
-            pmIsDriver: false,
-            pmWaitConfirmTableRows: [],
-            pmWaitNumAccepts: 0,
-            // // button
-            pmButtonVariant: 'info',
-            pmButtonLabel: 'Activate',
 
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
             socket: null,
             disconnected: false,
             invalidRoomCodeGiven: false,
-            currentUsers: {}
         }
-
-        // Render
-        this.onDocumentLoadSuccess = this.onDocumentLoadSuccess.bind(this);
-        this.renderFabricCanvas = this.renderFabricCanvas.bind(this);
-
-        // Download 
-        this.downloadProc = this.downloadProc.bind(this);
 
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
@@ -151,10 +120,6 @@ class CollabPage extends React.Component {
         this.addImage = this.addImage.bind(this);
         this.delObject = this.delObject.bind(this);
 
-        // Pilot Mode
-        this.handleClosePilotConfirmModal = this.handleClosePilotConfirmModal.bind(this)
-        this.handlePMButtonClick = this.handlePMButtonClick.bind(this)
-
         // Backend
         this.setSocket = this.setSocket.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
@@ -178,103 +143,331 @@ class CollabPage extends React.Component {
     ############################################ Document ##############################################
     ################################################################################################# */
 
-    // procs when the document is successfully loaded by the Document component from react-pdf
-    // retrieves the number of pdf pages and store it in state
-    onDocumentLoadSuccess = (pdf) => {
-        // console.log(pdf)
-        const PA = Array.from(Array(pdf.numPages), (_, i) => i + 1) // [1, 2, ..., pdf.numPages]
-        const dimensionArray = new Array(pdf.numPages)
-        // console.log(PA)
-        this.setState({
-            numPages: pdf.numPages,
-            pagesArray: PA,
-            pageDimensions: dimensionArray
-        })
-    }
+    renderFabricCanvas = (pageNum, width, height) => {
+        console.log(pageNum, width, height)
+        let self = this
 
-    // downloads the document with all the signatures
-    async downloadProc(event) {
-        event.preventDefault()
-        const { givenPDFDocument, numPages, socket, height } = this.state;
+        // get the canvas element created by react-pdf
+        const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0];
+        const pageCanvasElement = pageCanvasWrapperElement.firstElementChild;
+        pageCanvasElement.id = pageNum.toString() // set id
 
-        // change dataURI to a Uint8Array
-        function dataURItoUint8Array(dataURI) {
-            // convert base64 to raw binary data held in a string
-            var byteString = atob(dataURI.split(',')[1]);
+        // browser
+        // let browserElement = document.getElementById(`browser-${pageNum}`);
+        // browserElement.style.backgroundImage = `url(${backgroundImg})`;
 
-            // write the bytes of the string to an ArrayBuffer
-            var arrayBuffer = new ArrayBuffer(byteString.length);
+        // create fabric canvas element with correct dimensions of the document
+        let fabricCanvas = new fabric.Canvas(pageNum.toString(), { 
+            width: Math.floor(width), 
+            height: Math.floor(height), 
+            selection: false 
+        });
+        document.getElementById(pageNum.toString()).fabric = fabricCanvas;
 
-            var UI8A = new Uint8Array(arrayBuffer);
+        // scale
+        console.log(this.props.currentZoom, this.props.pageDimensions)
+        fabricCanvas.setZoom(this.props.currentZoom)
+        fabricCanvas.setWidth(this.props.pageDimensions[pageNum - 1].width * this.props.currentZoom)
+        fabricCanvas.setHeight(this.props.pageDimensions[pageNum - 1].height * this.props.currentZoom)
 
-            for (var i = 0; i < byteString.length; i++) {
-                UI8A[i] = byteString.charCodeAt(i);
-            }
-
-            return UI8A
-        }
-
-        ////// ATERNATIVE TO THE FUNCTION ON THE TOP
-        // var BASE64_MARKER = ';base64,';
-
-        // function convertDataURIToBinary(dataURI) {
-        //     var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-        //     var base64 = dataURI.substring(base64Index);
-        //     var raw = window.atob(base64);
-        //     var rawLength = raw.length;
-        //     var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-        //     for(let i = 0; i < rawLength; i++) {
-        //         array[i] = raw.charCodeAt(i);
-        //     }
-        //     return array;
-        // }
-
-        // Blob -> ArrayBuffer
-        const PDFArrayBuffer = await givenPDFDocument.arrayBuffer();
-        // create 'pdf-lib' PDFDocument object
-        const pdfDoc = await PDFDocument.load(PDFArrayBuffer)
-        // get pages
-        let pages = pdfDoc.getPages()
-        // loop through all the pages
-        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-            // request the list of signatures that are on that page from the server
-            socket.emit('getCurrentPageSignatures', pageNum, function (currentPageSignaturesJSONList) {
-                // Array of JSON -> Array of FabricJS Objects
-                fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
-                    // loop through the array and add all the signatures to the page
-                    signatureObjects.forEach(async function (signatureObject) {
-                        // get the dataURI of the signature image
-                        const signatureDataURI = signatureObject.src
-                        // dataURI -> Uint8Array
-                        // ALTERNATIVE: const signatureUint8Array = convertDataURIToBinary(signatureDataURI)
-                        const signatureUint8Array = dataURItoUint8Array(signatureDataURI)
-                        // embed the Uint8Array to the 'pdf-lib' PDFDocument object
-                        const pngImage = await pdfDoc.embedPng(signatureUint8Array)
-                        // draw the image to the current page
-                        // (0, 0) refers to the bottom left corner 
-                        const currPage = pages[pageNum - 1]
-                        currPage.drawImage(pngImage, {
-                            x: (signatureObject.left / 1.5),
-                            y: (height - signatureObject.top - signatureObject.height) / 1.5,
-                            width: signatureObject.width / 1.5,
-                            height: (signatureObject.height / 1.5)
-                        })
-                    })
+        // if you are joinging an existing room and there are signatures that were already placed
+        this.props.userSocket.emit('getCurrentPageSignatures', pageNum, (currentPageSignaturesJSONList) => {
+            // Array of JSON -> Array of FabricJS Objects
+            fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
+                // loop through the array
+                signatureObjects.forEach(function (signatureObject) {
+                    // add the signature to the page
+                    document.getElementById(pageNum.toString()).fabric.add(signatureObject)
                 })
             })
-        }
+        })
 
-        // its kind of cringe but I had to give it a wait time aha
-        // before saving & downloading the pdf
-        // I think this is because the drawIamge function above takes time to render
-        // everything on the page but have no way to check when they do
-        setTimeout(async () => {
-            // save the 'pdf-lib' PDFDocument object
-            const pdfBytes = await pdfDoc.save()
-            const fileName = "signed_document.pdf";
-            download(pdfBytes, fileName, "application/pdf");
-        }, 2000)
+        //triggered when mousing over canvas or object
+        fabricCanvas.on('mouse:over', function (o) {
+            //different conditions for different tools
+            //o.target is null when mousing out of canvas
+            if (o.target && self.state.mode !== 'select') {
+                o.target.hoverCursor = fabricCanvas.defaultCursor;
+            } else if (o.target) {
+                o.target.hoverCursor = fabricCanvas.hoverCursor;
+            }
+
+            if (self.state.mode === 'freedraw') {
+                fabricCanvas.isDrawingMode = true;
+                fabricCanvas.freeDrawingBrush.width = parseInt(self.state.brushSize);
+                let match = self.state.selectedColor.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
+                fabricCanvas.freeDrawingBrush.color = `rgb(${match[1]}, ${match[2]}, ${match[3]}, ${self.state.opacity / 100})`;
+
+            }
+        });
+
+        //triggered when mousing out of canvas or object
+        fabricCanvas.on('mouse:out', function (o) {
+            fabricCanvas.isDrawingMode = false;
+        });
+
+        //triggers when mouse is clicked down
+        fabricCanvas.on('mouse:down', function (o) {
+            var pointer = fabricCanvas.getPointer(o.e);
+            //add rectangle if highlither tool is used
+            if (self.state.mode === 'highlighter') {
+                self.setState({
+                    isDown: true,
+                    origX: pointer.x,
+                    origY: pointer.y
+                }, () => {
+                    let rect = new fabric.Rect({
+                        id: nanoid(),
+                        left: self.state.origX,
+                        top: self.state.origY,
+                        originX: 'left',
+                        originY: 'top',
+                        width: pointer.x - self.state.origX,
+                        height: pointer.y - self.state.origY,
+                        angle: 0,
+                        opacity: self.state.highlighterOpacity / 100,
+                        fill: self.state.highlighterFillColor,
+                        stroke: self.state.highlighterBorderColor,
+                        strokeWidth: parseInt(self.state.highlighterBorderThickness),
+                        transparentCorners: false
+                    });
+                    let obj={owner: self.state.username};
+                    rect.set('owner',obj);
+                    self.setState({
+                        rect: rect,
+                        toSend: true
+                    }, () => {
+                        fabricCanvas.add(rect);
+
+                    })
+                });
+            }
+        });
+
+        //triggers when mouse is moved on canvas
+        fabricCanvas.on('mouse:move', function (o) {
+            //trigger if left mouse button is pressed
+            if (!self.state.isDown) return;
+            var pointer = fabricCanvas.getPointer(o.e);
+            //resize rectangle if highlighter is selected
+            if (self.state.mode === 'highlighter') {
+                if (self.state.origX > pointer.x) {
+                    self.state.rect.set({ left: Math.abs(pointer.x) });
+                }
+                if (self.state.origY > pointer.y) {
+                    self.state.rect.set({ top: Math.abs(pointer.y) });
+                }
+
+                self.state.rect.set({ width: Math.abs(self.state.origX - pointer.x) });
+                self.state.rect.set({ height: Math.abs(self.state.origY - pointer.y) });
+            }
+
+            fabricCanvas.renderAll();
+        });
+
+        //triggers when left mouse button is released
+        fabricCanvas.on('mouse:up', function (e) {
+            var pointer = fabricCanvas.getPointer(e.e);
+            self.setState({ isDown: false });
+
+            if (self.state.mode === 'highlighter') {
+                self.state.rect.setCoords();
+                const modifiedSignatureObject = self.state.rect;
+                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+
+                let pageData = {
+                    pageNum: pageNum,
+                    modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
+                }
+
+                self.props.userSocket.emit('editIn', pageData)
+            } else if (self.state.mode === 'freedraw') {
+                fabricCanvas.isDrawingMode = false;
+            } else if (self.state.mode === 'text') {
+                self.setState({ toSend: true }, () => {
+                    fabricCanvas.add(new fabric.IText('Insert Text', {
+                        fontFamily: 'roboto',
+                        fontSize: self.state.textFontSize,
+                        fill: self.state.textColor,
+                        opacity: self.state.textOpacity / 100,
+                        left: pointer.x,
+                        top: pointer.y,
+                        id: nanoid()
+                    }));
+                    fabricCanvas.renderAll();
+                })
+
+                self.setState({ mode: 'select' });
+            }
+
+            if (e.target) {
+                e.target.lockScalingX = false
+                e.target.lockScalingY = false
+            }
+            if (e.e.target.previousElementSibling !== null) {
+                if (self.state.holding) {
+                    self.addImage(fabricCanvas, self.state.signatureURL, e.pointer.x, e.pointer.y);
+                    self.setState({
+                        holding: false,
+                        toSend: true
+                    });
+                }
+            }
+        });
+
+        fabricCanvas.on('object:selected', function (e) {
+            if (self.state.mode !== 'select') {
+                fabricCanvas.discardActiveObject().renderAll();
+            } else {
+                self.setState({currentObjectOwner: e.target.get('owner').owner});
+                if (self.state.username !== e.target.get('owner').owner) {
+                    e.target.set({'borderColor':'#fbb802','cornerColor':'#fbb802'});
+                }
+            }
+
+
+        });
+
+        fabricCanvas.on('selection:updated', function (e) {
+            if (self.state.mode !== 'select') {
+                fabricCanvas.discardActiveObject().renderAll();
+            } else {
+                self.setState({currentObjectOwner: e.target.get('owner').owner});
+                if (self.state.username !== e.target.get('owner').owner) {
+                    e.target.set({'borderColor':'#fbb802','cornerColor':'#fbb802'});
+                }
+            }
+
+
+        });
+
+        fabricCanvas.on('before:selection:cleared', function() {
+            self.setState({currentObjectOwner: null});
+        });
+
+        fabricCanvas.on('object:added', function (e) {
+            const newSignatureObject = e.target
+            if (!e.target.get('owner')) {
+                let obj={owner: self.state.username};
+                newSignatureObject.set('owner',obj);
+            }
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
+            let pageData = {
+                pageNum: pageNum,
+                newSignatureObjectJSON: newSignatureObjectJSON
+            }
+            if (self.state.toSend) {
+                self.props.userSocket.emit('addIn', pageData)
+                self.setState({ toSend: false });
+            }
+        });
+
+        fabricCanvas.on('object:modified', function (e) {
+            const modifiedSignatureObject = e.target
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+
+            let pageData = {
+                pageNum: pageNum,
+                modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
+            }
+
+            self.props.userSocket.emit('editIn', pageData)
+        });
+
+        fabricCanvas.on('object:moving', function (e) {
+            var obj = e.target;
+
+            // if object is too big ignore
+            if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
+                return;
+            }
+            obj.setCoords();
+            // top-left  corner
+            if (obj.getBoundingRect().top < 0 || obj.getBoundingRect().left < 0) {
+                obj.top = Math.max(obj.top, obj.top - obj.getBoundingRect().top);
+                obj.left = Math.max(obj.left, obj.left - obj.getBoundingRect().left);
+            }
+            // bot-right corner
+            if (obj.getBoundingRect().top + obj.getBoundingRect().height > obj.canvas.height || obj.getBoundingRect().left + obj.getBoundingRect().width > obj.canvas.width) {
+                obj.top = Math.min(obj.top, obj.canvas.height - obj.getBoundingRect().height + obj.top - obj.getBoundingRect().top);
+                obj.left = Math.min(obj.left, obj.canvas.width - obj.getBoundingRect().width + obj.left - obj.getBoundingRect().left);
+            }
+        });
+
+        fabricCanvas.on('object:scaling', function (e) {
+            var obj = e.target;
+            obj.setCoords();
+
+            if (obj.top < 0) {
+                obj.lockScalingY = true
+                obj.top = 0
+            } else if (obj.top + obj.getScaledHeight() > obj.canvas.height) {
+                obj.lockScalingY = true
+                obj.scaleY = (obj.canvas.height - obj.top) / obj.height
+            }
+
+            if (obj.left < 0) {
+                obj.lockScalingX = true
+                obj.left = 0
+            } else if (obj.left + obj.getScaledWidth() > obj.canvas.width) {
+                obj.lockScalingX = true
+                obj.scaleX = (obj.canvas.width - obj.left) / obj.width
+            }
+        })
+
+        fabricCanvas.on('object:removed', function (e) {
+            const removedSignatureObject = e.target
+            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id', 'owner'])))
+
+            let pageData = {
+                pageNum: pageNum,
+                removedSignatureObjectJSON: removedSignatureObjectJSON
+            }
+
+            if (self.state.toSend) {
+                self.props.userSocket.emit("deleteIn", pageData)
+                self.setState({ toSend: false });
+            }
+
+        });
+
+        fabricCanvas.on('text:changed', function (e) {
+            const modifiedSignatureObject = e.target
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+
+            let pageData = {
+                pageNum: pageNum,
+                modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
+            }
+
+            self.props.userSocket.emit('editIn', pageData)
+        });
+
+        fabricCanvas.on("path:created", function (o) {
+            o.path.id = nanoid();
+            const newSignatureObject = o.path
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
+            let pageData = {
+                pageNum: pageNum,
+                newSignatureObjectJSON: newSignatureObjectJSON
+            }
+
+            self.props.userSocket.emit('addIn', pageData);
+            self.setState({ toSend: false });
+        });
+
+        fabricCanvas.on('selection:created', function (e) {
+            for (let i = 1; i <= self.props.numPages; i++) {
+                if (i === pageNum) {
+                    continue;
+                }
+                let canvasObject = document.getElementById(i.toString())
+                if (canvasObject) {
+                    let fabricCanvasObject = canvasObject.fabric
+                    fabricCanvasObject.discardActiveObject().renderAll();
+                }
+            }
+        });
     }
 
     /* #################################################################################################
@@ -376,38 +569,36 @@ class CollabPage extends React.Component {
 
     //Zoom
     zoomOut() {
-        if (this.state.currentZoom >= 0.4) {
-            this.setState({
-                currentZoom: this.state.currentZoom-0.2
-            }, () => {
-                for (let i = 0; i < this.state.pagesArray.length; i++) {
-                    const currentPageNum = this.state.pagesArray[i]
-                    if (document.getElementById(currentPageNum.toString())) {
-                        let fabricElement = document.getElementById(currentPageNum.toString()).fabric
-                        fabricElement.setZoom(this.state.currentZoom)
-                        fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
-                        fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
-                    }
+        if (this.props.currentZoom >= 0.4) {
+            let newZoom = this.props.currentZoom - 0.2
+            this.props.setCurrentZoom(newZoom)
+            for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
+                if (document.getElementById(pageNum.toString())) {
+                    let fabricElement = document.getElementById(pageNum.toString()).fabric
+                    fabricElement.setZoom(newZoom)
+                    fabricElement.setWidth(this.props.pageDimensions[pageNum-1].width * newZoom)
+                    fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * newZoom)
                 }
-            })
+            }
         }
     }
 
     zoomIn() {
-        if (this.state.currentZoom <= 5) {
-            this.setState({
-                currentZoom: this.state.currentZoom+0.2
-            }, () => {
-                for (let i = 0; i < this.state.pagesArray.length; i++) {
-                    const currentPageNum = this.state.pagesArray[i]
-                    if (document.getElementById(currentPageNum.toString())) {
-                        let fabricElement = document.getElementById(currentPageNum.toString()).fabric
-                        fabricElement.setZoom(this.state.currentZoom)
-                        fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
-                        fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
-                    }
+        if (this.props.currentZoom <= 5) {
+            // this.props.dispatch(this.props.setCurrentZoom(this.props.currentZoom+0.2)
+            // .then(()=> {
+
+            // }))
+            let newZoom = this.props.currentZoom + 0.2
+            this.props.setCurrentZoom(newZoom)
+            for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
+                if (document.getElementById(pageNum.toString())) {
+                    let fabricElement = document.getElementById(pageNum.toString()).fabric
+                    fabricElement.setZoom(newZoom)
+                    fabricElement.setWidth(this.props.pageDimensions[pageNum-1].width * newZoom)
+                    fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * newZoom)
                 }
-            })
+            }
         }
     }
 
@@ -445,8 +636,8 @@ class CollabPage extends React.Component {
             // set a unique id, and corresponding padding for the signature object
             var img = signature.set({
                 id: nanoid(),   // id
-                left: (x - signature.width / 2) / self.state.currentZoom,   // left padding
-                top: (y - signature.height / 2) / self.state.currentZoom    // top padding
+                left: (x - signature.width / 2) / self.props.currentZoom,   // left padding
+                top: (y - signature.height / 2) / self.props.currentZoom    // top padding
             });
             currentCanvas.add(img);
         });
@@ -459,7 +650,7 @@ class CollabPage extends React.Component {
     delObject(event) {
         if (event.keyCode === 46) {
             this.setState({ holding: false });
-            for (let pageNum = 0; pageNum < this.state.numPages; pageNum++) {
+            for (let pageNum = 0; pageNum < this.props.numPages; pageNum++) {
                 let currentPageCanvas = document.getElementById(pageNum.toString());
                 if (typeof currentPageCanvas === 'object' && currentPageCanvas !== null) {
                     let currentPageFabricCanvas = currentPageCanvas.fabric;
@@ -568,7 +759,7 @@ class CollabPage extends React.Component {
         const generateGetUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-get-url`;
         const options = {
             params: {
-                Key: `${roomCode}.pdf`,
+                Key: `${this.props.roomCode}.pdf`,
                 ContentType: 'application/pdf'
             },
             headers: {
@@ -584,7 +775,8 @@ class CollabPage extends React.Component {
             //get the data with the url that was given, then turn the data into a blob, which is the representation of a file without a name. this can be fed to a pdf render
             fetch(getURL)
                 .then(response => response.blob()).then((blob) => {
-                    setCurrentDoc(blob) // redux
+                    console.log(blob)
+                    this.props.setCurrentDoc(blob) // redux
                     this.setState({ givenPDFDocument: blob })
                 })
         });
@@ -593,7 +785,8 @@ class CollabPage extends React.Component {
     setSocket(username, roomCode, action) {
         // Socket.io
         const socket = io(this.state.endpoint);
-        setUserSocket(socket) // redux
+        this.props.setUserSocket(socket) // redux
+
         // when a user joins, send the server the username to be stored 
         // and the roomcode to update the correct database
         // the server then emits an initial setup with:
@@ -616,146 +809,35 @@ class CollabPage extends React.Component {
         socket.on('disconnect', () => {
             this.setState({ disconnected: true });
         })
+
         socket.on('reconnect', () => {
             // console.log('reconnected')
             window.location.reload();
             this.setState({ disconnected: false });
         })
+
         socket.on('updateCurrentUsers', (currentUsers) => {
-            this.setState({
-                currentUsers: currentUsers
-            })
+            this.props.updateCurrentUsers(currentUsers)
         })
+
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
 
-        // we will need for alerts in the futre
-        // socket.on('userJoined', (currentUsers, username) => {
-        //     this.setState({currentUsers: currentUsers})
-        //     console.log(currentUsers)
-        // })
-        // socket.on('userDisconnected', (currentUsers, username) => {
-        //     this.setState({currentUsers: currentUsers})
-        //     console.log(currentUsers)
-        // })
-
-
         // Pilot Mode
-
-        socket.on("confirmPilotMode", (requestData) => {
-            // console.log(currNumUsers)
-            const { requesterUsername, requesterSocketID, currNumUsers } = requestData
-            this.setState({
-                pmConfirmModalShow: true,
-                pmRequesterUsername: requesterUsername,
-                pmRequesterSocketID: requesterSocketID,
-                pmCurrNumUsers: currNumUsers
-            })
-        })
-
-        socket.on("pilotModeUserAccepted", (confirmingUserSocketID) => {
-            this.state.pmWaitConfirmTableRows.forEach((item) => {
-                if (item.socketID === confirmingUserSocketID) {
-                    item['status'] = 'Accepted'
-                }
-            })
-
+        // TODO (HARRISON)
+        // socket.on('welcomeBackDriver', () => {
+        //     document.addEventListener('scroll', this.sendScrollPercent, true);
             
-            this.setState({ pmWaitNumAccepts: this.state.pmWaitNumAccepts + 1 }, () => {
-                console.log(this.state.pmWaitConfirmTableRows.length, this.state.pmWaitNumAccepts)
-                if (this.state.pmWaitConfirmTableRows.length === this.state.pmWaitNumAccepts) {
-                    document.addEventListener('scroll', this.sendScrollPercent, true);
-
-                    const token = localStorage.jwtToken;
-                    setAuthToken(token);
-                    // Decode token and get user info and exp
-                    const decoded = jwt_decode(token);
-
-                    setTimeout(this.setState({
-                        // send scroll percentage
-                        pmActivated: true,
-
-                        // 
-                        pmWaitConfirmModalShow: false,
-                        pmButtonLabel: 'Cancel',
-                        pmButtonVariant: 'danger',
-                        pmIsDriver: true,
-                    }), 2500)
-                    socket.emit('pilotModeActivated', {username: this.state.username, driverID: decoded.id})
-                }
-            })
-        })
-
-        socket.on("pilotModeDeclined", (confirmingUserSocketID) => {
-            // console.log(`pilot mode activation failed, ${username} declined the request`)
-
-            this.state.pmWaitConfirmTableRows.forEach((item) => {
-                if (item.socketID === confirmingUserSocketID) {
-                    item['status'] = 'Declined'
-                }
-            })
-
-            setTimeout(this.setState({
-                pmWaitConfirmModalShow: false,
-                pmWaitNumAccepts: 0
-            }), 2500)
-        })
-
-        // socket.on("pilotModeConfirmed", () => {
-        //     console.log("pilot mode activated")
         //     setTimeout(this.setState({
         //         // send scroll percentage
         //         pmActivated: true,
 
         //         // 
-        //         pmWaitConfirmModalShow:false,
+        //         pmWaitConfirmModalShow: false,
         //         pmButtonLabel: 'Cancel',
         //         pmButtonVariant: 'danger',
         //         pmIsDriver: true,
-        //     }, () => socket.emit('pilotModeActivated', this.state.username)),
-        //     2500)
+        //     }), 2500)
         // })
-
-        socket.on("setScrollPercent", (scrollPercent) => {
-            // console.log("setScrollPercent")
-            this.canvasContainerRef.current.scrollTop = scrollPercent
-        })
-
-        socket.on('pilotModeStopped', () => {
-            // reactivate scroll effects
-            console.log('pilotModeStopped')
-            this.setState({
-                pmActivated: false,
-                pmDriver: false,
-                pmButtonVariant: 'info',
-                pmButtonLabel: 'Activate'
-            })
-        })
-
-        // person is using the pilot mode right now for the room
-        socket.on('pilotModeActivatedByUser', (driverUsername) => {
-            // console.log("PILOTMODEACTIVATREDDGDKFNGSJGFSGF")
-            this.setState({
-                pmActivated: true,
-                pmDriver: driverUsername,
-                pmButtonVariant: 'warning',
-                pmButtonLabel: 'Activated'
-            })
-        })
-
-        socket.on('welcomeBackDriver', () => {
-            document.addEventListener('scroll', this.sendScrollPercent, true);
-            
-            setTimeout(this.setState({
-                // send scroll percentage
-                pmActivated: true,
-
-                // 
-                pmWaitConfirmModalShow: false,
-                pmButtonLabel: 'Cancel',
-                pmButtonVariant: 'danger',
-                pmIsDriver: true,
-            }), 2500)
-        })
 
         // Signatures
         socket.on("addOut", (pageData) => this.receiveAdd(pageData))
@@ -781,131 +863,28 @@ class CollabPage extends React.Component {
     }
 
 
-    /* #################################################################################################
-    ########################################### Pilot Mode #############################################
-    ################################################################################################# */
-
-    getScrollPercent = () => {
-        // event.preventDefault()
-
-        // console.log(this.canvasContainerRef.current.scrollTop);
-    }
-
-    sendScrollPercent = () => {
-        this.state.socket.emit("sendScrollPercent", this.canvasContainerRef.current.scrollTop)
-    }
-
-    requestPilotMode = () => {
-        // request pilot mode to other users via socket.io and then
-        // it returns a callback function 
-        // let otherUsers = this.state.currentUsers
-        // delete otherUsers[this.state.socket.id]
-
-        // for list of users that need to confirm or decline the request
-        let pmWaitConfirmTableRowsNew = []
-        const currentUsersEntries = Object.entries(this.state.currentUsers)
-        for (const [socketID, username] of currentUsersEntries) {
-            if (socketID === this.state.socket.id) {
-                continue;
-            }
-            const rowValues = {
-                "socketID": socketID,
-                "user": username,
-                "status": "Pending"
-            }
-            pmWaitConfirmTableRowsNew.push(rowValues)
-        }
-
-        this.setState({
-            pmWaitConfirmModalShow: true,
-            pmWaitConfirmTableRows: pmWaitConfirmTableRowsNew
-        })
-
-        console.log(this.state.currentUsers)
-        const requestData = {
-            requesterUsername: this.state.username,
-            requesterSocketID: this.state.socket.id,
-            currNumUsers: Object.keys(this.state.currentUsers).length - 1,
-
-        }
-        this.state.socket.emit("pilotModeRequested", requestData)
-    }
-
-    // button that is clicked when the room is in Pilot Mode
-    // if the Driver clicks it, it changes the 
-    handlePMButtonClick = () => {
-        // already activated 
-        // console.log('handlePMButtonClick')
-        // console.log(this.state.pmActivated, this.state.pmIsDriver)
-
-        // the driver deactivates the Pilot Mode 
-        if (this.state.pmActivated && this.state.pmIsDriver) {
-            document.removeEventListener('scroll', this.sendScrollPercent, true);
-            this.setState({
-                pmActivated: false,
-                pmButtonVariant: 'info',
-                pmButtonLabel: 'Activate',
-                pmIsDriver: false,
-
-                pmWaitNumAccepts: 0
-            }, () => {
-                this.state.socket.emit('pilotModeStopped')
-            })
-        }
-
-        // 
-        else if (!this.state.pmActivated && !this.state.pmIsDriver) {
-            this.requestPilotMode()
-        }
-    }
-
-    handleClosePilotConfirmModal = (event, confirmed) => {
-        event.preventDefault()
-        console.log(this.state.pmCurrNumUsers)
-        this.setState({
-            pmConfirmModalShow: false,
-        })
-
-        const callbackData = {
-            confirmed: confirmed,
-            confirmingUser: this.state.username,
-            confirmingUserSocketID: this.state.socket.id,
-            requesterSocketID: this.state.pmRequesterSocketID,
-            currNumUsers: this.state.pmCurrNumUsers
-        }
-
-        this.state.socket.emit("pilotModeRequestCallback", callbackData)
-    }
-
-    handleClosePilotWaitingModal = (event) => {
-        event.preventDefault()
-        this.setState({
-            pmWaitConfirmModalShow: false
-        })
-    }
-
-    /* #################################################################################################
-    ################################################################################################# */
-
-
-
-
-
+    
     /* #################################################################################################
     ##################################### The Component Lifecycle ######################################
     ################################################################################################# */
 
     componentDidMount() {
         document.addEventListener("keydown", this.delObject, false);
+
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
         // THEN setup Socket.io object
         const username = '' + queryString.parse(this.props.location.search).username
         const roomCode = '' + queryString.parse(this.props.location.search).roomCode
         const action = '' + queryString.parse(this.props.location.search).action
+        this.props.setRoomCode(roomCode) 
         this.setState({ username, roomCode, action }, () => {
             this.setSocket(username, roomCode, action); // Socket.io
+            this.getDocument()
         });
+
+        this.props.setCanvasContainerRef(this.canvasContainerRef)
+        this.props.setRenderFabricCanvasFunc(this.renderFabricCanvas)
 
         let visited = localStorage["collabPageVisited"];
         if (visited) {
@@ -926,13 +905,6 @@ class CollabPage extends React.Component {
             image.style.left = this.state.pageX + 'px';
         }
 
-        // Pilot Mode
-        // prevState.pmActivated !== this.state.pmActivated && 
-        // if (this.state.pmActivated && this.state.pmIsDriver) {
-        //     // console.log(this.state.pmActivated, this.state.pmIsDriver)
-        //     document.addEventListener('scroll', this.sendScrollPercent);
-        // }
-
     }
 
     componentWillUnmount() {
@@ -945,10 +917,9 @@ class CollabPage extends React.Component {
 
     render() {
         // State Variables 
-        const { givenPDFDocument, roomCode, socket, signatureURL, holding, invalidRoomCodeGiven,
+        const { signatureURL, holding, invalidRoomCodeGiven,
             pmWaitConfirmModalShow, pmConfirmModalShow, pmRequesterUsername,
-            pmButtonLabel, pmButtonVariant, pmDriver, pmWaitConfirmTableRows, 
-            currentZoom } = this.state;
+            pmButtonLabel, pmButtonVariant, pmDriver, } = this.state;
 
         if (invalidRoomCodeGiven) {
             return <Redirect to={{ pathname: '/invalid-room-code' }}></Redirect>
@@ -956,12 +927,12 @@ class CollabPage extends React.Component {
 
         let roomCodeCopy;
         if (this.state.roomKey !== null) {
-            roomCodeCopy = <CopyRoomCode roomCode={roomCode}></CopyRoomCode>
+            roomCodeCopy = <CopyRoomCode roomCode={this.props.roomCode}></CopyRoomCode>
         }
 
         var pageBrowser = <p></p>
-        if (this.state.PDFDocument !== null) {
-            pageBrowser = [...Array(this.state.numPages).keys()].map((number, index) =>
+        if (this.props.currentDoc !== null) {
+            pageBrowser = [...Array(this.props.numPages).keys()].map((number, index) =>
                 <div className='browser-page-and-number-container' key={`browser-page-${index}`}>
                     <div id={`browser-${index + 1}`} style={{ 'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize': 'cover' }} onClick={this.scrollToPage}>
                     </div>
@@ -970,7 +941,7 @@ class CollabPage extends React.Component {
             )
         }
 
-        let downloadLoader = (givenPDFDocument === null ? <div style={{ height: '500px' }}>
+        let downloadLoader = (this.props.currentDoc === null ? <div style={{ height: '500px' }}>
             <div class="loader-wrapper">
                 <span class="circle circle-1"></span>
                 <span class="circle circle-2"></span>
@@ -980,17 +951,6 @@ class CollabPage extends React.Component {
                 <span class="circle circle-6"></span>
             </div>
         </div> : null)
-
-        let documentLoader = <div style={{ height: '500px' }}>
-            <div class="loader-wrapper">
-                <span class="circle circle-1"></span>
-                <span class="circle circle-2"></span>
-                <span class="circle circle-3"></span>
-                <span class="circle circle-4"></span>
-                <span class="circle circle-5"></span>
-                <span class="circle circle-6"></span>
-            </div>
-        </div>
 
         //Order in which insturcitons will appear
         const steps = [
@@ -1018,32 +978,6 @@ class CollabPage extends React.Component {
                 selector: '.download-button',
                 content: 'If enabled by the room owner, this document and the signatures placed can be downloaded and saved on to local storage',
             },
-        ]
-
-
-        // Pilot Mode
-        const pmWaitColumns = [
-            {
-                id: 'user',
-                type: DataType.String,
-                header: 'User',
-            },
-            {
-                id: 'status',
-                type: DataType.String,
-                header: 'Status',
-                tdStyle(cellData) {
-                    if (cellData === "Pending") {
-                        return { color: '#CCCC00' };
-                    } else if (cellData === "Accepted") {
-                        return { color: 'green' };
-                    } else if (cellData === "Declined") {
-                        return { color: '#DC143C' };
-                    }
-
-                    return undefined;
-                }
-            }
         ]
 
         return (
@@ -1095,7 +1029,7 @@ class CollabPage extends React.Component {
                         </div>
                         <button onClick={this.zoomOut}>Zoom Out</button>
                         <button onClick={this.zoomIn}>Zoom In</button>
-                        <p className="page-number">{Math.floor(this.state.currentZoom * 100)}%</p>
+                        <p className="page-number">{Math.floor(this.props.currentZoom * 100)}%</p>
                     </div>
                     {roomCodeCopy}
                 </div>
@@ -1108,111 +1042,109 @@ class CollabPage extends React.Component {
                         {pageBrowser}
                     </div>
                     {/* loader waiting for download */}
-                    {givenPDFDocument !== null && socket !== null 
+                    {this.props.currentDoc !== null && this.props.userSocket !== null 
                         ?
-                    <LoadDoc document={givenPDFDocument} socket={socket} scale={this.state.currentZoom}/>
+                    <LoadDoc/>
                         : 
                     downloadLoader}
+
+                    {/* Object Label */}
+                    {
+                        this.state.currentObjectOwner 
+                            ? 
+                        <div className='current-object-owner'>
+                            {this.state.currentObjectOwner}
+                        </div> 
+                            : 
+                        null
+                    }
                 </div>
-                {/* /BODY */}
+
+
 
                 {/* FOOTER */}
-                <div className='header'>
-                    <div className='download-button-container'>
-                        <Button
-                            variant={pmButtonVariant}
-                            className="pilot-mode-button"
-                            onClick={this.handlePMButtonClick}>
-                            Pilot Mode: {pmButtonLabel} {pmDriver ? <Badge variant="dark">{pmDriver}</Badge> : null}
-                        </Button>
-                        <Dropdown drop='up'>
-                            <Dropdown.Toggle>
-                                Users  <Badge variant="light">{Object.keys(this.state.currentUsers).length}</Badge>
-                            </Dropdown.Toggle>
-                            <Dropdown.Menu>
-                                {Object.entries(this.state.currentUsers).map(([socketid, username], i) => (
-                                    <Dropdown.Item>{username}</Dropdown.Item>
-                                ))}
-                            </Dropdown.Menu>
-                        </Dropdown>
+                <div className='footer'>
+                    <div className='footer-button-container'>
+                        {
+                            this.props.userSocket ?
+                            <PilotMode/>
+                            : null
+                        }
+                        <UsersList/>
                     </div>
                     <div className='tools'>
                         {/*  */}
                     </div>
-                    <div className='download-button-container'>
-                        <Button className='download-button' onClick={event => this.downloadProc(event)}>
-                            Download
-                        </Button>
+                    <div className='footer-button-container'>
+                        <DownloadDoc/>
                     </div>
                 </div>
-                {/* /FOOTER */}
 
+                {
+                    this.props.userSocket ?
+                    <div>
+                        <PMWaitWindow/>
+                        <PMConfirmWindow/>
+                    </div>
+                    : null
+                }
 
                 {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
                 <div onScroll={this.getScrollPercent}></div>
+                
                 <Alert variant='danger' show={this.state.disconnected}>
                     You are currently disconnected. The changes you make might not be saved.
                 </Alert>
+
                 <Tour
                     steps={steps}
                     isOpen={this.state.isTourOpen}
                     onRequestClose={this.closeTour} />
-
-                {/* Pilot Mode */}
-                {/* confirmation window */}
-                <Modal show={pmConfirmModalShow} backdrop="static">
-                    <Modal.Header>
-                        <Modal.Title>Pilot Mode Requested</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className='modal-body'>
-                        <p>{pmRequesterUsername} has requested to be in charge of scrolling through the document.</p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="success" onClick={(event) => this.handleClosePilotConfirmModal(event, true)}>
-                            Confirm
-                    </Button>
-                        <Button variant="danger" onClick={(event) => this.handleClosePilotConfirmModal(event, false)}>
-                            Deny
-                    </Button>
-                    </Modal.Footer>
-                </Modal>
-                {/* waiting window */}
-                <Modal show={pmWaitConfirmModalShow} backdrop="static">
-                    <Modal.Header>
-                        <Modal.Title>Waiting Pilot Mode Confirmation</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className='modal-body'>
-                        <TacoTable
-                            className="pilot-mode-modal-table"
-                            columns={pmWaitColumns}
-                            columnHighlighting
-                            data={pmWaitConfirmTableRows}
-                            striped
-                            sortable
-                        />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="danger" onClick={(event) => this.handleClosePilotWaitingModal(event)}>
-                            Cancel
-                    </Button>
-                    </Modal.Footer>
-                </Modal>
             </div>
         )
     }
 }
 
 CollabPage.propTypes = {
+    // func
     setUserSocket: PropTypes.func.isRequired,
     setCurrentDoc: PropTypes.func.isRequired,
+    setCurrentZoom: PropTypes.func.isRequired,
+    setRoomCode: PropTypes.func.isRequired,
+    setRenderFabricCanvasFunc: PropTypes.func.isRequired,
+    setCanvasContainerRef: PropTypes.func.isRequired,
+    updateCurrentUsers: PropTypes.func.isRequired,
+
+    // var
     userSocket: PropTypes.object.isRequired,
-    currentDoc: PropTypes.object.isRequired
+    currentDoc: PropTypes.object.isRequired,
+    numPages: PropTypes.number.isRequired,
+    pageDimensions: PropTypes.array.isRequired,
+    currentZoom: PropTypes.number.isRequired
 }
 
 const mapStateToProps = state => ({
+    // room
     userSocket: state.room.userSocket,
+    roomCode: state.room.roomCode,
+
+    // doc
     currentDoc: state.doc.currentDoc,
+    canvasContainerRef: state.doc.canvasContainerRef,
+    numPages: state.doc.numPages,
+    pageDimensions: state.doc.pageDimensions,
+
+    // tools
+    currentZoom: state.tool.currentZoom
 })
 
 
-export default connect(mapStateToProps, { setUserSocket, setCurrentDoc })(CollabPage)
+export default connect(mapStateToProps, { 
+    setUserSocket, 
+    setRoomCode, 
+    setCanvasContainerRef,
+    setRenderFabricCanvasFunc,
+    setCurrentDoc,
+    setCurrentZoom,
+    updateCurrentUsers
+})(CollabPage)

@@ -4,6 +4,7 @@ import errorReducer from "./errorReducer";
 import docReducer from './docReducer'
 import roomReducer from './roomReducer'
 import toolReducer from './toolReducer'
+import pilotReducer from './pilotReducer'
 
 export default combineReducers({
     auth: authReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
     room: roomReducer,
     doc: docReducer,
     tool: toolReducer,
+    pilot: pilotReducer
 });

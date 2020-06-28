@@ -1,8 +1,8 @@
-import { SET_ZOOM } from './types'
+import { SET_CURRENT_ZOOM } from './types'
 
-export const setZoom = newZoom => dispatch => {
+export const setCurrentZoom = newZoom => dispatch => {
     dispatch({
-        type: SET_ZOOM,
+        type: SET_CURRENT_ZOOM,
         payload: newZoom
     })
 }

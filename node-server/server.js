@@ -150,7 +150,7 @@ io.on('connection', (socket)=>{
             else if (result === null && creation) {
                 // initial room
                 initialData(socketID, username, roomCode)
-                socket.emit('updateCurrentUsers', [username]);
+                socket.emit('updateCurrentUsers', {[socketID]: username});
             }
             
             // could not find the database under the given roomCode
@@ -159,13 +159,14 @@ io.on('connection', (socket)=>{
                 socket.emit('invalidRoomCode')
             }
 
-            if (result && result.pilotModeActivated) {
-                if(result.pilotModeDriver === userID) {
-                    socket.emit('welcomeBackDriver') 
-                } else {
-                    socket.emit('pilotModeActivatedByUser', result.pilotModeDriver.name)
-                }
-            }
+            // TODO
+            // if (result && result.pilotModeActivated) {
+            //     if(result.pilotModeDriver === userID) {
+            //         socket.emit('welcomeBackDriver') 
+            //     } else {
+            //         socket.emit('pilotModeActivatedByUser', result.pilotModeDriver.name)
+            //     }
+            // }
         });
 
         // //force send clients canvas that are missing it
@@ -302,8 +303,8 @@ io.on('connection', (socket)=>{
         // var pmDenied = false
         socket.on("pilotModeRequestCallback", (callbackData) => {
             const {confirmed, confirmingUser, confirmingUserSocketID, requesterSocketID, currNumUsers} = callbackData
-            console.log(confirmed, confirmingUser)
-            console.log("numUsers", currNumUsers)
+            console.log("PILOTMODEREQUESTCALLBACK", confirmed, confirmingUser, confirmingUserSocketID, requesterSocketID, currNumUsers)
+            
             if (confirmed) {
                 socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserSocketID)
             } else {

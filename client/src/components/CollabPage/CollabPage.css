@@ -16,7 +16,7 @@ body {
     height:100vh;
 }
 
-.header {
+.header, .footer {
     position:relative;
     display: grid;
     grid-template-columns: 1fr minmax(auto, 700px) 1fr;
@@ -196,7 +196,7 @@ body {
     color: white;
 }
 
-.download-button-container {
+.footer-button-container {
     display: flex;
     justify-content: center;
     align-items: center;

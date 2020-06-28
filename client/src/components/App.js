@@ -1,6 +1,6 @@
 import React from "react";
 import LandingPage from './LandingPage/LandingPage'
-import InvalidRoomCodePage from './InvalidRoomCodePage/InvalidRoomCodePage'
+import InvalidRoomCodePage from './CollabPage/InvalidRoomCodePage/InvalidRoomCodePage'
 import CollabPage from './CollabPage/CollabPage'
 import NewLandingPage from './NewLandingPage/NewLandingPage'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
