@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import pilotImg from './pilot-mode.png';
 
 // Redux
 import { connect } from 'react-redux';
@@ -105,6 +106,7 @@ const PilotMode = (props) => {
     // button that is clicked when the room is in Pilot Mode
     // if the Driver clicks it, it changes the 
     function handlePMButtonClick(e) {
+        console.log("handlePMButtonClick")
         e.preventDefault()
         // already activated 
         // console.log('handlePMButtonClick')
@@ -130,12 +132,12 @@ const PilotMode = (props) => {
 
 
     return (
-        <Button
-            variant={props.pmButtonVariant}
+        <button
             className="pilot-mode-button"
             onClick={(e) => handlePMButtonClick(e)}>
-            Pilot Mode: {props.pmButtonLabel} {props.pmDriverName ? <Badge variant="dark">{props.pmDriverName}</Badge> : null}
-        </Button>
+            <img src={pilotImg}/>
+            {props.pmActivated ? <div className='pilot-mode-active'></div> : <div className='pilot-mode-inactive'></div>}
+        </button>
     )
 }
 

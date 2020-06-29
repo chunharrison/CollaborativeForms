@@ -14,6 +14,11 @@ import PilotMode from './PilotMode/PilotMode'
 import PMWaitWindow from './PilotMode/PMWaitWindow'
 import PMConfirmWindow from './PilotMode/PMConfirmWindow'
 import UsersList from './UsersList/UsersList'
+import TogglePanel from '../TogglePanel/TogglePanel';
+import ToggleSelect from '../ToggleSelect/ToggleSelect';
+import TogglePan from '../TogglePan/TogglePan';
+import ZoomIn from '../ZoomIn/ZoomIn';
+import ZoomOut from '../ZoomOut/ZoomOut';
 
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
@@ -25,6 +30,7 @@ import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
 import Tour from 'reactour';
+import Select from 'react-select';
 
 // redux
 import PropTypes from 'prop-types'
@@ -40,6 +46,13 @@ import {
     updateCurrentUsers
 } from '../../actions/roomActions'
 import { setCurrentZoom } from '../../actions/toolActions'
+
+//images
+import textImg from './text.png';
+import shapeImg from './shape.png';
+import freeDrawImg from './free-draw.png';
+import usersImg from './users.png';
+import settingsImg from './settings.png'
 
 //CSS
 import './CollabPage.css';
@@ -59,7 +72,10 @@ class CollabPage extends React.Component {
             pageY: 0,
             holding: false,
 
-            //Shapes and Drawing
+            //Page settings
+            togglePanel: false,
+
+            //Shapes, drawing, highlighting and cursor modes
             mode: 'select',
             isDown: false,
             origX: 0,
@@ -81,15 +97,8 @@ class CollabPage extends React.Component {
             textOpacity: 100,
             textColor: 'rgb(0, 0, 0)',
 
-            // Zoom
-            currentZoom: 1,
-            testScale: 1,
-            testPageRendered: false,
-            pageDimensions: [],
-
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
-            socket: null,
             disconnected: false,
             invalidRoomCodeGiven: false,
         }
@@ -97,8 +106,11 @@ class CollabPage extends React.Component {
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
 
+        //Page settings
+        this.togglePanel = this.togglePanel.bind(this);
         // Shapes and drawing tools
         this.toggleSelect = this.toggleSelect.bind(this);
+        this.togglePan = this.togglePan.bind(this);
         this.toggleHighlighter = this.toggleHighlighter.bind(this);
         this.toggleFreeDraw = this.toggleFreeDraw.bind(this);
         this.toggleText = this.toggleText.bind(this);
@@ -114,6 +126,7 @@ class CollabPage extends React.Component {
         this.updateTextColor = this.updateTextColor.bind(this);
         this.zoomIn = this.zoomIn.bind(this);
         this.zoomOut = this.zoomOut.bind(this);
+        this.setZoom = this.setZoom.bind(this);
         // Signature
         this.mouseMove = this.mouseMove.bind(this);
         this.setSignatureURL = this.setSignatureURL.bind(this);
@@ -473,6 +486,13 @@ class CollabPage extends React.Component {
     /* #################################################################################################
     ################################################################################################# */
 
+    /* #################################################################################################
+    ######################################### Page Settings ####################################
+    ################################################################################################# */
+
+    togglePanel() {
+        this.setState({togglePanel: !this.state.togglePanel});
+    }
 
     /* #################################################################################################
     ######################################### Shapes and Drawings ####################################
@@ -482,6 +502,10 @@ class CollabPage extends React.Component {
 
     toggleSelect() {
         this.setState({ mode: 'select' });
+    }
+
+    togglePan() {
+        this.setState({ mode: 'pan' });
     }
 
     toggleHighlighter() {
@@ -600,6 +624,30 @@ class CollabPage extends React.Component {
                 }
             }
         }
+    }
+
+    setZoom(e) {
+        this.props.setCurrentZoom(e.value)
+        for (let pageNum = 1; pageNum < this.props.numPages; pageNum++) {
+            if (document.getElementById(pageNum.toString())) {
+                let fabricElement = document.getElementById(pageNum.toString()).fabric
+                fabricElement.setZoom(e.value)
+                fabricElement.setWidth(this.props.pageDimensions[pageNum-1].width * e.value)
+                fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * e.value)
+            }
+        }
+
+        // this.setState({currentZoom: e.value}, () => {
+        //     for (let i = 0; i < this.state.pagesArray.length; i++) {
+        //         const currentPageNum = this.state.pagesArray[i]
+        //         if (document.getElementById(currentPageNum.toString())) {
+        //             let fabricElement = document.getElementById(currentPageNum.toString()).fabric
+        //             fabricElement.setZoom(this.state.currentZoom)
+        //             fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
+        //             fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
+        //         }
+        //     }
+        // });
     }
 
     /* #################################################################################################
@@ -934,7 +982,7 @@ class CollabPage extends React.Component {
         if (this.props.currentDoc !== null) {
             pageBrowser = [...Array(this.props.numPages).keys()].map((number, index) =>
                 <div className='browser-page-and-number-container' key={`browser-page-${index}`}>
-                    <div id={`browser-${index + 1}`} style={{ 'minHeight': 280, 'width': 200, 'backgroundColor': 'white', 'backgroundSize': 'cover' }} onClick={this.scrollToPage}>
+                    <div id={`browser-${index + 1}`} style={{ 'minHeight': 200, 'width': 150, 'backgroundColor': 'white', 'backgroundSize': 'cover' }} onClick={this.scrollToPage}>
                     </div>
                     <p className='browser-page-number'>{index + 1}</p>
                 </div>
@@ -980,17 +1028,92 @@ class CollabPage extends React.Component {
             },
         ]
 
+
+        const options = [
+            { value: 0.25, label: '25%' },
+            { value: 0.5, label: '50%' },
+            { value: 0.75, label: '75%' },
+            { value: 1, label: '100%' },
+            { value: 1.25, label: '125%' },
+            { value: 1.5, label: '150%' },
+            { value: 1.75, label: '175%' },
+            { value: 2, label: '200%' },
+          ];
+
+        const zoomValue = [
+            {
+                label: `${this.props.currentZoom * 100}%`,
+                value: this.props.currentZoom,
+            }
+        ]
+
+
         return (
             <div className='collab-page' onMouseMove={this.mouseMove}>
 
                 {/* HEADER */}
                 <div className='header'>
-                    <a className='cosign-header-text' href="/">Cosign</a>
-                    <div className='tools'>
+                    <div className='header-tools-left'>
+                        <TogglePanel
+                        togglePanel={this.togglePanel}
+                        />
+                        <ToggleSelect
+                        toggleSelect={this.toggleSelect}
+                        />
+                        <TogglePan
+                        togglePan={this.togglePan}
+                        />
+                        <ZoomOut
+                        zoomOut={this.zoomOut}
+                        />
+                        <ZoomIn
+                        zoomIn={this.zoomIn}
+                        />
+                        <Select
+                        className='zoom-dropdown'
+                        value={zoomValue}
+                        options={options}
+                        onChange={this.setZoom}
+                        />
+                        {
+                            this.props.userSocket ?
+                            <PilotMode/>
+                            : null
+                        }
+                    </div>
+                    <div className='header-tools-right'>
+                        {roomCodeCopy}
+                        <div className='tool'>
+                            <img src={usersImg}/>
+                        </div>
+                        <DownloadDoc/>
+                        <div className='tool'>
+                            <img src={settingsImg}/>
+                        </div>
+                    </div>
+                </div>
+                {/* /HEADER */}
+
+                {/* BODY */}
+                {/* don't render until we receive the document from the server */}
+                <div className='body-container'>
+                    <div>
+                        <div className='outer'>
+                            <div id='browser-canvas-container'>
+                                {pageBrowser}
+                            </div>
+                        </div>
+                    </div>
+                    {this.props.currentDoc !== null && this.props.userSocket !== null 
+                        ?
+                    <LoadDoc/>
+                        : 
+                    downloadLoader}
+                    <p className='cosign-float'>cosign</p>
+                    <div className='side-bar-tools'>
                         <Signature setURL={this.setSignatureURL} />
-                        <button onClick={this.toggleSelect}>Selectt</button>
                         <div className='dropdown'>
-                            <button onClick={this.toggleHighlighter}>Highlighter</button>
+                            <button className='tool-large' onClick={this.toggleHighlighter}><img src={shapeImg}/></button>
                             {(this.state.dropdown && this.state.mode === 'highlighter') ?
                                 <HighlighterOptions className='tool-options'
                                     highlighterOpacity={this.state.highlighterOpacity}
@@ -1001,10 +1124,10 @@ class CollabPage extends React.Component {
                                     updateHighlighterBorderColor={this.updateHighlighterBorderColor}
                                     updateHighlighterBorderThickness={this.updateHighlighterBorderThickness}
                                     updateHighlighterOpacity={this.updateHighlighterOpacity} />
-                                : null}
+                            : null}
                         </div>
                         <div className='dropdown'>
-                            <button onClick={this.toggleFreeDraw} style={{ height: '100%' }}>Free Draw</button>
+                            <button className='tool-large' onClick={this.toggleFreeDraw}><img src={freeDrawImg}/></button>
                             {(this.state.dropdown && this.state.mode === 'freedraw') ?
                                 <FreedrawOptions className='tool-options'
                                     opacity={this.state.opacity}
@@ -1016,7 +1139,7 @@ class CollabPage extends React.Component {
                                 : null}
                         </div>
                         <div className='dropdown'>
-                            <button onClick={this.toggleText}>Text</button>
+                            <button className='tool-large' onClick={this.toggleText}><img src={textImg}/></button>
                             {(this.state.dropdown && this.state.mode === 'text') ?
                                 <TextOptions className='tool-options'
                                     textOpacity={this.state.textOpacity}
@@ -1027,43 +1150,13 @@ class CollabPage extends React.Component {
                                     updateTextColor={this.updateTextColor} />
                                 : null}
                         </div>
-                        <button onClick={this.zoomOut}>Zoom Out</button>
-                        <button onClick={this.zoomIn}>Zoom In</button>
-                        <p className="page-number">{Math.floor(this.props.currentZoom * 100)}%</p>
-                    </div>
-                    {roomCodeCopy}
-                </div>
-                {/* /HEADER */}
-
-                {/* BODY */}
-                {/* don't render until we receive the document from the server */}
-                <div className='body-container'>
-                    <div id='browser-canvas-container'>
-                        {pageBrowser}
-                    </div>
-                    {/* loader waiting for download */}
-                    {this.props.currentDoc !== null && this.props.userSocket !== null 
-                        ?
-                    <LoadDoc/>
-                        : 
-                    downloadLoader}
-
-                    {/* Object Label */}
-                    {
-                        this.state.currentObjectOwner 
-                            ? 
-                        <div className='current-object-owner'>
-                            {this.state.currentObjectOwner}
-                        </div> 
-                            : 
-                        null
-                    }
+                    </div>  
                 </div>
 
 
 
                 {/* FOOTER */}
-                <div className='footer'>
+                {/* <div className='footer'>
                     <div className='footer-button-container'>
                         {
                             this.props.userSocket ?
@@ -1073,12 +1166,11 @@ class CollabPage extends React.Component {
                         <UsersList/>
                     </div>
                     <div className='tools'>
-                        {/*  */}
                     </div>
                     <div className='footer-button-container'>
                         <DownloadDoc/>
                     </div>
-                </div>
+                </div> */}
 
                 {
                     this.props.userSocket ?

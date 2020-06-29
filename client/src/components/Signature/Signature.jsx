@@ -1,6 +1,7 @@
 import React, {useRef} from "react";
 import Popup from "reactjs-popup";
 import SignaturePad from 'react-signature-canvas';
+import signatureImg from './signature.png'
 
 function Signature(props) {
   const sigCanvas = useRef({});
@@ -11,7 +12,7 @@ function Signature(props) {
     <div id='signature-canvas-container'>
       <Popup contentStyle={{width: "700px", height:'250px', padding: "0px"}}
       modal 
-      trigger={<button className='signature-button'><img className='signature-button-icon' src='/signature.png'></img><p>Signature</p></button>}
+      trigger={<button className='tool-large'><img src={signatureImg}></img></button>}
       closeOnDocumentClick={false}
       >
         {close => (

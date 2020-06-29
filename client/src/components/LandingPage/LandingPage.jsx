@@ -3,7 +3,6 @@ import { Link, Redirect } from 'react-router-dom';
 import { nanoid } from 'nanoid';
 import PDFViewer from './PDFViewer/PDFViewer';
 import axios from 'axios';
-import Tour from 'reactour';
 
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
@@ -73,8 +72,6 @@ class LandingPage extends React.Component {
         this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
         this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
 
-        // Intro
-        this.closeTour = this.closeTour.bind(this);
     }
 
     onLogoutClick = e => {
@@ -265,21 +262,14 @@ class LandingPage extends React.Component {
         )
     }
 
-    //Close intro popup
-    closeTour() {
-        this.setState({isTourOpen: false})
-    }
-
     componentDidMount() {
         let visited = localStorage["landingPageVisited"];
         if(visited) {
-            this.setState({mounted: true,
-                isTourOpen: false});
+            this.setState({mounted: true});
         } else {
              //this is the first time
              localStorage["landingPageVisited"] = true;
-             this.setState({mounted: true,
-                isTourOpen: true});
+             this.setState({mounted: true});
         }
     }
 
@@ -299,54 +289,6 @@ class LandingPage extends React.Component {
         } else {
             fileValue = this.fileInputRef.current.files[0].name;
         }
-
-        //Order in which insturcitons will appear
-        const steps = [
-            {
-                selector: '',
-                content: 'Welcome to Cosign! Host PDF documents and sign them real-time with others.',
-            },
-            {
-                selector: '',
-                content: 'Create a room with your own PDF document or join an existing room created by someone else.',
-            },
-            {
-                selector: '.create-room',
-                content: 'To create a room, the "Create Room" section must be used.',
-            },
-            {
-                selector: '.file-input-container',
-                content: 'Select a PDF document of your choice with the "Browse" button.',
-            },
-            {
-                selector: '.name-input',
-                content: 'Enter a username that you think will help others to identify you in the room.',
-            },
-            {
-                selector: '.create-room-button',
-                content: 'And finally, click the "Create Room" button to enter.',
-            },
-            {
-                selector: '.join-room',
-                content: 'If a room has already been created by another user, you can join it by using the "Join Room" section.',
-            },
-            {
-                selector: '.join-room-input',
-                content: 'Ask any user currently in the room for the room code and paste it into this box.',
-            },
-            {
-                selector: '.join-name-input',
-                content: 'Enter a username that you think will help others to identify you in the room.',
-            },
-            {
-                selector: '.join-room-button',
-                content: 'And finally, click the "Join Room" button to enter.',
-            },
-            {
-                selector: '.nav',
-                content: 'To view this tutorial again the "Tutorial" button can be clicked.',
-            },
-        ]
 
         return (
             <div className='grid-container'>
@@ -419,10 +361,6 @@ class LandingPage extends React.Component {
                         </Button>}
                     </Modal.Footer>
                 </Modal>
-                <Tour
-                steps={steps}
-                isOpen={this.state.isTourOpen}
-                onRequestClose={this.closeTour}/>
             </div> 
         );
     }
