@@ -4,8 +4,6 @@ import React from 'react';
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from './CopyRoomCode/CopyRoomCode';
-import FreedrawOptions from '../FreedrawOptions/FreedrawOptions';
-import HighlighterOptions from '../HighlighterOptions/HighlighterOptions';
 import TextOptions from '../TextOptions/TextOptions';
 import LoadDoc from './LoadDoc/LoadDoc'
 import DownloadDoc from './DownloadDoc/DownloadDoc';
@@ -13,13 +11,14 @@ import DownloadDoc from './DownloadDoc/DownloadDoc';
 import PilotMode from './PilotMode/PilotMode'
 import PMWaitWindow from './PilotMode/PMWaitWindow'
 import PMConfirmWindow from './PilotMode/PMConfirmWindow'
-import UsersList from './UsersList/UsersList'
 import TogglePanel from '../TogglePanel/TogglePanel';
 import ToggleSelect from '../ToggleSelect/ToggleSelect';
 import TogglePan from '../TogglePan/TogglePan';
 import ZoomIn from '../ZoomIn/ZoomIn';
 import ZoomOut from '../ZoomOut/ZoomOut';
-
+import ToggleShape from '../ToggleShape/ToggleShape';
+import ToggleDraw from '../ToggleDraw/ToggleDraw';
+import ToggleText from '../ToggleText/ToggleText';
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -45,12 +44,14 @@ import {
     setRoomCode,
     updateCurrentUsers
 } from '../../actions/roomActions'
-import { setCurrentZoom } from '../../actions/toolActions'
+import { setCurrentZoom,
+    setToolMode,
+    setPrevToolMode,
+    setShape,
+    setPanelToggle,
+} from '../../actions/toolActions'
 
 //images
-import textImg from './text.png';
-import shapeImg from './shape.png';
-import freeDrawImg from './free-draw.png';
 import usersImg from './users.png';
 import settingsImg from './settings.png'
 
@@ -72,30 +73,11 @@ class CollabPage extends React.Component {
             pageY: 0,
             holding: false,
 
-            //Page settings
-            togglePanel: false,
-
             //Shapes, drawing, highlighting and cursor modes
-            mode: 'select',
-            isDown: false,
             origX: 0,
             origY: 0,
-            rect: null,
-            brushSize: 1,
-            opacity: 100,
-            selectedColor: 'rgb(0, 0, 0)',
-            dropdown: false,
-
-            //highlighter
-            highlighterBorderThickness: 1,
-            highlighterOpacity: 100,
-            highlighterBorderColor: 'rgb(0, 0, 0)',
-            highlighterFillColor: 'rgb(0, 0, 0)',
-
-            //text
-            textFontSize: 10,
-            textOpacity: 100,
-            textColor: 'rgb(0, 0, 0)',
+            drawTrueCanvasId: [],
+            lastCanvas: 1,
 
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
@@ -106,39 +88,21 @@ class CollabPage extends React.Component {
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
 
-        //Page settings
-        this.togglePanel = this.togglePanel.bind(this);
-        // Shapes and drawing tools
-        this.toggleSelect = this.toggleSelect.bind(this);
-        this.togglePan = this.togglePan.bind(this);
-        this.toggleHighlighter = this.toggleHighlighter.bind(this);
-        this.toggleFreeDraw = this.toggleFreeDraw.bind(this);
-        this.toggleText = this.toggleText.bind(this);
-        this.updateBrushSize = this.updateBrushSize.bind(this);
-        this.updateOpacity = this.updateOpacity.bind(this);
-        this.updateColor = this.updateColor.bind(this);
-        this.updateHighlighterBorderColor = this.updateHighlighterBorderColor.bind(this);
-        this.updateHighlighterFillColor = this.updateHighlighterFillColor.bind(this);
-        this.updateHighlighterBorderThickness = this.updateHighlighterBorderThickness.bind(this);
-        this.updateHighlighterOpacity = this.updateHighlighterOpacity.bind(this);
-        this.updateTextFontSize = this.updateTextFontSize.bind(this);
-        this.updateTextOpacity = this.updateTextOpacity.bind(this);
-        this.updateTextColor = this.updateTextColor.bind(this);
-        this.zoomIn = this.zoomIn.bind(this);
-        this.zoomOut = this.zoomOut.bind(this);
+        // Zoom
         this.setZoom = this.setZoom.bind(this);
         // Signature
         this.mouseMove = this.mouseMove.bind(this);
         this.setSignatureURL = this.setSignatureURL.bind(this);
         this.addImage = this.addImage.bind(this);
-        this.delObject = this.delObject.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleKeyUp = this.handleKeyUp.bind(this);
 
         // Backend
         this.setSocket = this.setSocket.bind(this);
         this.invalidRoomCodeProc = this.invalidRoomCodeProc.bind(this);
 
         // Component Variables
-        this.inViewElements = null;
+        this.inViewElements = [];
         this.currentCanvas = null;
         this.fabricCanvases = [];
 
@@ -157,7 +121,6 @@ class CollabPage extends React.Component {
     ################################################################################################# */
 
     renderFabricCanvas = (pageNum, width, height) => {
-        console.log(pageNum, width, height)
         let self = this
 
         // get the canvas element created by react-pdf
@@ -178,7 +141,6 @@ class CollabPage extends React.Component {
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
 
         // scale
-        console.log(this.props.currentZoom, this.props.pageDimensions)
         fabricCanvas.setZoom(this.props.currentZoom)
         fabricCanvas.setWidth(this.props.pageDimensions[pageNum - 1].width * this.props.currentZoom)
         fabricCanvas.setHeight(this.props.pageDimensions[pageNum - 1].height * this.props.currentZoom)
@@ -199,31 +161,28 @@ class CollabPage extends React.Component {
         fabricCanvas.on('mouse:over', function (o) {
             //different conditions for different tools
             //o.target is null when mousing out of canvas
-            if (o.target && self.state.mode !== 'select') {
+            self.setState({drawTrueCanvasId: [...self.state.drawTrueCanvasId, fabricCanvas.lowerCanvasEl.id], lastCanvas: o.e.target.previousElementSibling.id})
+            if (o.target && self.props.toolMode !== 'select') {
                 o.target.hoverCursor = fabricCanvas.defaultCursor;
+            }else if (self.props.toolMode === 'draw') {
+                fabricCanvas.isDrawingMode = true;
+                fabricCanvas.freeDrawingCursor = 'default';
+                fabricCanvas.freeDrawingBrush.width = parseInt(self.props.drawBrushSize);
+                let match = self.props.drawColor.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
+                fabricCanvas.freeDrawingBrush.color = `rgb(${match[1]}, ${match[2]}, ${match[3]}, ${self.props.drawOpacity / 100})`;
             } else if (o.target) {
                 o.target.hoverCursor = fabricCanvas.hoverCursor;
             }
 
-            if (self.state.mode === 'freedraw') {
-                fabricCanvas.isDrawingMode = true;
-                fabricCanvas.freeDrawingBrush.width = parseInt(self.state.brushSize);
-                let match = self.state.selectedColor.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
-                fabricCanvas.freeDrawingBrush.color = `rgb(${match[1]}, ${match[2]}, ${match[3]}, ${self.state.opacity / 100})`;
-
-            }
         });
 
         //triggered when mousing out of canvas or object
-        fabricCanvas.on('mouse:out', function (o) {
-            fabricCanvas.isDrawingMode = false;
-        });
 
         //triggers when mouse is clicked down
         fabricCanvas.on('mouse:down', function (o) {
             var pointer = fabricCanvas.getPointer(o.e);
             //add rectangle if highlither tool is used
-            if (self.state.mode === 'highlighter') {
+            if (self.props.toolMode === 'shape') {
                 self.setState({
                     isDown: true,
                     origX: pointer.x,
@@ -238,16 +197,16 @@ class CollabPage extends React.Component {
                         width: pointer.x - self.state.origX,
                         height: pointer.y - self.state.origY,
                         angle: 0,
-                        opacity: self.state.highlighterOpacity / 100,
-                        fill: self.state.highlighterFillColor,
-                        stroke: self.state.highlighterBorderColor,
-                        strokeWidth: parseInt(self.state.highlighterBorderThickness),
+                        opacity: self.props.shapeOpacity / 100,
+                        fill: self.props.shapeFillColor,
+                        stroke: self.props.shapeBorderColor,
+                        strokeWidth: parseInt(self.props.shapeBorderThickness),
                         transparentCorners: false
                     });
                     let obj={owner: self.state.username};
                     rect.set('owner',obj);
+                    self.props.setShape(rect);
                     self.setState({
-                        rect: rect,
                         toSend: true
                     }, () => {
                         fabricCanvas.add(rect);
@@ -262,17 +221,17 @@ class CollabPage extends React.Component {
             //trigger if left mouse button is pressed
             if (!self.state.isDown) return;
             var pointer = fabricCanvas.getPointer(o.e);
-            //resize rectangle if highlighter is selected
-            if (self.state.mode === 'highlighter') {
+            //resize rectangle if shape is selected
+            if (self.props.toolMode === 'shape') {
                 if (self.state.origX > pointer.x) {
-                    self.state.rect.set({ left: Math.abs(pointer.x) });
+                    self.props.shape.set({ left: Math.abs(pointer.x) });
                 }
                 if (self.state.origY > pointer.y) {
-                    self.state.rect.set({ top: Math.abs(pointer.y) });
+                    self.props.shape.set({ top: Math.abs(pointer.y) });
                 }
 
-                self.state.rect.set({ width: Math.abs(self.state.origX - pointer.x) });
-                self.state.rect.set({ height: Math.abs(self.state.origY - pointer.y) });
+                self.props.shape.set({ width: Math.abs(self.state.origX - pointer.x) });
+                self.props.shape.set({ height: Math.abs(self.state.origY - pointer.y) });
             }
 
             fabricCanvas.renderAll();
@@ -283,9 +242,9 @@ class CollabPage extends React.Component {
             var pointer = fabricCanvas.getPointer(e.e);
             self.setState({ isDown: false });
 
-            if (self.state.mode === 'highlighter') {
-                self.state.rect.setCoords();
-                const modifiedSignatureObject = self.state.rect;
+            if (self.props.toolMode === 'shape') {
+                self.props.shape.setCoords();
+                const modifiedSignatureObject = self.props.shape;
                 const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
 
                 let pageData = {
@@ -294,15 +253,13 @@ class CollabPage extends React.Component {
                 }
 
                 self.props.userSocket.emit('editIn', pageData)
-            } else if (self.state.mode === 'freedraw') {
-                fabricCanvas.isDrawingMode = false;
-            } else if (self.state.mode === 'text') {
+            } else if (self.props.toolMode === 'text') {
                 self.setState({ toSend: true }, () => {
                     fabricCanvas.add(new fabric.IText('Insert Text', {
                         fontFamily: 'roboto',
-                        fontSize: self.state.textFontSize,
-                        fill: self.state.textColor,
-                        opacity: self.state.textOpacity / 100,
+                        fontSize: self.props.textFontSize,
+                        fill: self.props.textColor,
+                        opacity: self.props.textOpacity / 100,
                         left: pointer.x,
                         top: pointer.y,
                         id: nanoid()
@@ -329,7 +286,7 @@ class CollabPage extends React.Component {
         });
 
         fabricCanvas.on('object:selected', function (e) {
-            if (self.state.mode !== 'select') {
+            if (self.props.toolMode !== 'select') {
                 fabricCanvas.discardActiveObject().renderAll();
             } else {
                 self.setState({currentObjectOwner: e.target.get('owner').owner});
@@ -342,7 +299,7 @@ class CollabPage extends React.Component {
         });
 
         fabricCanvas.on('selection:updated', function (e) {
-            if (self.state.mode !== 'select') {
+            if (self.props.toolMode !== 'select') {
                 fabricCanvas.discardActiveObject().renderAll();
             } else {
                 self.setState({currentObjectOwner: e.target.get('owner').owner});
@@ -487,144 +444,8 @@ class CollabPage extends React.Component {
     ################################################################################################# */
 
     /* #################################################################################################
-    ######################################### Page Settings ####################################
+    ######################################### Zoom ####################################
     ################################################################################################# */
-
-    togglePanel() {
-        this.setState({togglePanel: !this.state.togglePanel});
-    }
-
-    /* #################################################################################################
-    ######################################### Shapes and Drawings ####################################
-    ################################################################################################# */
-
-    //tool toggles
-
-    toggleSelect() {
-        this.setState({ mode: 'select' });
-    }
-
-    togglePan() {
-        this.setState({ mode: 'pan' });
-    }
-
-    toggleHighlighter() {
-        this.setState({
-            mode: 'highlighter',
-            dropdown: !this.state.dropdown
-        });
-    }
-
-    toggleFreeDraw() {
-        this.setState({
-            mode: 'freedraw',
-            dropdown: !this.state.dropdown
-        });
-    }
-
-    toggleText() {
-        this.setState({
-            mode: 'text',
-            dropdown: !this.state.dropdown
-        });
-    }
-
-    //Freedraw functions
-
-    updateBrushSize(e) {
-        this.setState({ brushSize: e.target.value })
-    }
-
-    updateOpacity(e) {
-        this.setState({ opacity: e.target.value })
-    }
-
-    updateColor(e) {
-        this.setState({ selectedColor: e.target.style.backgroundColor });
-        let ColorBlocks = document.getElementsByClassName('Color-block');
-        for (let i = 0; i < ColorBlocks.length; i++) {
-            ColorBlocks[i].classList.remove('active-Color');
-        }
-
-        e.target.classList.add('active-Color');
-    }
-
-    //Highlighter functions
-    updateHighlighterBorderThickness(e) {
-        this.setState({ highlighterBorderThickness: e.target.value })
-    }
-
-    updateHighlighterOpacity(e) {
-        this.setState({ highlighterOpacity: e.target.value })
-    }
-
-    updateHighlighterFillColor(e) {
-        this.setState({ highlighterFillColor: e.target.style.backgroundColor });
-        let ColorBlocks = document.getElementsByClassName('Color-block');
-        for (let i = 0; i < ColorBlocks.length; i++) {
-            ColorBlocks[i].classList.remove('active-Color');
-        }
-
-        e.target.classList.add('active-Color');
-    }
-
-    updateHighlighterBorderColor(e) {
-        this.setState({ highlighterBorderColor: e.target.style.backgroundColor });
-        let ColorBlocks = document.getElementsByClassName('Color-block');
-        for (let i = 0; i < ColorBlocks.length; i++) {
-            ColorBlocks[i].classList.remove('active-Color');
-        }
-
-        e.target.classList.add('active-Color');
-    }
-
-    //Text functions
-    updateTextFontSize(e) {
-        this.setState({ textFontSize: e.target.value })
-    }
-
-    updateTextOpacity(e) {
-        this.setState({ textOpacity: e.target.value })
-    }
-
-    updateTextColor(e) {
-        this.setState({ textColor: e.target.style.backgroundColor });
-    }
-
-    //Zoom
-    zoomOut() {
-        if (this.props.currentZoom >= 0.4) {
-            let newZoom = this.props.currentZoom - 0.2
-            this.props.setCurrentZoom(newZoom)
-            for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
-                if (document.getElementById(pageNum.toString())) {
-                    let fabricElement = document.getElementById(pageNum.toString()).fabric
-                    fabricElement.setZoom(newZoom)
-                    fabricElement.setWidth(this.props.pageDimensions[pageNum-1].width * newZoom)
-                    fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * newZoom)
-                }
-            }
-        }
-    }
-
-    zoomIn() {
-        if (this.props.currentZoom <= 5) {
-            // this.props.dispatch(this.props.setCurrentZoom(this.props.currentZoom+0.2)
-            // .then(()=> {
-
-            // }))
-            let newZoom = this.props.currentZoom + 0.2
-            this.props.setCurrentZoom(newZoom)
-            for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
-                if (document.getElementById(pageNum.toString())) {
-                    let fabricElement = document.getElementById(pageNum.toString()).fabric
-                    fabricElement.setZoom(newZoom)
-                    fabricElement.setWidth(this.props.pageDimensions[pageNum-1].width * newZoom)
-                    fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * newZoom)
-                }
-            }
-        }
-    }
 
     setZoom(e) {
         this.props.setCurrentZoom(e.value)
@@ -636,18 +457,6 @@ class CollabPage extends React.Component {
                 fabricElement.setHeight(this.props.pageDimensions[pageNum-1].height * e.value)
             }
         }
-
-        // this.setState({currentZoom: e.value}, () => {
-        //     for (let i = 0; i < this.state.pagesArray.length; i++) {
-        //         const currentPageNum = this.state.pagesArray[i]
-        //         if (document.getElementById(currentPageNum.toString())) {
-        //             let fabricElement = document.getElementById(currentPageNum.toString()).fabric
-        //             fabricElement.setZoom(this.state.currentZoom)
-        //             fabricElement.setWidth(this.state.pageDimensions[i].width * this.state.currentZoom)
-        //             fabricElement.setHeight(this.state.pageDimensions[i].height * this.state.currentZoom)
-        //         }
-        //     }
-        // });
     }
 
     /* #################################################################################################
@@ -694,9 +503,11 @@ class CollabPage extends React.Component {
         this.setState({ holding: false });
     }
 
-    // deletes the signatures on the canvas that are selected
-    delObject(event) {
-        if (event.keyCode === 46) {
+    // handles key strokes
+    handleKeyDown(e) {
+        console.log(e);
+        //delete objects
+        if (e.keyCode === 46 && e.target.type !== 'textarea') {
             this.setState({ holding: false });
             for (let pageNum = 0; pageNum < this.props.numPages; pageNum++) {
                 let currentPageCanvas = document.getElementById(pageNum.toString());
@@ -712,6 +523,42 @@ class CollabPage extends React.Component {
                     }
                 }
             }
+            //trigger pan tool
+        } else if(e.keyCode === 32 && e.target.type !== 'textarea'){
+            e.preventDefault();
+
+            if (this.props.toolMode !== 'pan') {
+                this.props.setPrevToolMode(this.props.toolMode);
+                this.props.setToolMode('pan');
+            }
+            //trigger select tool
+        } else if(e.keyCode === 86 && e.target.type !== 'textarea'){
+            e.preventDefault();
+
+            if (this.props.toolMode !== 'select') {
+                this.props.setPrevToolMode(this.props.toolMode);
+                this.props.setToolMode('select');
+            }
+        } else if (e.keyCode === 66 && e.target.type !== 'textarea') {
+            let fabricCanvas = document.getElementById(this.state.lastCanvas.toString()).fabric
+            fabricCanvas.isDrawingMode = true;
+            this.setState({drawTrueCanvasId: [...this.state.drawTrueCanvasId, fabricCanvas.lowerCanvasEl.id]});
+            this.props.setPrevToolMode(this.props.toolMode);
+            this.props.setToolMode('draw');
+        } else if (e.keyCode === 85 && e.target.type !== 'textarea') {
+            this.props.setPrevToolMode(this.props.toolMode);
+            this.props.setToolMode('shape');
+        } else if (e.keyCode === 84 && e.target.type !== 'textarea') {
+            this.props.setPrevToolMode(this.props.toolMode);
+            this.props.setToolMode('text');
+        } else if (e.keyCode === 80 && e.target.type !== 'textarea') {
+            this.props.setPanelToggle(!this.props.panelToggle);
+        }
+    }
+    //deactivate pan tool when space is released
+    handleKeyUp(e) {
+        if(e.keyCode === 32 && this.props.toolMode === 'pan'){
+            this.props.setToolMode(this.props.prevToolMode);
         }
     }
 
@@ -917,7 +764,8 @@ class CollabPage extends React.Component {
     ################################################################################################# */
 
     componentDidMount() {
-        document.addEventListener("keydown", this.delObject, false);
+        document.addEventListener("keydown", this.handleKeyDown, false);
+        document.addEventListener("keyup", this.handleKeyUp, false);
 
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
@@ -946,17 +794,22 @@ class CollabPage extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-
         if (prevState.holding === false && this.state.holding === true) {
             let image = document.getElementById('signature-placeholder')
             image.style.top = this.state.pageY + 'px';
             image.style.left = this.state.pageX + 'px';
         }
 
+        if (prevProps.toolMode === 'draw' && this.props.toolMode !== 'draw') {
+            this.state.drawTrueCanvasId.forEach(function (id) {
+                let fabricCanvasObject = document.getElementById(id.toString()).fabric;
+                fabricCanvasObject.isDrawingMode = false;
+            })
+        }
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.delObject, false);
+        document.removeEventListener("keydown", this.handleKeyDown, false);
     }
 
 
@@ -1000,35 +853,6 @@ class CollabPage extends React.Component {
             </div>
         </div> : null)
 
-        //Order in which insturcitons will appear
-        const steps = [
-            {
-                selector: '',
-                content: 'Welcome to the collaboration page! On this page, you can view and sign documents hosted by the owner of the room.',
-            },
-            {
-                selector: '.react-pdf__Document',
-                content: 'The main area is where the selected PDF should appear after the initial setup.',
-            },
-            {
-                selector: '#browser-canvas-container',
-                content: 'The page explorer can be used to navigate between pages faster by clicking on them.',
-            },
-            {
-                selector: '.signature-button',
-                content: 'A signature can be made then placed on the PDF by clicking the signature button.',
-            },
-            {
-                selector: '.clipboard-container',
-                content: 'The room code is a unique string of characters that can be shared with other parties intending on joining the room.',
-            },
-            {
-                selector: '.download-button',
-                content: 'If enabled by the room owner, this document and the signatures placed can be downloaded and saved on to local storage',
-            },
-        ]
-
-
         const options = [
             { value: 0.25, label: '25%' },
             { value: 0.5, label: '50%' },
@@ -1054,21 +878,11 @@ class CollabPage extends React.Component {
                 {/* HEADER */}
                 <div className='header'>
                     <div className='header-tools-left'>
-                        <TogglePanel
-                        togglePanel={this.togglePanel}
-                        />
-                        <ToggleSelect
-                        toggleSelect={this.toggleSelect}
-                        />
-                        <TogglePan
-                        togglePan={this.togglePan}
-                        />
-                        <ZoomOut
-                        zoomOut={this.zoomOut}
-                        />
-                        <ZoomIn
-                        zoomIn={this.zoomIn}
-                        />
+                        <TogglePanel/>
+                        <ToggleSelect/>
+                        <TogglePan/>
+                        <ZoomOut/>
+                        <ZoomIn/>
                         <Select
                         className='zoom-dropdown'
                         value={zoomValue}
@@ -1097,11 +911,9 @@ class CollabPage extends React.Component {
                 {/* BODY */}
                 {/* don't render until we receive the document from the server */}
                 <div className='body-container'>
-                    <div>
-                        <div className='outer'>
-                            <div id='browser-canvas-container'>
-                                {pageBrowser}
-                            </div>
+                    <div className={`outer ${this.props.panelToggle ? 'panel-true' : 'panel-false'}`}>
+                        <div id='browser-canvas-container'>
+                            {pageBrowser}
                         </div>
                     </div>
                     {this.props.currentDoc !== null && this.props.userSocket !== null 
@@ -1112,44 +924,9 @@ class CollabPage extends React.Component {
                     <p className='cosign-float'>cosign</p>
                     <div className='side-bar-tools'>
                         <Signature setURL={this.setSignatureURL} />
-                        <div className='dropdown'>
-                            <button className='tool-large' onClick={this.toggleHighlighter}><img src={shapeImg}/></button>
-                            {(this.state.dropdown && this.state.mode === 'highlighter') ?
-                                <HighlighterOptions className='tool-options'
-                                    highlighterOpacity={this.state.highlighterOpacity}
-                                    highlighterBorderThickness={this.state.highlighterBorderThickness}
-                                    highlighterFillColor={this.state.highlighterFillColor}
-                                    highlighterBorderColor={this.state.highlighterBorderColor}
-                                    updateHighlighterFillColor={this.updateHighlighterFillColor}
-                                    updateHighlighterBorderColor={this.updateHighlighterBorderColor}
-                                    updateHighlighterBorderThickness={this.updateHighlighterBorderThickness}
-                                    updateHighlighterOpacity={this.updateHighlighterOpacity} />
-                            : null}
-                        </div>
-                        <div className='dropdown'>
-                            <button className='tool-large' onClick={this.toggleFreeDraw}><img src={freeDrawImg}/></button>
-                            {(this.state.dropdown && this.state.mode === 'freedraw') ?
-                                <FreedrawOptions className='tool-options'
-                                    opacity={this.state.opacity}
-                                    brushSize={this.state.brushSize}
-                                    selectedColor={this.state.selectedColor}
-                                    updateBrushSize={this.updateBrushSize}
-                                    updateOpacity={this.updateOpacity}
-                                    updateColor={this.updateColor} />
-                                : null}
-                        </div>
-                        <div className='dropdown'>
-                            <button className='tool-large' onClick={this.toggleText}><img src={textImg}/></button>
-                            {(this.state.dropdown && this.state.mode === 'text') ?
-                                <TextOptions className='tool-options'
-                                    textOpacity={this.state.textOpacity}
-                                    textFontSize={this.state.textFontSize}
-                                    textColor={this.state.textColor}
-                                    updateTextOpacity={this.updateTextOpacity}
-                                    updateTextFontSize={this.updateTextFontSize}
-                                    updateTextColor={this.updateTextColor} />
-                                : null}
-                        </div>
+                        <ToggleShape/>
+                        <ToggleDraw/>
+                        <ToggleText/>
                     </div>  
                 </div>
 
@@ -1187,11 +964,6 @@ class CollabPage extends React.Component {
                 <Alert variant='danger' show={this.state.disconnected}>
                     You are currently disconnected. The changes you make might not be saved.
                 </Alert>
-
-                <Tour
-                    steps={steps}
-                    isOpen={this.state.isTourOpen}
-                    onRequestClose={this.closeTour} />
             </div>
         )
     }
@@ -1227,7 +999,22 @@ const mapStateToProps = state => ({
     pageDimensions: state.doc.pageDimensions,
 
     // tools
-    currentZoom: state.tool.currentZoom
+    currentZoom: state.tool.currentZoom,
+    panelToggle: state.tool.panelToggle,
+    toolMode: state.tool.toolMode,
+    prevToolMode: state.tool.prevToolMode,
+    shapeBorderColor: state.tool.shapeBorderColor,
+    shapeBorderThickness: state.tool.shapeBorderThickness,
+    shapeFillColor: state.tool.shapeFillColor,
+    shapeOpacity: state.tool. shapeOpacity,
+    shape: state.tool.shape,
+    drawOpacity: state.tool.drawOpacity,
+    drawBrushSize: state.tool.drawBrushSize,
+    drawColor: state.tool.drawColor,
+    textColor: state.tool.textColor,
+    textOpacity: state.tool.textOpacity,
+    textFontSize: state.tool.textFontSize,
+    panelToggle: state.tool.panelToggle,
 })
 
 
@@ -1238,5 +1025,9 @@ export default connect(mapStateToProps, {
     setRenderFabricCanvasFunc,
     setCurrentDoc,
     setCurrentZoom,
-    updateCurrentUsers
+    updateCurrentUsers,
+    setToolMode,
+    setPrevToolMode,
+    setShape,
+    setPanelToggle,
 })(CollabPage)

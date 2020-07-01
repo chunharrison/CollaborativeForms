@@ -1,14 +1,27 @@
 import React from 'react';
 
+//redux
+import { connect } from 'react-redux';
+import { setPanelToggle } from '../../actions/toolActions';
+
 import toggleImg from './toggle-panel.png';
 
-function TogglePanel(props) {
+const TogglePanel = (props) => {
+    function togglePanel() {
+        props.setPanelToggle(!props.panelToggle);
+    }
 
     return (
-    <div className='tool' onClick={props.togglePanel}>
+    <div id='panel-tool' className='tool' onClick={togglePanel} style={{'backgroundColor': `${props.panelToggle ? 'rgb(209, 209, 209)' : ''}`}}>
         <img src={toggleImg}/>
     </div>
     );
 }
 
-export default TogglePanel;
+const mapStateToProps = state => ({
+    panelToggle: state.tool.panelToggle,
+})
+
+export default connect(mapStateToProps, {
+    setPanelToggle,
+})(TogglePanel);

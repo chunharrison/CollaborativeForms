@@ -3,7 +3,7 @@ import {
     SET_CANVAS_CONTAINER_REF,
     SET_NUM_PAGES, 
     SET_RENDERFABRICCANVAS_FUNC,
-    SET_PAGE_DIMENSIONS 
+    SET_PAGE_DIMENSIONS,
 } from '../actions/types'
 
 const initialState = {

@@ -10,12 +10,36 @@ import { useInView } from 'react-intersection-observer'
 // Redux
 import { connect } from 'react-redux';
 import { setNumPages, setPageDimensions } from '../../../actions/docActions';
+import { setIsDown, setClientX, setClientY } from '../../../actions/toolActions';
+
 
 const LoadDoc = (props) => {
 
     // TODO: chagne this to something else (HARRISON)
     const [pagesArray, setPagesArray] = useState([]);
 
+    function onMouseDown(e) {
+        props.setIsDown(true);
+        props.setClientX(e.clientX);
+        props.setClientY(e.clientY);
+    }
+
+    function onMouseUp(e) {
+        props.setIsDown(false);
+    }
+
+    function onMouseMove(e) {
+        if (props.isDown) {
+            if (props.toolMode === 'pan') {
+                e.preventDefault();
+                props.canvasContainerRef.current.scrollLeft = props.canvasContainerRef.current.scrollLeft + (props.clientX - e.clientX);
+                props.canvasContainerRef.current.scrollTop = props.canvasContainerRef.current.scrollTop + (props.clientY - e.clientY);
+            }
+            props.setClientX(e.clientX);
+            props.setClientY(e.clientY);    
+        }
+    }
+    
     // procs when the document is successfully loaded by the Document component from react-pdf
     // retrieves the number of pdf pages and store it in state
     function onDocumentLoadSuccess(pdf) {
@@ -43,7 +67,11 @@ const LoadDoc = (props) => {
         file={props.currentDoc}
         onLoadSuccess={(pdf) => onDocumentLoadSuccess(pdf)}
         loading={documentLoader}>  
-            <div id='canvas-container' ref={props.canvasContainerRef}>
+            <div id='canvas-container' 
+            onMouseDown={onMouseDown}
+            onMouseUp={onMouseUp}
+            onMouseMove={onMouseMove}
+            ref={props.canvasContainerRef}>
                 {/* Render the pages of the PDF */}
                 {
                     pagesArray.map((pageNum, i) => {
@@ -57,10 +85,17 @@ const LoadDoc = (props) => {
 
 const mapStateToProps = state => ({
     currentDoc: state.doc.currentDoc,
-    canvasContainerRef: state.doc.canvasContainerRef
+    canvasContainerRef: state.doc.canvasContainerRef,
+    isDown: state.tool.isDown,
+    clientX: state.tool.clientX,
+    clientY: state.tool.clientY,
+    toolMode: state.tool.toolMode,
 })
 
 export default connect(mapStateToProps, {
     setNumPages,
-    setPageDimensions
+    setPageDimensions,
+    setIsDown,
+    setClientX,
+    setClientY, 
 })(LoadDoc);

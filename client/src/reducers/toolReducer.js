@@ -1,7 +1,53 @@
-import { SET_CURRENT_ZOOM } from '../actions/types'
+import { SET_CURRENT_ZOOM, 
+    SET_PANEL_TOGGLE, 
+    SET_TOOL_MODE, 
+    SET_PREV_TOOL_MODE, 
+    SET_IS_DOWN, 
+    SET_CLIENT_X, 
+    SET_CLIENT_Y,
+    SET_SHAPE, 
+    SET_SHAPE_BORDER_THICKNESS, 
+    SET_SHAPE_BORDER_COLOR, 
+    SET_SHAPE_FILL_COLOR, 
+    SET_SHAPE_OPACITY,
+    SET_SHAPE_FOCUS,
+    SET_DRAW_OPACITY,
+    SET_DRAW_BRUSH_SIZE,
+    SET_DRAW_COLOR,
+    SET_TEXT_COLOR,
+    SET_TEXT_OPACITY,
+    SET_TEXT_FONT_SIZE, } from '../actions/types'
 
 const initialState = {
-    currentZoom: 1
+    //zoom
+    currentZoom: 1,
+    panelToggle: false,
+    //general
+    toolMode: 'select',
+    prevToolMode:'select',
+    isDown: false,
+    clientX: 0,
+    clientY: 0,
+    scrollX:0,
+    scrollY:0,
+
+    //shape
+    shape: null,
+    shapeBorderThickness: 1,
+    shapeOpacity: 100,
+    shapeBorderColor: 'rgb(0, 0, 0)',
+    shapeFillColor: 'rgb(0, 0, 0)',
+    shapeFocus: 'fill',
+
+    //draw
+    drawOpacity: 100,
+    drawColor: 'rgb(0, 0, 0)',
+    drawBrushSize: 1,
+
+    //text
+    textColor: 'rgb(0, 0, 0)',
+    textOpacity: 100,
+    textFontSize: 12,
 }
 
 export default function(state = initialState, action) {
@@ -11,7 +57,98 @@ export default function(state = initialState, action) {
                 ...state,
                 currentZoom: action.payload
             }
-        
+        case SET_PANEL_TOGGLE:
+            return {
+                ...state,
+                panelToggle: action.payload
+            }
+        case SET_TOOL_MODE:
+            return {
+                ...state,
+                toolMode: action.payload
+            }
+        case SET_PREV_TOOL_MODE:
+            return {
+                ...state,
+                prevToolMode: action.payload
+            }
+        case SET_IS_DOWN:
+            return {
+                ...state,
+                isDown: action.payload
+            }
+        case SET_CLIENT_X:
+            return {
+                ...state,
+                clientX: action.payload
+            }
+        case SET_CLIENT_Y:
+            return {
+                ...state,
+                clientY: action.payload
+            }
+        case SET_SHAPE:
+            return {
+                ...state,
+                shape: action.payload
+            }
+    
+        case SET_SHAPE_BORDER_THICKNESS:
+            return {
+                ...state,
+                shapeBorderThickness: action.payload
+            }
+        case SET_SHAPE_OPACITY:
+            return {
+                ...state,
+                shapeOpacity: action.payload
+            }
+        case SET_SHAPE_BORDER_COLOR:
+            return {
+                ...state,
+                shapeBorderColor: action.payload
+            }
+        case SET_SHAPE_FILL_COLOR:
+            return {
+                ...state,
+                shapeFillColor: action.payload
+            }
+        case SET_SHAPE_FOCUS:
+            return {
+                ...state,
+                shapeFocus: action.payload
+            }
+        case SET_DRAW_OPACITY:
+            return {
+                ...state,
+                drawOpacity: action.payload
+            }
+        case SET_DRAW_BRUSH_SIZE:
+            return {
+                ...state,
+                drawBrushSize: action.payload
+            }
+        case SET_DRAW_COLOR:
+            return {
+                ...state,
+                drawColor: action.payload
+            }
+        case SET_TEXT_COLOR:
+            return {
+                ...state,
+                textColor: action.payload
+            }
+        case SET_TEXT_OPACITY:
+            return {
+                ...state,
+                textOpacity: action.payload
+            }
+        case SET_TEXT_FONT_SIZE:
+            return {
+                ...state,
+                textFontSize: action.payload
+            }
+    
         default:
             return state;
     }

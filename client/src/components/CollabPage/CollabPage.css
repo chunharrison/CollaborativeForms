@@ -52,7 +52,6 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);
-    overflow:hidden;
 }
 
 .tool {
@@ -91,6 +90,86 @@ body {
 
 .tool-large img {
     height:22px;
+}
+
+.tool::after {
+    position:absolute;
+    top: 60px;
+    font-size: 14px;
+    opacity:1;
+    background-color: rgba(0, 0, 0, 0.63);
+    color:white;
+    border-radius: 3px;
+    padding:0.3em;
+    content: '';
+    opacity:0;
+}
+
+.tool-large::after {
+    position:absolute;
+    top: 60px;
+    font-size: 14px;
+    opacity:1;
+    background-color: rgba(0, 0, 0, 0.63);
+    color:white;
+    border-radius: 3px;
+    padding:0.3em;
+    content: '';
+    opacity:0;
+}
+
+#panel-tool:hover:after{ 
+    opacity: 1;
+    content: 'Panel(P)';
+    transition: opacity  0s linear 1s;
+}
+
+#select-tool:hover:after{ 
+    opacity: 1;
+    content: 'Select(V)';
+    transition: opacity  0s linear 1s;
+}
+
+#pan-tool:hover:after{ 
+    opacity: 1;
+    content: 'Pan(Space)';
+    transition: opacity  0s linear 1s;
+}
+
+#zoomin-tool:hover:after{ 
+    opacity: 1;
+    content: 'Zoom In(+)';
+    transition: opacity  0s linear 1s;
+}
+
+#zoomout-tool:hover:after{ 
+    opacity: 1;
+    content: 'Zoom Out(-)';
+    transition: opacity  0s linear 1s;
+}
+
+#signature-tool:hover:after{ 
+    opacity: 1;
+    content: 'Signature(S)';
+    transition: opacity  0s linear 1s;
+}
+
+#shape-tool:hover:after{ 
+    opacity: 1;
+    content: 'Shape(U)';
+    transition: opacity  0s linear 1s;
+}
+
+#draw-tool:hover:after{ 
+    opacity: 1;
+    content: 'Draw(B)';
+    transition: opacity  0s linear 1s;
+}
+
+#text-tool:hover:after{ 
+    opacity: 1;
+    content: 'Text(T)';
+    transition: opacity  0s linear 1s;
 }
 
 .cosign-float {
@@ -196,9 +275,10 @@ body {
     background-color: #E9EBEF;
     height: 100%;
     overflow-y: scroll;
-    overflow-x: hidden;
+    overflow-x: auto;
     z-index: 1;
 }
+
 
 .react-pdf__Document {
     width: 100%;
@@ -350,13 +430,39 @@ body {
 
 .outer {
     overflow: hidden;
-    position:relative;
-    top:9vh;
+    position:absolute;
+    top:4vh;
     left: 2vw;
     border-radius: 5px;
     z-index: 2;
-    height: 80%;
+    height: 85vh;
     width:300px;
+}
+
+.panel-true {
+    animation: enterLeft 0.5s both;
+}
+
+.panel-false {
+    animation: exitLeft 0.5s both;
+}
+
+@keyframes enterLeft {
+    0% {
+        left: -400px;
+    }
+    100% {
+        left: 2vw;
+    }
+}
+
+@keyframes exitLeft {
+    0% {
+        left: 2vw;
+    }
+    100% {
+        left: -400px;
+    }
 }
 
 #browser-canvas-container {
@@ -443,9 +549,6 @@ body {
     /* font-size: 80%; */
     margin-right: 1em;
 }
-.pilot-mode-button-label {
-    /* font-size: 60%; */
-}
 
 .dropdown {
     display:block;
@@ -454,7 +557,11 @@ body {
 .options-container {
     display:block;
     position:absolute;
-    top:50px;
+    top:0px;
+    left: -320px;
+    background-color: white;
+    padding-bottom:0.5em;
+    padding-top:0.2em;
 }
 
 .father-of-two {

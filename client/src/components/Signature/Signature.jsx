@@ -12,7 +12,7 @@ function Signature(props) {
     <div id='signature-canvas-container'>
       <Popup contentStyle={{width: "700px", height:'250px', padding: "0px"}}
       modal 
-      trigger={<button className='tool-large'><img src={signatureImg}></img></button>}
+      trigger={<button className='tool-large' id='signature-tool'><img src={signatureImg}></img></button>}
       closeOnDocumentClick={false}
       >
         {close => (

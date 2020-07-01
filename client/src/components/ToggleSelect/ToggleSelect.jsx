@@ -1,14 +1,28 @@
 import React from 'react';
 
+//reduc
+import { connect } from 'react-redux';
+import { setToolMode } from '../../actions/toolActions';
+
 import toggleImg from './select-cursor.png';
 
-function ToggleSelect(props) {
+const ToggleSelect = (props) => {
+
+    function toggleSelect() {
+        props.setToolMode('select');
+    }
 
     return (
-    <div className='tool' onClick={props.toggleSelect}>
+    <div className='tool' id='select-tool' onClick={toggleSelect} style={{'backgroundColor': `${props.toolMode === 'select' ? 'rgb(209, 209, 209)' : ''}`}}>
         <img src={toggleImg}/>
     </div>
     );
 }
 
-export default ToggleSelect;
+const mapStateToProps = state => ({
+    toolMode: state.tool.toolMode,
+})
+
+export default connect(mapStateToProps, {
+    setToolMode,
+})(ToggleSelect);
