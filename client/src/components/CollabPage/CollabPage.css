@@ -116,6 +116,7 @@ body {
     padding:0.3em;
     content: '';
     opacity:0;
+    z-index: 1;
 }
 
 #panel-tool:hover:after{ 
