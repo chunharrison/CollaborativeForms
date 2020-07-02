@@ -553,6 +553,10 @@ class CollabPage extends React.Component {
             this.props.setToolMode('text');
         } else if (e.keyCode === 80 && e.target.type !== 'textarea') {
             this.props.setPanelToggle(!this.props.panelToggle);
+        } else if (e.keyCode === 187 && e.target.type !== 'textarea') {
+            this.props.setPanelToggle(!this.props.panelToggle);
+        } else if (e.keyCode === 189 && e.target.type !== 'textarea') {
+            this.props.setPanelToggle(!this.props.panelToggle);
         }
     }
     //deactivate pan tool when space is released
@@ -921,13 +925,15 @@ class CollabPage extends React.Component {
                     <LoadDoc/>
                         : 
                     downloadLoader}
-                    <p className='cosign-float'>cosign</p>
-                    <div className='side-bar-tools'>
-                        <Signature setURL={this.setSignatureURL} />
-                        <ToggleShape/>
-                        <ToggleDraw/>
-                        <ToggleText/>
-                    </div>  
+                    <div className='side-bar-container'>
+                        <p className='cosign-float'>cosign</p>
+                        <div className='side-bar-tools'>
+                            <Signature setURL={this.setSignatureURL} />
+                            <ToggleShape/>
+                            <ToggleDraw/>
+                            <ToggleText/>
+                        </div>  
+                    </div>
                 </div>
 
 
