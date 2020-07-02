@@ -27,13 +27,6 @@ class Register extends Component {
         }
     }
 
-    componentDidMount() {
-        // If logged in and user navigates to Register page, should redirect them to {page}
-        if (this.props.auth.isAuthenticated) {
-            this.props.history.push("/");
-        }
-    }
-
     onChange = e => {
         this.setState({ [e.target.id]: e.target.value });
     };

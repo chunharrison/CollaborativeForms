@@ -93,17 +93,23 @@ class LandingPage extends React.Component {
             },
         };
         axios.get(generatePutUrl, options).then(res => {
+            // console.log('AXIOS GET')
           const {
             data: { putURL }
           } = res;
           this.setState({showProgressBar: true});
           //upload file via url that was sent back from the server
+          delete axios.defaults.headers.common["Authorization"]
           axios
             .put(putURL, selectedFile)
             .then(res => {
-            //   console.log('success');
-              this.setState({showPDFModal: false,
-                            showProgressBar:false});
+                const token = localStorage.getItem("jwtToken")
+                axios.defaults.headers.common["Authorization"] = token
+                // console.log('success');
+                this.setState({
+                    showPDFModal: false,
+                    showProgressBar:false
+                });
             })
             .catch(err => {
             //   console.log('err', err);

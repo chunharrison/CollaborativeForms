@@ -4,9 +4,6 @@ import React, { useState } from 'react'
 import { Document } from 'react-pdf'; // open source
 import LoadPage from '../LoadPage/LoadPage'
 
-// Libraries
-import { useInView } from 'react-intersection-observer'
-
 // Redux
 import { connect } from 'react-redux';
 import { setNumPages, setPageDimensions } from '../../../actions/docActions';

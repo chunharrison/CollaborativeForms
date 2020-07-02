@@ -21,9 +21,6 @@ import {
     setPMWaitWindowTableRows
 } from '../../../actions/pilotActions'
 
-// Components
-import Button from 'react-bootstrap/Button';
-import Badge from 'react-bootstrap/Badge';
 
 const PilotMode = (props) => {
     
