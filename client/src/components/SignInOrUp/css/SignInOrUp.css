@@ -2,17 +2,6 @@
 	box-sizing: border-box;
 }
 
-/* body {
-	background: #f6f5f7; 
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-direction: column;
-	font-family: 'Montserrat', sans-serif;
-	height: 100vh;
-	margin: -20px 0 50px;
-} */
-
 .panel-description {
     font-size: 14px;
 	font-weight: 100;
@@ -21,11 +10,20 @@
 	margin: 20px 0 30px;
 }
 
+.login-register-input-container {
+	display:flex;
+	flex-direction:column;
+	width:45%;
+	height:80px;
+
+}
+
 .login-register-input {
-	background-color: #eee;
+	background-color: transparent;
 	border: none;
-	padding: 12px 15px;
-	margin: 8px 0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.281);
+	outline:none;
+	margin-top: 10px;
 	width: 100%;
 }
 
@@ -56,16 +54,50 @@
 	border-color: #FFFFFF;
 }
 
+.sign-in-out-background {
+	position:relative;
+	height:100%;
+	width:100%;
+	background-color: rgba(238, 238, 238, 0.651);
+	overflow:hidden;
+}
+
+.sign-in-out-abstract1 {
+	position:absolute;
+	background-color: #fc7b742a;
+	width: 200%;
+	height:50%;
+	transform: rotate(20deg);
+	top:-60%;
+	left:-50%;
+
+}
+
+.sign-in-out-abstract2 {
+	position:absolute;
+	background-color: #fc7b742a;
+	width: 200%;
+	height:50%;
+	transform: rotate(20deg);
+	top:100%;
+	left:-50%;
+
+}
+
 .sign-in-out-form-container {
-    background-color: #fff;
+	position:absolute;
+	top:50%;
+	left:50%;
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	background-color: #fff;
 	border-radius: 10px;
-  	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
-			0 10px 10px rgba(0,0,0,0.22);
-	position: relative;
+	-webkit-box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
+	box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
 	overflow: hidden;
-	width: 768px;
-	max-width: 100%;
-	min-height: 480px;
+	width: 75%;
+	height: 70%;
 }
 
 .sign-in-out-form-container.right-panel-active .signin-form-container {
@@ -158,4 +190,9 @@
 
 .sign-in-out-form-container.right-panel-active .overlay-right {
 	transform: translateX(20%);
+}
+
+.red-text {
+	color: #eb6f69;
+	text-align: left;
 }

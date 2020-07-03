@@ -46,9 +46,9 @@ class Login extends Component {
 
           <form noValidate onSubmit={this.onSubmit} className="signin-form">
 
-            <h1 className="signin-header">Sign in</h1>
+            <h1 className="signin-header">Sign into your account</h1>
 
-            <div className="input-field col-signin">
+            <div className="login-register-input-container">
               <input
                 onChange={this.onChange}
                 value={this.state.email}
@@ -65,7 +65,7 @@ class Login extends Component {
               </span>
             </div>
 
-            <div className="input-field col-signin">
+            <div className="login-register-input-container">
               <input
                 onChange={this.onChange}
                 value={this.state.password}

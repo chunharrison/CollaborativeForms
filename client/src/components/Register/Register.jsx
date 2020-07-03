@@ -49,9 +49,9 @@ class Register extends Component {
             <div className="register-form-container">
                 <form noValidate onSubmit={this.onSubmit} className="register-form">
 
-                    <h1 className="register-header">Create Account</h1>
+                    <h1 className="register-header">Create your account</h1>
                     
-                    <div className="input-field col-register">
+                    <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.name}
@@ -66,7 +66,7 @@ class Register extends Component {
                         <span className="red-text">{errors.name}</span>
                     </div>
 
-                    <div className="input-field col-register">
+                    <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.email}
@@ -81,7 +81,7 @@ class Register extends Component {
                         <span className="red-text">{errors.email}</span>
                     </div>
 
-                    <div className="input-field col-register">
+                    <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password}
@@ -95,7 +95,7 @@ class Register extends Component {
                         />
                         <span className="red-text">{errors.password}</span>
                     </div>
-                    <div className="input-field col-register">
+                    <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password2}

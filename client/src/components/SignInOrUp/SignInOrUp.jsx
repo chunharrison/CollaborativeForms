@@ -43,20 +43,28 @@ class SignInOrUp extends Component {
 
     render() {
         return (
-            <div id="sign-in-out-form-container" className="sign-in-out-form-container">
-                <Register/>
-                <Login/>
-                <div class="overlay-container">
-                    <div class="overlay">
-                        <div class="overlay-panel overlay-left">
-                            <h1>Welcome Back!</h1>
-                            <p className="panel-description">LMAO EZ</p>
-                            <button class="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
-                        </div>
-                        <div class="overlay-panel overlay-right">
-                            <h1>Hello, Friend!</h1>
-                            <p className="panel-description">LMAO EZ</p>
-                            <button class="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
+            <div className='sign-in-out-background'>
+                <div className='sign-in-out-abstract1'>
+
+                </div>
+                <div className='sign-in-out-abstract2'>
+
+                </div>
+                <div id="sign-in-out-form-container" className="sign-in-out-form-container">
+                    <Register/>
+                    <Login/>
+                    <div class="overlay-container">
+                        <div class="overlay">
+                            <div class="overlay-panel overlay-left">
+                                <h1>Welcome Back!</h1>
+                                <p className="panel-description">LMAO EZ</p>
+                                <button class="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
+                            </div>
+                            <div class="overlay-panel overlay-right">
+                                <h1>Hello, Friend!</h1>
+                                <p className="panel-description">LMAO EZ</p>
+                                <button class="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
+                            </div>
                         </div>
                     </div>
                 </div>
