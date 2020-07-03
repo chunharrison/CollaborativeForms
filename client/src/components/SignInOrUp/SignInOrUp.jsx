@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-
+import { withRouter } from "react-router-dom";
 import Register from "../Register/Register"
 import Login from "../Login/Login"
+
+// redux 
+import { connect } from 'react-redux'
 
 import './css/SignInOrUp.css'
 
@@ -24,6 +27,19 @@ class SignInOrUp extends Component {
         const container = document.getElementById('sign-in-out-form-container');
         container.classList.remove("right-panel-active")
     }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.auth.isAuthenticated) {
+          this.props.history.push("/room"); // push user to {page} when they login
+        }
+    }
+
+    componentDidMount() {
+        // If logged in and user navigates to Login page, should redirect them to {page}
+        if (this.props.auth.isAuthenticated) {
+          this.props.history.push("/room");
+        }
+      }
 
     render() {
         return (
@@ -49,4 +65,11 @@ class SignInOrUp extends Component {
     }
 }
 
-export default SignInOrUp
+const mapStateToProps = state => ({
+    auth: state.auth,
+    errors: state.errors
+});
+
+export default connect(
+    mapStateToProps
+)(withRouter(SignInOrUp))

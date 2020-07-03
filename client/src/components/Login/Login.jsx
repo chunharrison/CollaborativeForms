@@ -18,21 +18,10 @@ class Login extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.auth.isAuthenticated) {
-      this.props.history.push("/"); // push user to {page} when they login
-    }
-
     if (nextProps.errors) {
       this.setState({
         errors: nextProps.errors
       });
-    }
-  }
-
-  componentDidMount() {
-    // If logged in and user navigates to Login page, should redirect them to {page}
-    if (this.props.auth.isAuthenticated) {
-      this.props.history.push("/");
     }
   }
 

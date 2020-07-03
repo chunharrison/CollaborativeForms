@@ -3,6 +3,9 @@ import LandingPage from './LandingPage/LandingPage'
 import InvalidRoomCodePage from './CollabPage/InvalidRoomCodePage/InvalidRoomCodePage'
 import CollabPage from './CollabPage/CollabPage'
 import DocumentsPage from './DocumentsPage/DocumentsPage'
+import NewLandingPage from './NewLandingPage/NewLandingPage'
+import PrivateRoute from './private-route/PrivateRoute'
+
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Provider } from "react-redux"
@@ -39,7 +42,7 @@ if (localStorage.jwtToken) {
     // Logout user
     store.dispatch(logoutUser());
     // Redirect to login
-    window.location.href = "./login";
+    window.location.href = "./account";
   }
 }
 
@@ -49,14 +52,13 @@ function App() {
     <div id="main">
       <Provider store={store}>
         <Router>
+          <Route exact path='/' component={NewLandingPage}/>
+          <Route path='/collab' component={CollabPage}/>
+          <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
+          <Route exact path='/account' component={SignInOrUp} />
+          <Route path='/component-testing' component={DocumentsPage}/>
           <Switch>
-            <Route exact path='/' component={LandingPage}/>
-            <Route path='/collab' component={CollabPage}/>
-            <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
-            <Route exact path='/register' component={Register}/>
-            <Route exact path='/login' component={Login}/>
-            <Route path='/component-testing' component={DocumentsPage}/>
-            <Route exact path='/account' component={SignInOrUp} />
+            <PrivateRoute exact path='/room' component={LandingPage}/>
           </Switch>
         </Router>
       </Provider>
