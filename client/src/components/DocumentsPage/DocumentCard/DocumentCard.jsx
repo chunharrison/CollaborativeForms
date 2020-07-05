@@ -93,7 +93,7 @@ const DocumentCard = props => {
             <div className='documents-shared-file-placeholder' style={{'backgroundImage': `url(${placeholderImg})`}} onClick={handleCardClick}>
                 <img className='documents-placeholder-options' src={optionsImg} onClick={toggleEdit} ref={wrapperRef}/>
             </div>
-            <div className='documents-placeholder-popup' style={{'display': `${edit ? 'flex' : 'none'}`}} onClick={deleteDocument}>
+            <div className={`documents-placeholder-popup ${edit ? 'fade-in' : ''}`} style={{'display': `${edit ? 'flex' : 'none'}`}} onClick={deleteDocument}>
                 <img className='documents-placeholder-popup-option-img' src={deleteImg}/>
                 <p className='documents-placeholder-popup-option'>Delete</p>
             </div>

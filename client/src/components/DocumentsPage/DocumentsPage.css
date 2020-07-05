@@ -191,6 +191,19 @@
     }
 }
 
+.fade-in {
+    animation: fadeIn 0.3s ease-out 0s both;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
 .fade-out-bottom {
     position:relative;
     animation: fadeOutBottom 0.3s ease-out 0s both;
@@ -341,6 +354,8 @@
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.20);
     
 }
+
+
 
 .documents-placeholder-popup:hover {
     background-color: rgb(243, 242, 242);
