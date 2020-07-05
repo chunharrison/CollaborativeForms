@@ -6,7 +6,7 @@ const socketio = require('socket.io');
 const CryptoJS = require("crypto-js");
 var cors = require('cors');
 
-const { generateGetUrl, generatePutUrl } = require('./AWSPresigner');
+const { generateGetUrl, generatePutUrl, deleteDocument } = require('./AWSPresigner');
 
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
@@ -88,26 +88,48 @@ app.get('/api/generate-put-url', (req,res)=>{
     });
 });
 
-//Bind socket.io socket to http server
-const io = socketio(http);
-
-
-function initialData(socketID, username, roomCode) {
+app.post('/api/create-room', (req,res)=>{
+    // Both Key and ContentType are defined in the client side.
+    // Key refers to the remote name of the file.
+    // ContentType refers to the MIME content type, in this case image/jpeg
+    res.header("Access-Control-Allow-Credentials", true);
+    // initial room
     // data
     let roomData = {
-        roomCode: roomCode,
-        // users: [username],
+        fileName: req.body.fileName,
+        roomCode: req.body.roomCode,
+        owner: req.body.userId,
         users: {},
         signatures: {}, 
         pilotModeActivated: false,
         pilotModeDriver: null
     }
-    roomData.users[socketID] = username
-    console.log('roomData', roomData)
-    db.collection("rooms").insertOne(roomData, function(err, res) {
+    db.collection("rooms").insertOne(roomData, function(err, response) {
         if(err) throw err;
+        res.send()
     })
-}
+
+});
+
+app.get('/api/get-owners-documents', (req,res)=>{
+    db.collection("rooms").find({owner: req.query.owner}).sort({_id: -1})
+    .project({roomCode:1, fileName:1, _id:0})
+    .toArray(function (err, result) {
+        res.send(result);
+    })
+});
+
+app.delete('/api/delete-document', function(req, res) {
+    db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
+        if (err) throw err;
+        deleteDocument(`${req.body.roomCode}.pdf`);
+        deleteDocument(`${req.body.roomCode}.jpeg`);
+        console.log("1 document deleted");
+        res.send();
+    });
+});
+//Bind socket.io socket to http server
+const io = socketio(http);
 
 function get(object, key, default_value) {
     var result = object[key];
@@ -134,9 +156,7 @@ io.on('connection', (socket)=>{
 
                 // update the list of users in the database
                 // result.users.push(username);
-                console.log(result.users)
                 result.users[socketID] = username
-                console.log(result.users)
                 db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
 
                 // broadcast to every other users in the room that this user joined
@@ -145,13 +165,6 @@ io.on('connection', (socket)=>{
                 socket.to(roomCode).emit('updateCurrentUsers', result.users);
                 socket.emit('updateCurrentUsers', result.users);
             } 
-
-            // room create
-            else if (result === null && creation) {
-                // initial room
-                initialData(socketID, username, roomCode)
-                socket.emit('updateCurrentUsers', {[socketID]: username});
-            }
             
             // could not find the database under the given roomCode
             // (the room does not exist)

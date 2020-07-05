@@ -43,7 +43,7 @@ function generatePutUrl(Key, ContentType) {
     Key: Key,
     Expires: 60*60, // expiry time
     ACL: "bucket-owner-full-control",
-    ContentType: "application/pdf" // this can be changed as per the file type
+    ContentType: ContentType // this can be changed as per the file type
   };
   return new Promise((resolve, reject) => {
     // Note operation in this case is putObject
@@ -57,5 +57,14 @@ function generatePutUrl(Key, ContentType) {
   });
 }
 
+function deleteDocument(Key) {
+  const params = {  Bucket: Bucket, Key: Key };
+
+  s3.deleteObject(params, function(err, data) {
+    if (err) console.log(err, err.stack);  // error
+    else     console.log();                 // deleted
+  });
+}
+
 // Finally, we export the methods so we can use it in our main application.
-module.exports = { generateGetUrl, generatePutUrl };
+module.exports = { generateGetUrl, generatePutUrl, deleteDocument };

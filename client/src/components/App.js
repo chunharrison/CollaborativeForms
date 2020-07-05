@@ -58,7 +58,7 @@ function App() {
           <Route exact path='/account' component={SignInOrUp} />
           <Route path='/component-testing' component={DocumentsPage}/>
           <Switch>
-            <PrivateRoute exact path='/room' component={LandingPage}/>
+            <PrivateRoute exact path='/account-portal' component={DocumentsPage}/>
           </Switch>
         </Router>
       </Provider>

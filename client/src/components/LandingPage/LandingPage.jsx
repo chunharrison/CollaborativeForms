@@ -375,15 +375,15 @@ class LandingPage extends React.Component {
 LandingPage.propTypes = {
     logoutUser: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired
-  };
+};
 
-  const mapStateToProps = state => ({
-    auth: state.auth
-  });
+const mapStateToProps = state => ({
+auth: state.auth
+});
 
-  export default connect(
-    mapStateToProps,
-    { logoutUser }
-  )(LandingPage);
+export default connect(
+mapStateToProps,
+{ logoutUser }
+)(LandingPage);
 
 // export default LandingPage;
