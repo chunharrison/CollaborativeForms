@@ -4,7 +4,6 @@ import React from 'react';
 import Signature from '../Signature/Signature';
 import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from './CopyRoomCode/CopyRoomCode';
-import TextOptions from '../TextOptions/TextOptions';
 import LoadDoc from './LoadDoc/LoadDoc'
 import DownloadDoc from './DownloadDoc/DownloadDoc';
 // footer
@@ -19,6 +18,8 @@ import ZoomOut from '../ZoomOut/ZoomOut';
 import ToggleShape from '../ToggleShape/ToggleShape';
 import ToggleDraw from '../ToggleDraw/ToggleDraw';
 import ToggleText from '../ToggleText/ToggleText';
+import InviteUser from './InviteUser/InviteUser'
+import InviteUserPopup from './InviteUser/InviteUserPopup'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -898,6 +899,7 @@ class CollabPage extends React.Component {
                             <PilotMode/>
                             : null
                         }
+                        <InviteUser/>
                     </div>
                     <div className='header-tools-right'>
                         {roomCodeCopy}
@@ -963,6 +965,7 @@ class CollabPage extends React.Component {
                     </div>
                     : null
                 }
+                <InviteUserPopup/>
 
                 {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
                 <div onScroll={this.getScrollPercent}></div>

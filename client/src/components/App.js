@@ -5,6 +5,7 @@ import CollabPage from './CollabPage/CollabPage'
 import DocumentsPage from './DocumentsPage/DocumentsPage'
 import NewLandingPage from './NewLandingPage/NewLandingPage'
 import PrivateRoute from './private-route/PrivateRoute'
+import GuestJoin from './GuestJoin/GuestJoin'
 
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -60,6 +61,7 @@ function App() {
           <Switch>
             <PrivateRoute exact path='/account-portal' component={DocumentsPage}/>
           </Switch>
+          <Route path='/join-room' component={GuestJoin}/>
         </Router>
       </Provider>
     </div>

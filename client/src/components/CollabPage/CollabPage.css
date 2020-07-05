@@ -608,3 +608,12 @@ body {
 .react-pdf__Page__textContent {
     z-index: 2;
 }
+
+.theking {
+    height: 50px;
+    width: 50px;
+}
+
+.thekings-speech{
+    /* width: 100%; */
+}

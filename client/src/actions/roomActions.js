@@ -2,7 +2,10 @@ import {
     SET_USER_NAME,
     SET_USER_SOCKET,
     SET_ROOM_CODE,
-    UPDATE_CURRENT_USERS
+    UPDATE_CURRENT_USERS,
+    OPEN_INVITE_GUESTS_WINDOW,
+    CLOSE_INVITE_GUESTS_WINDOW,
+    SET_INVITATION_LINK
 } from './types'
 
 
@@ -32,5 +35,26 @@ export const setRoomCode = roomCode => dispatch => {
     dispatch({
         type: SET_ROOM_CODE,
         payload: roomCode
+    })
+}
+
+export const openInviteGuestsWindow = () => dispatch => {
+    dispatch({
+        type: OPEN_INVITE_GUESTS_WINDOW,
+        payload: true
+    })
+}
+
+export const closeInviteGuestsWindow = () => dispatch => {
+    dispatch({
+        type: CLOSE_INVITE_GUESTS_WINDOW,
+        payload: false
+    })
+}
+
+export const setInvitationLink = link => dispatch => {
+    dispatch({
+        type: SET_INVITATION_LINK,
+        payload: link
     })
 }

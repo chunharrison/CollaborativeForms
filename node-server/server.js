@@ -17,8 +17,10 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
 const passport = require("passport");
+const nanoid = require("nanoid")
 
 const users = require("./routes/api/users");
+const { truncateSync } = require('fs');
 // Bodyparser middleware
 app.use(
     bodyParser.urlencoded({
@@ -88,6 +90,41 @@ app.get('/api/generate-put-url', (req,res)=>{
     });
 });
 
+app.get('/api/get-guest-space-id', (req, res) => {
+    res.header("Access-Control-Allow-Credentials", true);
+
+    const { roomCode } = req.query;
+    console.log(roomCode)
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+
+        let openedSpaceID = null
+        let full = true
+        // TODO change the 5 to a variable
+        if (result && Object.keys(result.guests).length <= 5) {
+            openedSpaceID = nanoid
+            full = false
+        }
+
+        res.send({full})
+    })
+})
+
+app.get('/api/get-spaces-left', (req, res) => {
+    res.header("Access-Control-Allow-Credentials", true);
+
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+
+        // TODO change the 5 to a variable
+        if (result && Object.keys(result.guests).length < 5) {
+            res.send({spaceAvailable: true})
+        } else {
+            res.send({spaceAvailable: false})
+        }
+    })
+})
+
 app.post('/api/create-room', (req,res)=>{
     // Both Key and ContentType are defined in the client side.
     // Key refers to the remote name of the file.
@@ -102,8 +139,11 @@ app.post('/api/create-room', (req,res)=>{
         users: {},
         signatures: {}, 
         pilotModeActivated: false,
-        pilotModeDriver: null
+        pilotModeDriver: null,
+        guests: {},
+        numConnectedGuests: 0,
     }
+
     db.collection("rooms").insertOne(roomData, function(err, response) {
         if(err) throw err;
         res.send()

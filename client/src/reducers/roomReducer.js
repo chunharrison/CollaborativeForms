@@ -2,7 +2,10 @@ import {
     SET_USER_NAME,
     SET_USER_SOCKET,
     SET_ROOM_CODE,
-    UPDATE_CURRENT_USERS
+    UPDATE_CURRENT_USERS,
+    OPEN_INVITE_GUESTS_WINDOW,
+    CLOSE_INVITE_GUESTS_WINDOW,
+    SET_INVITATION_LINK
 } from '../actions/types'
 
 const initialState = {
@@ -10,6 +13,8 @@ const initialState = {
     userSocket: null,
     roomCode: null,
     currentUsers: [],
+    showInviteGuestsModal: false,
+    invitationLink: ''
 }
 
 export default function(state = initialState, action) {
@@ -36,6 +41,24 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 currentUsers: action.payload
+            }
+
+        case OPEN_INVITE_GUESTS_WINDOW:
+            return {
+                ...state,
+                showInviteGuestsModal: action.payload
+            }
+
+        case CLOSE_INVITE_GUESTS_WINDOW:
+            return {
+                ...state,
+                showInviteGuestsModal: action.payload
+            }
+
+        case SET_INVITATION_LINK:
+            return {
+                ...state,
+                invitationLink: action.payload
             }
 
         default:
