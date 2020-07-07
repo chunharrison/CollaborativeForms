@@ -65,28 +65,29 @@ const DownloadDoc = (props) => {
                 pageNum, 
                 function (currentPageSignaturesJSONList) {
                 // Array of JSON -> Array of FabricJS Objects
-                fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
-                    // loop through the array and add all the signatures to the page
-                    signatureObjects.forEach(async function (signatureObject) {
-                        // get the dataURI of the signature image
-                        const signatureDataURI = signatureObject.src
-                        // dataURI -> Uint8Array
-                        // ALTERNATIVE: const signatureUint8Array = convertDataURIToBinary(signatureDataURI)
-                        const signatureUint8Array = dataURItoUint8Array(signatureDataURI)
-                        // embed the Uint8Array to the 'pdf-lib' PDFDocument object
-                        const pngImage = await pdfDoc.embedPng(signatureUint8Array)
-                        // draw the image to the current page
-                        // (0, 0) refers to the bottom left corner 
-                        const currPage = pages[pageNum - 1]
-                        currPage.drawImage(pngImage, {
-                            x: (signatureObject.left / 1.5),
-                            y: (841 - signatureObject.top - signatureObject.height) / 1.5,
-                            width: signatureObject.width / 1.5,
-                            height: (signatureObject.height / 1.5)
+                    fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (signatureObjects) {
+                        // loop through the array and add all the signatures to the page
+                        signatureObjects.forEach(async function (signatureObject) {
+                            // get the dataURI of the signature image
+                            const signatureDataURI = signatureObject.src
+                            // dataURI -> Uint8Array
+                            // ALTERNATIVE: const signatureUint8Array = convertDataURIToBinary(signatureDataURI)
+                            const signatureUint8Array = dataURItoUint8Array(signatureDataURI)
+                            // embed the Uint8Array to the 'pdf-lib' PDFDocument object
+                            const pngImage = await pdfDoc.embedPng(signatureUint8Array)
+                            // draw the image to the current page
+                            // (0, 0) refers to the bottom left corner 
+                            const currPage = pages[pageNum - 1]
+                            currPage.drawImage(pngImage, {
+                                x: (signatureObject.left / 1.5),
+                                y: (841 - signatureObject.top - signatureObject.height) / 1.5,
+                                width: signatureObject.width / 1.5,
+                                height: (signatureObject.height / 1.5)
+                            })
                         })
                     })
-                })
-            })
+                }
+            )
         }
 
         // its kind of cringe but I had to give it a wait time aha

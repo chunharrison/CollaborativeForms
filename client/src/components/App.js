@@ -61,6 +61,7 @@ function App() {
           <Switch>
             <PrivateRoute exact path='/account-portal' component={DocumentsPage}/>
           </Switch>
+          <Route path='/test' component={LandingPage}/>
           <Route path='/join-room' component={GuestJoin}/>
         </Router>
       </Provider>

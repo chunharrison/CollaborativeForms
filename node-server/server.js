@@ -20,6 +20,7 @@ const passport = require("passport");
 const nanoid = require("nanoid")
 
 const users = require("./routes/api/users");
+const guests = require("./routes/api/guests")
 const { truncateSync } = require('fs');
 // Bodyparser middleware
 app.use(
@@ -46,6 +47,7 @@ app.use(passport.initialize());
 require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
+app.use("/api/guests", guests)
 
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
@@ -94,7 +96,7 @@ app.get('/api/get-guest-space-id', (req, res) => {
     res.header("Access-Control-Allow-Credentials", true);
 
     const { roomCode } = req.query;
-    console.log(roomCode)
+    
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 

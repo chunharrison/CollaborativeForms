@@ -5,8 +5,6 @@ import { Page } from 'react-pdf';
 
 // Libraries
 import { useInView } from 'react-intersection-observer'
-import { fabric } from 'fabric';
-import { nanoid } from 'nanoid';
 
 // Redux
 import { connect } from 'react-redux'

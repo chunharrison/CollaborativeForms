@@ -14,24 +14,24 @@ import axios from 'axios';
 import { nanoid } from 'nanoid'
 
 // IMAGE
-import theking from './theking.jpg'
+import linkImg from './link.png'
 
 const InviteUser = (props) => {
 
     const [guestieID, setGuestieID] = useState('')
 
     function onInviteClick() {
-        const getGuestSpaceIdURL = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/get-guest-space-id`;
+        const getGuestSpaceIdURL = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/check-space-availability`;
         const options = {
             params: {
                 roomCode: props.roomCode
             },
-            headers: {
-                'Access-Control-Allow-Credentials': true,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET',
-                'Access-Control-Allow-Headers': '*',
-            },
+            // headers: {
+            //     'Access-Control-Allow-Credentials': true,
+            //     'Access-Control-Allow-Origin': '*',
+            //     'Access-Control-Allow-Methods': 'GET',
+            //     'Access-Control-Allow-Headers': '*',
+            // },
         };
         // console.log(props.roomCode)
         axios.get(getGuestSpaceIdURL, options).then(res => {
@@ -49,8 +49,8 @@ const InviteUser = (props) => {
     }
 
     return (
-        <div>
-            <img className='theking' src={theking} onClick={() => onInviteClick()}></img>
+        <div className='tool' onClick={() => onInviteClick()}>
+            <img className='linkImg' src={linkImg} />
         </div>
     )
 }

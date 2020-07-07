@@ -899,10 +899,9 @@ class CollabPage extends React.Component {
                             <PilotMode/>
                             : null
                         }
-                        <InviteUser/>
                     </div>
                     <div className='header-tools-right'>
-                        {roomCodeCopy}
+                        <InviteUser/>
                         <div className='tool'>
                             <img src={usersImg}/>
                         </div>

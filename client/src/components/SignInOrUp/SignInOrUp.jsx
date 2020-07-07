@@ -30,14 +30,14 @@ class SignInOrUp extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.auth.isAuthenticated) {
-          this.props.history.push("/room"); // push user to {page} when they login
+          this.props.history.push("/account-portal"); // push user to {page} when they login
         }
     }
 
     componentDidMount() {
         // If logged in and user navigates to Login page, should redirect them to {page}
         if (this.props.auth.isAuthenticated) {
-          this.props.history.push("/room");
+          this.props.history.push("/account-portal");
         }
       }
 
