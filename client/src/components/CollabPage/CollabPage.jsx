@@ -20,6 +20,7 @@ import ToggleDraw from '../ToggleDraw/ToggleDraw';
 import ToggleText from '../ToggleText/ToggleText';
 import InviteUser from './InviteUser/InviteUser'
 import InviteUserPopup from './InviteUser/InviteUserPopup'
+import UsersList from './UsersList/UsersList'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -29,7 +30,7 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
-import Tour from 'reactour';
+// import Tour from 'reactour'; 
 import Select from 'react-select';
 
 // redux
@@ -682,7 +683,7 @@ class CollabPage extends React.Component {
         });
     }
 
-    setSocket(username, roomCode, action) {
+    setSocket(username, roomCode, action, guestID) {
         // Socket.io
         const socket = io(this.state.endpoint);
         this.props.setUserSocket(socket) // redux
@@ -702,7 +703,7 @@ class CollabPage extends React.Component {
             
 
             // socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
-            socket.emit('join', { socketID, username, roomCode, creation });
+            socket.emit('join', { socketID, username, roomCode, creation, guestID });
         });
 
         // Connection
@@ -778,9 +779,10 @@ class CollabPage extends React.Component {
         const username = '' + queryString.parse(this.props.location.search).username
         const roomCode = '' + queryString.parse(this.props.location.search).roomCode
         const action = '' + queryString.parse(this.props.location.search).action
+        const guestID = '' + queryString.parse(this.props.location.search).guestID
         this.props.setRoomCode(roomCode) 
-        this.setState({ username, roomCode, action }, () => {
-            this.setSocket(username, roomCode, action); // Socket.io
+        this.setState({ username, roomCode, action, guestID }, () => {
+            this.setSocket(username, roomCode, action, guestID); // Socket.io
             this.getDocument()
         });
 
@@ -902,9 +904,10 @@ class CollabPage extends React.Component {
                     </div>
                     <div className='header-tools-right'>
                         <InviteUser/>
-                        <div className='tool'>
+                        {/* <div className='tool'>
                             <img src={usersImg}/>
-                        </div>
+                        </div> */}
+                        <UsersList/>
                         <DownloadDoc/>
                         <div className='tool'>
                             <img src={settingsImg}/>

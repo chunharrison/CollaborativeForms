@@ -5,7 +5,9 @@ import {
     UPDATE_CURRENT_USERS,
     OPEN_INVITE_GUESTS_WINDOW,
     CLOSE_INVITE_GUESTS_WINDOW,
-    SET_INVITATION_LINK
+    SET_INVITATION_LINK,
+    OPEN_INVITE_GUESTS_ALERT,
+    CLOSE_INVITE_GUESTS_ALERT
 } from '../actions/types'
 
 const initialState = {
@@ -14,6 +16,7 @@ const initialState = {
     roomCode: null,
     currentUsers: [],
     showInviteGuestsModal: false,
+    showInviteGuestsAlert: false,
     invitationLink: ''
 }
 
@@ -59,6 +62,18 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 invitationLink: action.payload
+            }
+
+        case OPEN_INVITE_GUESTS_ALERT:
+            return {
+                ...state,
+                showInviteGuestsAlert: action.payload
+            }
+
+        case CLOSE_INVITE_GUESTS_ALERT:
+            return {
+                ...state,
+                showInviteGuestsAlert: action.payload
             }
 
         default:

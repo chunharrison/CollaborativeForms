@@ -5,7 +5,9 @@ import {
     UPDATE_CURRENT_USERS,
     OPEN_INVITE_GUESTS_WINDOW,
     CLOSE_INVITE_GUESTS_WINDOW,
-    SET_INVITATION_LINK
+    SET_INVITATION_LINK,
+    OPEN_INVITE_GUESTS_ALERT,
+    CLOSE_INVITE_GUESTS_ALERT
 } from './types'
 
 
@@ -48,6 +50,20 @@ export const openInviteGuestsWindow = () => dispatch => {
 export const closeInviteGuestsWindow = () => dispatch => {
     dispatch({
         type: CLOSE_INVITE_GUESTS_WINDOW,
+        payload: false
+    })
+}
+
+export const openInviteGuestsAlert = () => dispatch => {
+    dispatch({
+        type: OPEN_INVITE_GUESTS_ALERT,
+        payload: true
+    })
+}
+
+export const closeInviteGuestsAlert = () => dispatch => {
+    dispatch({
+        type: CLOSE_INVITE_GUESTS_ALERT,
         payload: false
     })
 }

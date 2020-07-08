@@ -5,7 +5,8 @@ import { connect } from 'react-redux'
 
 import { 
     setInvitationLink,
-    openInviteGuestsWindow 
+    openInviteGuestsWindow,
+    openInviteGuestsAlert 
 } from '../../../actions/roomActions'
 
 // Components
@@ -18,33 +19,30 @@ import linkImg from './link.png'
 
 const InviteUser = (props) => {
 
-    const [guestieID, setGuestieID] = useState('')
-
     function onInviteClick() {
-        const getGuestSpaceIdURL = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/check-space-availability`;
         const options = {
             params: {
                 roomCode: props.roomCode
             },
-            // headers: {
-            //     'Access-Control-Allow-Credentials': true,
-            //     'Access-Control-Allow-Origin': '*',
-            //     'Access-Control-Allow-Methods': 'GET',
-            //     'Access-Control-Allow-Headers': '*',
-            // },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+            },
         };
         // console.log(props.roomCode)
-        axios.get(getGuestSpaceIdURL, options).then(res => {
-            console.log(res.data.full)
+        axios.get('/api/guests/check-space-availability', options).then(res => {
+            let invitationLink = ''
             if (!res.data.full) {
-                // setGuestieID(nanoid())
-                console.log(nanoid())
+                invitationLink = `http://localhost:3000/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
+                props.openInviteGuestsWindow()
+            } else {
+                invitationLink = 'You\'ve reached your account\'s guest capacity!'
+                props.openInviteGuestsAlert()
             }
-            // const invitationLink = `${process.env.REACT_APP_BACKEND_ADDRESS}/collab?userName${res.data.openedSpaceID}`
-            const invitationLink = `http://localhost:3000/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
-            console.log(invitationLink)
+
             props.setInvitationLink(invitationLink)
-            props.openInviteGuestsWindow()
         });
     }
 

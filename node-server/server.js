@@ -183,7 +183,7 @@ io.on('connection', (socket)=>{
 
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
-    socket.on('join', ({ socketID, username, roomCode, creation, userID }) => {
+    socket.on('join', ({ socketID, username, roomCode, creation, guestID }) => {
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
@@ -198,14 +198,15 @@ io.on('connection', (socket)=>{
 
                 // update the list of users in the database
                 // result.users.push(username);
-                result.users[socketID] = username
-                db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
+                result.guests[guestID] = username
+                db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
+                
 
                 // broadcast to every other users in the room that this user joined
                 // with the newly updated list of users 
                 // socket.to(roomCode).emit('userJoined', result.users, username);
-                socket.to(roomCode).emit('updateCurrentUsers', result.users);
-                socket.emit('updateCurrentUsers', result.users);
+                // socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                // socket.emit('updateCurrentUsers', result.users);
             } 
             
             // could not find the database under the given roomCode
@@ -411,13 +412,13 @@ io.on('connection', (socket)=>{
                 if (err) throw err;
                 if (result) {
                     // remove the first occurence of the username from database
-                    delete result.users[socketID]
-                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
+                    delete result.guests[socketID]
+                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
 
                     // broadcast to every other users in the room that this user joined
                     // with the newly updated list of users 
                     // socket.to(roomCode).emit('userDisconnected', result.users, username);
-                    socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                    // socket.to(roomCode).emit('updateCurrentUsers', result.users);
                 }
             })
         })

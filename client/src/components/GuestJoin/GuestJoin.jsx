@@ -19,11 +19,7 @@ const GuestJoin = (props) => {
 
     function onSubmit(e) {
         e.preventDefault()
-        console.log('hehe')
-        // return <Redirect to={{ 
-        //     pathname: '/collab',
-        //     search: `?username=${userName}&roomCode=${roomCode}&action=join&guestID=${guestID}`
-        // }} />
+        
         props.history.push(`/collab?username=${userName}&roomCode=${roomCode}&action=join&guestID=${guestID}`)
     }   
 
