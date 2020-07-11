@@ -1,4 +1,5 @@
 import { SET_CURRENT_ZOOM, 
+    UPDATE_PAGES_ZOOMS,
     SET_PANEL_TOGGLE, 
     SET_TOOL_MODE, 
     SET_PREV_TOOL_MODE, 
@@ -21,7 +22,10 @@ import { SET_CURRENT_ZOOM,
 const initialState = {
     //zoom
     currentZoom: 1,
+    pagesZooms: [],
+
     panelToggle: false,
+
     //general
     toolMode: 'select',
     prevToolMode:'select',
@@ -57,6 +61,12 @@ export default function(state = initialState, action) {
                 ...state,
                 currentZoom: action.payload
             }
+        case UPDATE_PAGES_ZOOMS:
+            return {
+                ...state,
+                pagesZooms: action.payload
+            }
+        
         case SET_PANEL_TOGGLE:
             return {
                 ...state,

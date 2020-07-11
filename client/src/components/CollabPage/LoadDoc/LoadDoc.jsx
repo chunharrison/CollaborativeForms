@@ -7,7 +7,7 @@ import LoadPage from '../LoadPage/LoadPage'
 // Redux
 import { connect } from 'react-redux';
 import { setNumPages, setPageDimensions } from '../../../actions/docActions';
-import { setIsDown, setClientX, setClientY } from '../../../actions/toolActions';
+import { setPagesZooms, setIsDown, setClientX, setClientY } from '../../../actions/toolActions';
 
 
 const LoadDoc = (props) => {
@@ -47,6 +47,9 @@ const LoadDoc = (props) => {
 
         let dimensionsArray = new Array(pdf.numPages)
         props.setPageDimensions(dimensionsArray)
+
+        var pagesZoomsArray = Array(pdf.numPages).fill(1);
+        props.setPagesZooms(pagesZoomsArray)
     }
 
     const documentLoader = <div style={{ height: '500px' }}>
@@ -95,4 +98,5 @@ export default connect(mapStateToProps, {
     setIsDown,
     setClientX,
     setClientY, 
+    setPagesZooms
 })(LoadDoc);

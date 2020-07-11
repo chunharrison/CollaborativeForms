@@ -30,7 +30,7 @@ const PMWaitWindow = (props) => {
     }
 
     useEffect(() => {
-        console.log('props.pmShowWaitWindow', props.pmShowWaitWindow)
+        // console.log('props.pmShowWaitWindow', props.pmShowWaitWindow)
 
         props.userSocket.on("pilotModeUserAccepted", (confirmingUserSocketID) => {
             props.pmWaitWindowTableRows.forEach((item) => {

@@ -27,24 +27,29 @@ router.get('/check-space-availability', (req, res) => {
     })
 })
 
-router.post('/add', (req, res) => {
+router.post('/add-guest', (req, res) => {
     // res.header("Access-Control-Allow-Credentials", true);
-
-    const { roomCode, guestName, guestID } =  req.query;
-
+    // console.log(req)
+    const { roomCode, guestName, guestID } =  req.body.params;
+    console.log('/add-guest', roomCode, guestName, guestID)
     // find
     db.collection("rooms").findOne({ roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 
         // update
-        result.guests[guestID] = guestName
+        if (result) {
+            result.guests[guestID] = guestName
+            // replace with updated data
+            db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
+        }
+        // replace with updated data
+        // db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
     })
 
     // replace with updated data
-    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
+    // db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
 
     // send result
-    res.send()
 })
 
 router.delete('/delete', (req, res) => {
@@ -57,7 +62,9 @@ router.delete('/delete', (req, res) => {
         if (err) throw err;
         
         // remove
-        delete result.guest[guestID]
+        if (result) {
+            delete result.guests[guestID]
+        }
     })
     
     // replace with updated data
@@ -65,6 +72,21 @@ router.delete('/delete', (req, res) => {
 
     // send result
      res.send()
+})
+
+router.get('/get-guests', (req, res) => {
+    res.header("Access-Control-Allow-Credentials", true);
+    const { roomCode } =  req.query;
+    
+    // find
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+        
+        // send
+        if (result) {
+            res.send(result.guests)
+        }
+    })
 })
 
 

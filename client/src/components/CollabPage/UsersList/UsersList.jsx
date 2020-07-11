@@ -1,4 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+
+// Libraries
+import axios from 'axios'
 
 // Redux
 import { connect } from 'react-redux';
@@ -11,80 +14,86 @@ import { Dropdown } from 'semantic-ui-react'
 import usersImg from './users.png'
 
 const UsersList = (props) => {
-    
-    const [currentGuests, setCurrentGuests] = useState(props.currentGuests)
+    const avatarImages = [
+      'ade.jpg',
+      'chris.jpg',
+      'christian.jpg',
+      'daniel.jpg',
+      'elliot.jpg',
+      'helen.jpg',
+      'jenny.jpg',
+      'joe.jpg',
+      'justen.jpg',
+      'laura.jpg',
+      'lena.png',
+      'lindsay.png',
+      'mark.png',
+      'matt.jpg',
+      'matthew.png',
+      'molly.png',
+      'nan.jpg',
+      'nom.jpg',
+      'rachel.png',
+      'steve.jpg',
+      'stevie.jpg',
+      'tom.jpg',
+      'veronika.jpg',
+      'zoe.jpg'
+    ]
+    const avatarImageURL = 'https://react.semantic-ui.com/images/avatar/small/'
 
-    const friendOptions = [
-        {
-          key: 'Jenny Hess',
-          text: 'Jenny Hess',
-          value: 'Jenny Hess',
-          image: { avatar: true, src: 'https://react.semantic-ui.com/images/avatar/small/jenny.jpg' },
-        },
-        {
-          key: 'Elliot Fu',
-          text: 'Elliot Fu',
-          value: 'Elliot Fu',
-          image: { avatar: true, src: 'https://react.semantic-ui.com/images/avatar/small/elliot.jpg' },
-        },
-        {
-          key: 'Stevie Feliciano',
-          text: 'Stevie Feliciano',
-          value: 'Stevie Feliciano',
-          image: { avatar: true, src: 'https://react.semantic-ui.com/images/avatar/small/stevie.jpg' },
-        },
-      ]
+    const [currentGuests, setCurrentGuests] = useState(props.currentGuests)
+    const [currentGuestsDropdownOptions, setCurrentGuestsDropdownOptions] = useState(props.guests.map(userName => {
+        return {
+          key: userName,
+          text: userName,
+          value: userName,
+          image: avatarImageURL+avatarImages[Math.floor(Math.random()*avatarImages.length)]
+        }
+    }))
+    
+    // useEffect(() => {
       
+    //   if (props.guests !== currentGuests) {
+    //     setCurrentGuests(props.guests.map(guestName => {
+    //       return {
+    //         key: guestName,
+    //         text: guestName,
+    //         value: guestName,
+    //         image: avatarImageURL+avatarImages[Math.floor(Math.random()*avatarImages.length)]
+    //       }
+    //   }))
+    //   }
+    // })
+
     return (
-        // <Dropdown drop='up'>
-        //     <Dropdown.Toggle>
-        //         Users  <Badge variant="light">{Object.keys(props.currentUsers).length}</Badge>
-        //     </Dropdown.Toggle>
-        //     <Dropdown.Menu>
-        //         {Object.entries(props.currentUsers).map(([socketid, username], i) => (
-        //             <Dropdown.Item>{username}</Dropdown.Item>
-        //         ))}
-        //     </Dropdown.Menu>
-        // </Dropdown>
-    //     <div className='tool'>
-    //         <Dropdown text='Users'
-    // floating
-    // labeled
-    // button>
-    //             <Dropdown.Menu>
-    //                 <Dropdown.Header content='Host'/>
-    //                 {/* <Dropdown.Item key={props.host.id} {...props.host} /> */}
-    //                 {friendOptions.map((option) => (
-    //                     <Dropdown.Item key={option.value} {...option} />
-    //                 ))}
-    //                 {/* <Dropdown.Header content='Guests'/> */}
-    //                 {/* {currentGuests.map((guest) => (
-    //                     <Dropdown.Item key={guest.id} {...props.host} />
-    //                 ))} */}
-    //             </Dropdown.Menu>
-    //         </Dropdown>
-    //     </div>
-    <Dropdown
-    icon='user'
-    floating
-    labeled
-    button
-    className='icon'
-        >
-            <Dropdown.Menu>
-            <Dropdown.Header content='People You Might Know' />
-            {friendOptions.map((option) => (
+      <Dropdown
+        icon='user'
+        floating
+        labeled
+        button
+        className='icon'>
+          <Dropdown.Menu>
+              <Dropdown.Header content='Host' />
+              <Dropdown.Item 
+                key={props.hostName} 
+                text={props.hostName} 
+                value={props.hostName}
+                />
+              <Dropdown.Header content='Guests' />
+              {currentGuestsDropdownOptions.map((option) => (
                 <Dropdown.Item key={option.value} {...option} />
-            ))}
-            </Dropdown.Menu>
+              ))}
+          </Dropdown.Menu>
         </Dropdown>
     )
 }
 
 const mapStateToProps = state => ({
     // room
-    // host: state.room.host,
-    // currentGuests: state.room.currentUsers,
+    roomCode: state.room.roomCode,
+    guests: state.room.guests,
+    hostName: state.room.hostName,
 })
 
 export default connect(mapStateToProps ,{

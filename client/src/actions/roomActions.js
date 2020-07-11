@@ -2,7 +2,8 @@ import {
     SET_USER_NAME,
     SET_USER_SOCKET,
     SET_ROOM_CODE,
-    UPDATE_CURRENT_USERS,
+    SET_HOST_NAME,
+    UPDATE_CURRENT_GUESTS,
     OPEN_INVITE_GUESTS_WINDOW,
     CLOSE_INVITE_GUESTS_WINDOW,
     SET_INVITATION_LINK,
@@ -18,10 +19,10 @@ export const setUserName = userName => dispatch => {
     })
 }
 
-export const updateCurrentUsers = currentUsers => dispatch => {
+export const updateCurrentGuests = currentGuests => dispatch => {
     dispatch({
-        type: UPDATE_CURRENT_USERS,
-        payload: currentUsers
+        type: UPDATE_CURRENT_GUESTS,
+        payload: currentGuests
     })
 }
 
@@ -33,10 +34,17 @@ export const setUserSocket = userSocket => dispatch => {
 }
 
 export const setRoomCode = roomCode => dispatch => {
-    console.log('setRoomCode', roomCode)
     dispatch({
         type: SET_ROOM_CODE,
         payload: roomCode
+    })
+}
+
+export const setHostName = hostName => dispatch => {
+    console.log('setHostName', hostName)
+    dispatch({
+        type: SET_HOST_NAME,
+        payload: hostName
     })
 }
 

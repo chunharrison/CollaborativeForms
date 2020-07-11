@@ -21,7 +21,9 @@ const nanoid = require("nanoid")
 
 const users = require("./routes/api/users");
 const guests = require("./routes/api/guests")
-const { truncateSync } = require('fs');
+const room = require("./routes/api/room")
+
+
 // Bodyparser middleware
 app.use(
     bodyParser.urlencoded({
@@ -48,6 +50,7 @@ require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
 app.use("/api/guests", guests)
+app.use("/api/room", room)
 
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
@@ -135,15 +138,12 @@ app.post('/api/create-room', (req,res)=>{
     // initial room
     // data
     let roomData = {
-        fileName: req.body.fileName,
         roomCode: req.body.roomCode,
-        owner: req.body.userId,
-        users: {},
+        fileName: req.body.fileName,
         signatures: {}, 
-        pilotModeActivated: false,
-        pilotModeDriver: null,
+        host: {id: req.body.userId, name: req.body.userName},
         guests: {},
-        numConnectedGuests: 0,
+        pilotModeActivated: false,
     }
 
     db.collection("rooms").insertOne(roomData, function(err, response) {
@@ -188,7 +188,7 @@ io.on('connection', (socket)=>{
 
         console.log(`${username} just joined ${roomCode}`)
         db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
-            if (err) throw err; 
+            if (err) throw err;  
 
             // database found under given roomCode (the roomCode that the person entered when joining the room)
             // (the room exists)
@@ -198,15 +198,18 @@ io.on('connection', (socket)=>{
 
                 // update the list of users in the database
                 // result.users.push(username);
-                result.guests[guestID] = username
-                db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
+                // result.guests[guestID] = username
+                // db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
                 
 
                 // broadcast to every other users in the room that this user joined
                 // with the newly updated list of users 
                 // socket.to(roomCode).emit('userJoined', result.users, username);
-                // socket.to(roomCode).emit('updateCurrentUsers', result.users);
-                // socket.emit('updateCurrentUsers', result.users);
+
+                // update users
+                // socket.to(roomCode).emit('guestJoined', {userName: username, guestID});
+                // socket.emit('updateCurrentUsers');
+                // socket.to(roomCode).emit('updateCurrentGuests', {currentGuests: result.guests})
             } 
             
             // could not find the database under the given roomCode
@@ -410,17 +413,18 @@ io.on('connection', (socket)=>{
             // update the list of users in the database
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
-                if (result) {
+                if (result & guestID !== 'undefined') {
                     // remove the first occurence of the username from database
-                    delete result.guests[socketID]
+                    delete result.guests[guestID]
                     db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
 
                     // broadcast to every other users in the room that this user joined
                     // with the newly updated list of users 
                     // socket.to(roomCode).emit('userDisconnected', result.users, username);
-                    // socket.to(roomCode).emit('updateCurrentUsers', result.users);
+                    // socket.to(roomCode).emit('updateCurrentGuests', { currentGuests: result.guests });
                 }
             })
+            // socket.to(roomCode).emit('guestDisconnected', guestID);
         })
 
         console.log("------------------------------")

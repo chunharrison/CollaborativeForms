@@ -15,9 +15,6 @@ import store from "../store"
 import jwt_decode from "jwt-decode";
 import setAuthToken from "../utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "../actions/authActions";
-
-import Login from './Login/Login'
-import Register from './Register/Register'
 import SignInOrUp from "./SignInOrUp/SignInOrUp";
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";

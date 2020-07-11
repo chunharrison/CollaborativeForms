@@ -159,7 +159,7 @@ const CreateDocument = props => {
 
     function createRoom() {
         const createRoomUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/create-room`;
-        axios.post(createRoomUrl, {roomCode: roomKey, userId: props.auth.user.id, fileName: selectedFileName}).then(res => {
+        axios.post(createRoomUrl, {roomCode: roomKey, userId: props.auth.user.id, userName: props.auth.user.name, fileName: selectedFileName}).then(res => {
             setShowPdfModal(false);
             setShowProgressBar(false);
             props.history.push({

@@ -2,11 +2,9 @@ import React from 'react';
 
 // Components
 import Signature from '../Signature/Signature';
-import { Redirect } from 'react-router-dom'; // open source
 import CopyRoomCode from './CopyRoomCode/CopyRoomCode';
 import LoadDoc from './LoadDoc/LoadDoc'
 import DownloadDoc from './DownloadDoc/DownloadDoc';
-// footer
 import PilotMode from './PilotMode/PilotMode'
 import PMWaitWindow from './PilotMode/PMWaitWindow'
 import PMConfirmWindow from './PilotMode/PMConfirmWindow'
@@ -25,6 +23,7 @@ import UsersList from './UsersList/UsersList'
 import Alert from 'react-bootstrap/Alert';
 
 // Libraries
+import { Redirect } from 'react-router-dom'; // open source
 import { fabric } from 'fabric';
 import { nanoid } from 'nanoid';
 import io from "socket.io-client";
@@ -44,7 +43,8 @@ import {
 import { 
     setUserSocket, 
     setRoomCode,
-    updateCurrentUsers
+    updateCurrentGuests,
+    setHostName
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -59,6 +59,7 @@ import settingsImg from './settings.png'
 
 //CSS
 import './CollabPage.css';
+import { toHexStringOfMinLength } from 'pdf-lib';
 
 class CollabPage extends React.Component {
     constructor(props) {
@@ -121,6 +122,87 @@ class CollabPage extends React.Component {
     /* #################################################################################################
     ############################################ Document ##############################################
     ################################################################################################# */
+
+    getGuests() {
+        const options = {
+          params: {
+              roomCode: this.state.roomCode
+          },
+          headers: {
+              'Access-Control-Allow-Credentials': true,
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET',
+              'Access-Control-Allow-Headers': '*',
+          },
+        };
+  
+        axios.get('/api/guests/get-guests', options).then(res => {
+          return res.guests
+        })
+      }
+
+    addGuest() {
+        console.log(this.state.roomCode, this.state.username, this.state.guestID)
+        const options = {
+            params: {
+                roomCode: this.state.roomCode,
+                guestName: this.state.username,
+                guestID: this.state.guestID
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+
+        axios.post('/api/guests/add-guest', options).then(res => {
+            // return res.users
+        })
+        
+    };
+
+    getHostID() {
+        const options = {
+            params: {
+                roomCode: this.state.roomCode
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+
+        axios.get('/api/room/get-host-id', options).then(res => {
+            return res.hostID
+        })
+    }
+
+    setStateHostName() {
+        const options = {
+            params: {
+                roomCode: this.state.roomCode
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+
+        axios.get('/api/room/get-host-name', options).then(res => {
+            // console.log(res.data.hostName)
+            // this.setState({
+            //     hostName: res.data.hostName
+            // }, () => {
+            //     this.props.setHostName(res.data.hostName)
+            // })
+        })
+    }
 
     renderFabricCanvas = (pageNum, width, height) => {
         let self = this
@@ -676,7 +758,6 @@ class CollabPage extends React.Component {
             //get the data with the url that was given, then turn the data into a blob, which is the representation of a file without a name. this can be fed to a pdf render
             fetch(getURL)
                 .then(response => response.blob()).then((blob) => {
-                    console.log(blob)
                     this.props.setCurrentDoc(blob) // redux
                     this.setState({ givenPDFDocument: blob })
                 })
@@ -704,6 +785,8 @@ class CollabPage extends React.Component {
 
             // socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
             socket.emit('join', { socketID, username, roomCode, creation, guestID });
+
+            this.setStateHostName()
         });
 
         // Connection
@@ -717,8 +800,10 @@ class CollabPage extends React.Component {
             this.setState({ disconnected: false });
         })
 
-        socket.on('updateCurrentUsers', (currentUsers) => {
-            this.props.updateCurrentUsers(currentUsers)
+        socket.on('updateCurrentGuests', (data) => {
+            let guests = []
+            guests.append(Object.values(data.currentGuests))
+            this.props.updateCurrentGuests(guests)
         })
 
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
@@ -850,13 +935,13 @@ class CollabPage extends React.Component {
         }
 
         let downloadLoader = (this.props.currentDoc === null ? <div style={{ height: '500px' }}>
-            <div class="loader-wrapper">
-                <span class="circle circle-1"></span>
-                <span class="circle circle-2"></span>
-                <span class="circle circle-3"></span>
-                <span class="circle circle-4"></span>
-                <span class="circle circle-5"></span>
-                <span class="circle circle-6"></span>
+            <div className="loader-wrapper">
+                <span className="circle circle-1"></span>
+                <span className="circle circle-2"></span>
+                <span className="circle circle-3"></span>
+                <span className="circle circle-4"></span>
+                <span className="circle circle-5"></span>
+                <span className="circle circle-6"></span>
             </div>
         </div> : null)
 
@@ -940,25 +1025,6 @@ class CollabPage extends React.Component {
                     </div>
                 </div>
 
-
-
-                {/* FOOTER */}
-                {/* <div className='footer'>
-                    <div className='footer-button-container'>
-                        {
-                            this.props.userSocket ?
-                            <PilotMode/>
-                            : null
-                        }
-                        <UsersList/>
-                    </div>
-                    <div className='tools'>
-                    </div>
-                    <div className='footer-button-container'>
-                        <DownloadDoc/>
-                    </div>
-                </div> */}
-
                 {
                     this.props.userSocket ?
                     <div>
@@ -988,7 +1054,7 @@ CollabPage.propTypes = {
     setRoomCode: PropTypes.func.isRequired,
     setRenderFabricCanvasFunc: PropTypes.func.isRequired,
     setCanvasContainerRef: PropTypes.func.isRequired,
-    updateCurrentUsers: PropTypes.func.isRequired,
+    updateCurrentGuests: PropTypes.func.isRequired,
 
     // var
     userSocket: PropTypes.object.isRequired,
@@ -999,6 +1065,9 @@ CollabPage.propTypes = {
 }
 
 const mapStateToProps = state => ({
+    // auth
+    auth: state.auth,
+
     // room
     userSocket: state.room.userSocket,
     roomCode: state.room.roomCode,
@@ -1032,11 +1101,13 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, { 
     setUserSocket, 
     setRoomCode, 
+    setHostName,
+
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,
     setCurrentDoc,
     setCurrentZoom,
-    updateCurrentUsers,
+    updateCurrentGuests,
     setToolMode,
     setPrevToolMode,
     setShape,

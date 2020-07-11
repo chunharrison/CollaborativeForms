@@ -1,4 +1,5 @@
 import { SET_CURRENT_ZOOM, 
+    UPDATE_PAGES_ZOOMS,
     SET_PANEL_TOGGLE, 
     SET_TOOL_MODE, 
     SET_PREV_TOOL_MODE, 
@@ -24,6 +25,14 @@ export const setCurrentZoom = newZoom => dispatch => {
         payload: newZoom
     })
 }
+
+export const setPagesZooms = newPagesZooms => dispatch => {
+    dispatch({
+        type: UPDATE_PAGES_ZOOMS,
+        payload: newPagesZooms
+    })
+}
+
 
 export const setPanelToggle = panelToggle => dispatch => {
     dispatch({
