@@ -22,10 +22,7 @@ const LoadPage = (props) => {
     
     // page inview
     const ref = useRef()
-    const [inViewRef, inView, entry] = useInView({
-        threshold: 0,
-        triggerOnce: false,
-    })
+    const [inViewRef, inView, entry] = useInView()
     const [oneSecondReached, setOneSecondReached] = useState(false);
 
     // pages
@@ -35,6 +32,7 @@ const LoadPage = (props) => {
     const [pageWidth, setPageWidth] = useState(0);
     const [pageHeight, setPageHeight] = useState(0);
     const [pagesZooms, setPagesZooms] = useState(props.pagesZooms)
+    const [thisPageZoom, setThisPageZoom] = useState(1)
 
     // Use `useCallback` so we don't recreate the function on each render - Could result in infinite loop
     const setRefs = useCallback(
@@ -51,23 +49,17 @@ const LoadPage = (props) => {
     // this is for when a user scrolls down the document quickly enough 
     // that it is unneccary to render the pages
     useEffect(() => {
+
+        // props.currentZoom !== props.pagesZooms[props.pageNum - 1]
+        if (inView && props.currentZoom !== thisPageZoom) {
+            setThisPageZoom(props.currentZoom)
+        }
+
+
         // clear the timeout so when the person leaves the pages before 1s
         if (entry) {
-            // props.currentZoom !== props.pagesZooms[props.pageNum - 1]
-            // console.log(props.pageNum, inView, entry)
-            if (inView) {
-                console.log(props.pageNum, inView, entry)
-                // console.log(props.pageNum, props.pagesZooms)
-                // console.log(props.pagesZooms)
-                // console.log(props.currentZoom, props.pagesZooms[props.pageNum - 1])
-                var pagesZoomsTemp = props.pagesZooms
-                // console.log('pagesZoomsTemp BEFORE', pagesZoomsTemp)
-                pagesZoomsTemp[props.pageNum - 1] = props.currentZoom
-                // console.log('pagesZoomsTemp AFTER', pagesZoomsTemp)
-                props.setPagesZooms(pagesZoomsTemp)
-            }
-
             entry.target.dataset.visible = inView;
+
             if (inView && !entry.target.firstChild) {
                 setTimeout(() => {
                     if (entry.target.dataset.visible === 'true') {
@@ -76,6 +68,8 @@ const LoadPage = (props) => {
                 }, 1000)
             }
         }
+
+        // console.log(inView)
 
         if (pageLoaded && pageRendered && !fabricRendered) {
             
@@ -106,10 +100,10 @@ const LoadPage = (props) => {
                 {
                         (oneSecondReached) 
                     ? 
-                        (<div className="father-of-two">
+                        (<div className="father-of-two" ref={setRefs} >
                             {/* PDF CANVAS */}
                             <Page 
-                                scale={props.pagesZooms[props.pageNum - 1]}
+                                scale={thisPageZoom}
                                 pageNumber={props.pageNum}
                                 // renderTextLayer={false}
                                 renderAnnotationLayer={false}
