@@ -14,6 +14,9 @@ const getMetadata = async (selectedFile) => {
     const pdfDoc = await PDFDocument.load(
         PDFArrayBuffer
     );
+    if (typeof pdfDoc.getKeywords() === 'undefined') {
+        return [];
+    }
 
     return pdfDoc.getKeywords().split(' ');
 

@@ -27,13 +27,13 @@ const InfiniteDocumentScroll = props => {
 
     useEffect(() => {
         if (!props.infiniteMode) {
-            setRenderedCount(Math.floor(ref.current.clientWidth / 254) - 1);
+            setRenderedCount(documentNumber.length < Math.floor(ref.current.clientWidth / 254) - 1 ? documentNumber.length : Math.floor(ref.current.clientWidth / 254) - 1);
         }
-    }, [props.infiniteMode]);
+    }, [props.infiniteMode, documentNumber]);
 
     function resizeNotify() {
         if (!props.infiniteMode) {
-            setRenderedCount(Math.floor(ref.current.clientWidth / 254) - 1);
+            setRenderedCount(documentNumber.length < Math.floor(ref.current.clientWidth / 254) - 1 ? documentNumber.length : Math.floor(ref.current.clientWidth / 254) - 1);
         }
     }
 

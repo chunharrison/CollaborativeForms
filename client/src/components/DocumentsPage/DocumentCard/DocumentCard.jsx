@@ -17,6 +17,7 @@ const DocumentCard = props => {
     const wrapperRef = useRef(null);
     const [placeholderImg, setPlaceholderImg] = useState('');
     const [edit, setEdit] = useState(false);
+    const [rendered, setRendered] = useState(false);
     useOnClickOutside(wrapperRef, handleClickOutside)
 
     const [ref, inView, entry] = useInView({
@@ -30,8 +31,11 @@ const DocumentCard = props => {
 
 
     useEffect(() => {
-        if(inView && props.infiniteMode) {
+        if(inView && props.infiniteMode && !rendered) {
+            setRendered(true);
             props.setRenderedCount(props.renderedCount + 1);
+        } else if (!props.infiniteMode) {
+            setRendered(false);
         }
     }, [inView, props.infiniteMode])
 

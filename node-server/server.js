@@ -172,7 +172,6 @@ app.get('/api/get-owners-documents', (req,res)=>{
     db.collection("rooms").find({'host.id': req.query.owner}).sort({_id: -1})
     .project({roomCode:1, fileName:1, _id:0})
     .toArray(function (err, result) {
-        console.log(result);
         res.send(result);
     })
 });
