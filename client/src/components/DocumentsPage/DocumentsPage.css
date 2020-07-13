@@ -80,7 +80,7 @@
     height:100%;
     width: 85vw;
     background-color: #f1f1f1;
-    border-radius: 5vw 0 0 5vw;
+    border-radius: 1.5vw 0 0 1.5vw;
     -webkit-box-shadow: -10px 0px 8px -4px rgba(0,0,0,0.1);
     -moz-box-shadow: -10px 0px 8px -4px rgba(0,0,0,0.1);
     box-shadow: -10px 0px 8px -4px rgba(0,0,0,0.1);
@@ -340,8 +340,7 @@
 
 .documents-placeholder-popup {
     display:flex;
-    justify-content: flex-start;
-    align-items:center;
+    flex-direction:column;
     border-radius:10px;
     position:absolute;
     bottom:70px;
@@ -355,9 +354,14 @@
     
 }
 
+.documents-placeholder-popup-option-container {
+    display:flex;
+    justify-content: flex-start;
+    align-items:center;
+}
 
 
-.documents-placeholder-popup:hover {
+.documents-placeholder-popup-option-container:hover {
     background-color: rgb(243, 242, 242);
     
 }

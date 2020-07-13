@@ -46,7 +46,6 @@ const InfiniteDocumentScroll = props => {
             }
         };
         let res = await axios.get(getDocumentIdUrl, options);
-        console.log(res.data);
         setDocumentNumber(res.data);
     }
 

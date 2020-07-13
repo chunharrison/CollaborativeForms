@@ -10,6 +10,7 @@ import useOnClickOutside from 'use-onclickoutside'
 //images
 import optionsImg from './options.png';
 import deleteImg from './bin.png'
+import editImg from './edit.png'
 
 const DocumentCard = props => {
 
@@ -35,7 +36,7 @@ const DocumentCard = props => {
     }, [inView, props.infiniteMode])
 
     function handleClickOutside(e) {
-        if(e.target.classname !== 'documents-placeholder-options') {
+        if(e.target.className !== 'documents-placeholder-popup-option') {
             setEdit(false);
         }
     }
@@ -77,6 +78,17 @@ const DocumentCard = props => {
         setEdit(!edit);
     }
 
+    function editDocumentName() {
+        const deleteDocumentUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/delete-document`;
+        axios.delete(deleteDocumentUrl, {
+            data: {
+              roomCode: props.documentCode
+            }
+          }).then(() =>{
+              props.removeCard();
+          });
+    }
+
     function deleteDocument() {
         const deleteDocumentUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/delete-document`;
         axios.delete(deleteDocumentUrl, {
@@ -93,9 +105,15 @@ const DocumentCard = props => {
             <div className='documents-shared-file-placeholder' style={{'backgroundImage': `url(${placeholderImg})`}} onClick={handleCardClick}>
                 <img className='documents-placeholder-options' src={optionsImg} onClick={toggleEdit} ref={wrapperRef}/>
             </div>
-            <div className={`documents-placeholder-popup ${edit ? 'fade-in' : ''}`} style={{'display': `${edit ? 'flex' : 'none'}`}} onClick={deleteDocument}>
-                <img className='documents-placeholder-popup-option-img' src={deleteImg}/>
-                <p className='documents-placeholder-popup-option'>Delete</p>
+            <div className={`documents-placeholder-popup ${edit ? 'fade-in' : ''}`} style={{'display': `${edit ? 'flex' : 'none'}`}}>
+                <div className='documents-placeholder-popup-option-container' onClick={editDocumentName}>
+                    <img className='documents-placeholder-popup-option-img' src={editImg}/>
+                    <p className='documents-placeholder-popup-option'>Edit name</p>
+                </div>
+                <div className='documents-placeholder-popup-option-container' onClick={deleteDocument}>
+                    <img className='documents-placeholder-popup-option-img' src={deleteImg}/>
+                    <p className='documents-placeholder-popup-option'>Delete</p>
+                </div>
             </div>
         <p className='documents-shared-file-text'>{props.fileName.split(".")[0]}</p>
         </div>

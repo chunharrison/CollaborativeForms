@@ -91,6 +91,8 @@ class CollabPage extends React.Component {
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
 
+        //highlighter
+        this.handleSelection = this.handleSelection.bind(this);
         // Zoom
         this.setZoom = this.setZoom.bind(this);
         // Signature
@@ -329,7 +331,7 @@ class CollabPage extends React.Component {
             if (self.props.toolMode === 'shape') {
                 self.props.shape.setCoords();
                 const modifiedSignatureObject = self.props.shape;
-                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+                const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
 
                 let pageData = {
                     pageNum: pageNum,
@@ -404,8 +406,12 @@ class CollabPage extends React.Component {
             if (!e.target.get('owner')) {
                 let obj={owner: self.state.username};
                 newSignatureObject.set('owner',obj);
+                let originalX={originalX: newSignatureObject.left};
+                newSignatureObject.set('originalX',originalX);
+                let originalY={originalY: newSignatureObject.top};
+                newSignatureObject.set('originalY',originalY);
             }
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
             let pageData = {
                 pageNum: pageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
@@ -418,7 +424,7 @@ class CollabPage extends React.Component {
 
         fabricCanvas.on('object:modified', function (e) {
             const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -471,7 +477,7 @@ class CollabPage extends React.Component {
 
         fabricCanvas.on('object:removed', function (e) {
             const removedSignatureObject = e.target
-            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id', 'owner'])))
+            const removedSignatureObjectJSON = JSON.parse(JSON.stringify(removedSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -487,7 +493,7 @@ class CollabPage extends React.Component {
 
         fabricCanvas.on('text:changed', function (e) {
             const modifiedSignatureObject = e.target
-            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner'])))
+            const modifiedSignatureObjectJSON = JSON.parse(JSON.stringify(modifiedSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
 
             let pageData = {
                 pageNum: pageNum,
@@ -500,7 +506,7 @@ class CollabPage extends React.Component {
         fabricCanvas.on("path:created", function (o) {
             o.path.id = nanoid();
             const newSignatureObject = o.path
-            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner'])))
+            const newSignatureObjectJSON = JSON.parse(JSON.stringify(newSignatureObject.toObject(['id', 'owner', 'originalX', 'originalY'])))
             let pageData = {
                 pageNum: pageNum,
                 newSignatureObjectJSON: newSignatureObjectJSON
@@ -526,6 +532,14 @@ class CollabPage extends React.Component {
 
     /* #################################################################################################
     ################################################################################################# */
+
+    /* #################################################################################################
+    ######################################### Highlighter ####################################
+    ################################################################################################# */
+
+    handleSelection() {
+        console.log('hi')
+    }
 
     /* #################################################################################################
     ######################################### Zoom ####################################
@@ -589,7 +603,6 @@ class CollabPage extends React.Component {
 
     // handles key strokes
     handleKeyDown(e) {
-        console.log(e);
         //delete objects
         if (e.keyCode === 46 && e.target.type !== 'textarea') {
             this.setState({ holding: false });
@@ -1003,7 +1016,7 @@ class CollabPage extends React.Component {
 
                 {/* BODY */}
                 {/* don't render until we receive the document from the server */}
-                <div className='body-container'>
+                <div className='body-container' onMouseUp={this.handleSelection}>
                     <div className={`outer ${this.props.panelToggle ? 'panel-true' : 'panel-false'}`}>
                         <div id='browser-canvas-container'>
                             {pageBrowser}

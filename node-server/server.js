@@ -146,6 +146,21 @@ app.post('/api/create-room', (req,res)=>{
         pilotModeActivated: false,
     }
 
+    req.body.objects.forEach((object) => {
+        let currentPageSignatures = get(roomData.signatures, object[1].toString(), null)
+        let objectList = []
+        if (currentPageSignatures !== null) {
+            // decryption
+            let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+            objectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        }
+        objectList.push(object[0]);
+        // encrypt the list again before updating the database
+        let encrypted = CryptoJS.AES.encrypt(JSON.stringify(objectList), process.env.ENCRYPT_KEY).toString();
+        // update the database
+        roomData.signatures[object[1].toString()] = encrypted;
+    })
+
     db.collection("rooms").insertOne(roomData, function(err, response) {
         if(err) throw err;
         res.send()
@@ -170,6 +185,19 @@ app.delete('/api/delete-document', function(req, res) {
         res.send();
     });
 });
+
+app.put('/api/edit-document-name', function(req, res) {
+    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
+
+    db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
+        if (err) throw err;
+        deleteDocument(`${req.body.roomCode}.pdf`);
+        deleteDocument(`${req.body.roomCode}.jpeg`);
+        console.log("1 document deleted");
+        res.send();
+    });
+});
+
 //Bind socket.io socket to http server
 const io = socketio(http);
 
@@ -273,7 +301,7 @@ io.on('connection', (socket)=>{
                 // encrypt the list again before updating the database
                 let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
                 // update the database
-                result.signatures[pageNum.toString()] = encrypted
+                result.signatures[pageNum.toString()] = encrypted;
                 db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
 
                 // emit the changes to other users in the room
