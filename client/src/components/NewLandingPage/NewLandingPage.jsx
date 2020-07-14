@@ -18,6 +18,15 @@ import rectangleThree from './rectangle-3.png';
 import tick from './tick.png';
 import plus from './plus.png';
 
+// libraries
+import { Redirect } from 'react-router-dom'; // open source
+// redux
+import { connect } from 'react-redux'
+
+// components
+import { logoutUser } from "../../actions/authActions";
+
+
 // css
 import './LandingPage.css';
 
@@ -70,6 +79,34 @@ class LandingPage extends React.Component {
         
     }
 
+
+    // login
+    handleLogInClick = e => {
+        e.preventDefault()
+
+        this.props.history.push("/account")
+    }
+
+    handleLogOutClick = e => {
+        e.preventDefault()
+
+        this.props.logoutUser();
+    }
+
+    handleAccountPortalClick = e => {
+        e.preventDefault()
+
+        // return <Redirect to={{ pathname: '/account-portal' }} />
+        this.props.history.push("/account-portal")
+    }
+
+    handleSignUpClick = e => {
+        e.preventDefault()
+
+        localStorage.setItem('signup', true)
+        this.props.history.push("/account")
+    }
+
     render() {
         let blink = this.state.typeBlink === true ? null : 'blink';
 
@@ -84,8 +121,20 @@ class LandingPage extends React.Component {
                         <p className='nav-button'>Demo</p>
                     </div>
                     <div className='nav-right'>
-                        <p className='nav-button'>Log in</p>
-                        <p className='nav-register-button'>Sign up</p>
+                        {
+                            this.props.auth.isAuthenticated
+                            ?
+                                <p className='nav-button' onClick={e => this.handleLogOutClick(e)}>Log out</p>
+                            :
+                                <p className='nav-button' onClick={e => this.handleLogInClick(e)}>Log in</p>
+                        }
+                        {
+                            this.props.auth.isAuthenticated
+                            ?
+                                <p className='nav-register-button' onClick={e => this.handleAccountPortalClick(e)}>Account Portal</p>
+                            :
+                                <p className='nav-register-button' onClick={e => this.handleSignUpClick(e)}>Sign up</p>
+                        }
                     </div>
                 </div>
                 <div className='welcome'>
@@ -233,4 +282,12 @@ class LandingPage extends React.Component {
     }
 }
 
-export default LandingPage;
+
+const mapStateToProps = state => ({
+    // room
+    auth: state.auth
+})
+
+export default connect(mapStateToProps, {
+    logoutUser
+})(LandingPage);

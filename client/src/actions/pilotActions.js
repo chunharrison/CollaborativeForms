@@ -11,7 +11,7 @@ import {
     OPEN_PM_CONFIRM_WINDOW,
     CLOSE_PM_CONFIRM_WINDOW,
     SET_PM_REQUESTER_INFO,
-    SET_PM_CURR_NUM_USERS,
+    SET_PM_CURR_NUM_GUESTS,
 
     SET_PM_WAIT_WINDOW_TABLE_ROWS,
 } from './types'
@@ -102,10 +102,10 @@ export const setPMRequesterInfo = (requesterUserName, requesterSocketID) => disp
     })
 }
 
-export const setPMCurrNumUsers = (currNumUsers) => dispatch => {
+export const setPMCurrNumGuests = (currNumGuests) => dispatch => {
     dispatch({
-        type: SET_PM_CURR_NUM_USERS,
-        payload: currNumUsers
+        type: SET_PM_CURR_NUM_GUESTS,
+        payload: currNumGuests
     })
 }
 

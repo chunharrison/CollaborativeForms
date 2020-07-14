@@ -11,7 +11,11 @@ import {
 // Register User
 export const registerUser = (userData, history) => dispatch => {
     axios.post("/api/users/register", userData)
-        .then(res => history.push("/account")) // re-direct to login on successful register
+        .then(res => {
+            const container = document.getElementById('sign-in-out-form-container');
+            // console.log('registerUser', container)
+            container.classList.remove("right-panel-active")
+        }) // re-direct to login on successful register
         .catch(err =>
             dispatch({
                 type: GET_ERRORS,

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 // Redux
 import { connect } from 'react-redux';
@@ -13,22 +13,15 @@ import 'react-taco-table/dist/react-taco-table.css';
 
 const PMConfirmWindow = (props) => {
 
-    useEffect(() => {
-        
-    })
-
     function handleClosePMConfirmWindow(event, confirmed) {
         event.preventDefault()
-        // console.log(this.state.pmCurrNumUsers)
 
         props.closePMConfirmWindow()
 
         const callbackData = {
             confirmed: confirmed,
-            confirmingUser: props.userName,
-            confirmingUserSocketID: props.userSocket.id,
+            confirmingUserGuestID: props.guestID,
             requesterSocketID: props.pmRequesterSocketID,
-            currNumUsers: props.pmCurrNumUsers
         }
 
         props.userSocket.emit("pilotModeRequestCallback", callbackData)
@@ -62,11 +55,12 @@ const mapStateToProps = state => ({
     // room
     userName: state.room.userName,
     userSocket: state.room.userSocket,
+    guestID: state.room.guestID,
 
     pmShowConfirmWindow: state.pilot.pmShowConfirmWindow,
     pmRequesterUsername: state.pilot.pmRequesterUsername,
     pmRequesterSocketID: state.pilot.pmRequesterSocketID,
-    pmCurrNumUsers: state.pilot.pmCurrNumUsers,
+    pmCurrNumGuests: state.pilot.pmCurrNumGuests,
 })
 
 export default connect(mapStateToProps ,{

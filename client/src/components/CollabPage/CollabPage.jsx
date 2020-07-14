@@ -44,7 +44,8 @@ import {
     setUserSocket, 
     setRoomCode,
     updateCurrentGuests,
-    setHostName
+    setHostName,
+    setGuestID,
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -198,11 +199,37 @@ class CollabPage extends React.Component {
 
         axios.get('/api/room/get-host-name', options).then(res => {
             // console.log(res.data.hostName)
-            // this.setState({
-            //     hostName: res.data.hostName
-            // }, () => {
-            //     this.props.setHostName(res.data.hostName)
-            // })
+            this.setState({
+                hostName: res.data.hostName
+            }, () => {
+                this.props.setHostName(res.data.hostName)
+            })
+        })
+    }
+
+    setStateGuestList() {
+        const options = {
+            params: {
+                roomCode: this.state.roomCode
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+
+        axios.get('/api/room/get-guest-list', options).then(res => {
+            console.log(res.data.guestList)
+
+            let currentGuestList = [...Object.values(res.data.guestList)]
+            if (!this.props.auth.isAuthenticated) currentGuestList.push(this.state.username)
+            this.setState({
+                guestList: currentGuestList
+            }, () => {
+                this.props.updateCurrentGuests(currentGuestList)
+            })
         })
     }
 
@@ -787,19 +814,8 @@ class CollabPage extends React.Component {
         // the server then emits an initial setup with:
         //      the document file, existing signature object and the list of people in the room
         socket.on('join', () => {
-            const creation = action === 'create' ? true : false;
-            const socketID = socket.id;
-
-            // const token = localStorage.jwtToken;
-            // setAuthToken(token);
-            // // Decode token and get user info and exp
-            // const decoded = jwt_decode(token);
-            
-
-            // socket.emit('join', { socketID, username, roomCode, creation, userID: decoded.id })
-            socket.emit('join', { socketID, username, roomCode, creation, guestID });
-
-            this.setStateHostName()
+            const isHost = this.props.auth.isAuthenticated
+            socket.emit('join', { username, roomCode, guestID, isHost });
         });
 
         // Connection
@@ -808,14 +824,12 @@ class CollabPage extends React.Component {
         })
 
         socket.on('reconnect', () => {
-            // console.log('reconnected')
             window.location.reload();
             this.setState({ disconnected: false });
         })
 
-        socket.on('updateCurrentGuests', (data) => {
-            let guests = []
-            guests.append(Object.values(data.currentGuests))
+        socket.on('updateGuestList', (data) => {
+            let guests = [...Object.values(data.currentGuests)]
             this.props.updateCurrentGuests(guests)
         })
 
@@ -879,9 +893,14 @@ class CollabPage extends React.Component {
         const action = '' + queryString.parse(this.props.location.search).action
         const guestID = '' + queryString.parse(this.props.location.search).guestID
         this.props.setRoomCode(roomCode) 
+        this.props.setGuestID(guestID)
         this.setState({ username, roomCode, action, guestID }, () => {
             this.setSocket(username, roomCode, action, guestID); // Socket.io
             this.getDocument()
+
+            // UsersList
+            this.setStateHostName()
+            this.setStateGuestList()
         });
 
         this.props.setCanvasContainerRef(this.canvasContainerRef)
@@ -1115,6 +1134,7 @@ export default connect(mapStateToProps, {
     setUserSocket, 
     setRoomCode, 
     setHostName,
+    setGuestID,
 
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,

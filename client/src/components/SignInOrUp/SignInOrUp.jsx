@@ -17,7 +17,6 @@ class SignInOrUp extends Component {
         e.preventDefault()
 
         const container = document.getElementById('sign-in-out-form-container');
-        console.log(container)
         container.classList.add("right-panel-active")
     }
 
@@ -38,6 +37,12 @@ class SignInOrUp extends Component {
         // If logged in and user navigates to Login page, should redirect them to {page}
         if (this.props.auth.isAuthenticated) {
           this.props.history.push("/account-portal");
+        }
+
+        if (localStorage.getItem('signup') === 'true') {
+            const container = document.getElementById('sign-in-out-form-container');
+            container.classList.add("right-panel-active")
+            localStorage.removeItem('signup')
         }
       }
 

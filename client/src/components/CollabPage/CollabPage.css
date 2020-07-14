@@ -614,6 +614,9 @@ body {
     width: 50px;
 }
 
-.thekings-speech{
-    /* width: 100%; */
+.user-list-img{
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
 }
+

@@ -211,7 +211,7 @@ io.on('connection', (socket)=>{
 
     //check if database has canvas if not request it, if it does send it to users
     socket.emit('join');
-    socket.on('join', ({ socketID, username, roomCode, creation, guestID }) => {
+    socket.on('join', ({ username, roomCode, guestID, isHost }) => {
         socket.join(roomCode);
 
         console.log(`${username} just joined ${roomCode}`)
@@ -224,20 +224,13 @@ io.on('connection', (socket)=>{
 
                 console.log(`fetching data from room: ${roomCode}`)
 
-                // update the list of users in the database
-                // result.users.push(username);
-                // result.guests[guestID] = username
-                // db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
-                
-
-                // broadcast to every other users in the room that this user joined
-                // with the newly updated list of users 
-                // socket.to(roomCode).emit('userJoined', result.users, username);
-
-                // update users
-                // socket.to(roomCode).emit('guestJoined', {userName: username, guestID});
-                // socket.emit('updateCurrentUsers');
-                // socket.to(roomCode).emit('updateCurrentGuests', {currentGuests: result.guests})
+                // update the guestlist
+                if (!isHost) {
+                    console.log('guestJoined', username, guestID)
+                    result.guests[guestID] = username
+                    socket.to(roomCode).emit('updateGuestList', {currentGuests: result.guests})
+                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
+                } 
             } 
             
             // could not find the database under the given roomCode
@@ -245,15 +238,6 @@ io.on('connection', (socket)=>{
             else {
                 socket.emit('invalidRoomCode')
             }
-
-            // TODO
-            // if (result && result.pilotModeActivated) {
-            //     if(result.pilotModeDriver === userID) {
-            //         socket.emit('welcomeBackDriver') 
-            //     } else {
-            //         socket.emit('pilotModeActivatedByUser', result.pilotModeDriver.name)
-            //     }
-            // }
         });
 
         // //force send clients canvas that are missing it
@@ -387,22 +371,16 @@ io.on('connection', (socket)=>{
             socket.to(roomCode).emit('confirmPilotMode', requestData)
         })
 
-        // var pmDenied = false
+
         socket.on("pilotModeRequestCallback", (callbackData) => {
-            const {confirmed, confirmingUser, confirmingUserSocketID, requesterSocketID, currNumUsers} = callbackData
-            console.log("PILOTMODEREQUESTCALLBACK", confirmed, confirmingUser, confirmingUserSocketID, requesterSocketID, currNumUsers)
+            const {confirmed, confirmingUserGuestID, requesterSocketID } = callbackData
+            console.log("pilotModeRequestCallback", confirmed, confirmingUserGuestID, requesterSocketID)
             
             if (confirmed) {
-                socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserSocketID)
+                socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserGuestID)
             } else {
-                socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUserSocketID)
+                socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUserGuestID)
             }
-            // if (currNumUsers === confirmedCount) {
-            //     db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true, pilotModeDriver: ''}})
-            //     console.log("pilotModeConfirmed")
-            //     socket.to(requesterSocketID).emit("pilotModeConfirmed")
-            //     // socket.in(roomCode).emit("pilotModeConfirmed", requesterSocketID)
-            // }
         })
 
         socket.on('pilotModeActivated', (data) => {
@@ -441,15 +419,16 @@ io.on('connection', (socket)=>{
             // update the list of users in the database
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
-                if (result & guestID !== 'undefined') {
+                if (result & !isHost) {
                     // remove the first occurence of the username from database
                     delete result.guests[guestID]
-                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
 
                     // broadcast to every other users in the room that this user joined
                     // with the newly updated list of users 
                     // socket.to(roomCode).emit('userDisconnected', result.users, username);
-                    // socket.to(roomCode).emit('updateCurrentGuests', { currentGuests: result.guests });
+                    socket.to(roomCode).emit('updateGuestList', { currentGuests: result.guests });
+
+                    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
                 }
             })
             // socket.to(roomCode).emit('guestDisconnected', guestID);

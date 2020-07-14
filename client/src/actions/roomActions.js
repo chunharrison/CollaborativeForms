@@ -1,5 +1,6 @@
 import { 
     SET_USER_NAME,
+    SET_GUEST_ID,
     SET_USER_SOCKET,
     SET_ROOM_CODE,
     SET_HOST_NAME,
@@ -16,6 +17,13 @@ export const setUserName = userName => dispatch => {
     dispatch({
         type: SET_USER_NAME,
         payload: userName
+    })
+}
+
+export const setGuestID = guestID => dispatch => {
+    dispatch({
+        type: SET_GUEST_ID,
+        payload: guestID
     })
 }
 

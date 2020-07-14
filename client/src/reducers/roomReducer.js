@@ -1,5 +1,6 @@
 import { 
     SET_USER_NAME,
+    SET_GUEST_ID,
     SET_USER_SOCKET,
     SET_ROOM_CODE,
     SET_HOST_NAME,
@@ -13,6 +14,7 @@ import {
 
 const initialState = {
     userName: '',
+    guestID: null,
     userSocket: null,
     roomCode: null,
     hostName: '',
@@ -28,6 +30,12 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 userName: action.payload
+            }
+
+        case SET_GUEST_ID:
+            return {
+                ...state,
+                guestID: action.payload
             }
 
         case SET_USER_SOCKET:

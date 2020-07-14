@@ -32,9 +32,9 @@ const PMWaitWindow = (props) => {
     useEffect(() => {
         // console.log('props.pmShowWaitWindow', props.pmShowWaitWindow)
 
-        props.userSocket.on("pilotModeUserAccepted", (confirmingUserSocketID) => {
+        props.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
             props.pmWaitWindowTableRows.forEach((item) => {
-                if (item.socketID === confirmingUserSocketID) {
+                if (item.guestID === confirmingUserGuestID) {
                     item['status'] = 'Accepted'
                 }
             })
@@ -62,11 +62,11 @@ const PMWaitWindow = (props) => {
             }
         })
 
-        props.userSocket.on("pilotModeDeclined", (confirmingUserSocketID) => {
+        props.userSocket.on("pilotModeDeclined", (confirmingUserGuestID) => {
             // console.log(`pilot mode activation failed, ${username} declined the request`)
 
             props.pmWaitWindowTableRows.forEach((item) => {
-                if (item.socketID === confirmingUserSocketID) {
+                if (item.guestID === confirmingUserGuestID) {
                     item['status'] = 'Declined'
                 }
             })

@@ -45,4 +45,14 @@ router.get('/get-host-name', (req, res) => {
     })
 })
 
+router.get('/get-guest-list', (req, res) => {
+    const { roomCode } = req.query;
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+        // console.log(result.host.name)
+        res.send({guestList: result.guests})
+    })
+})
+
+
 module.exports = router;

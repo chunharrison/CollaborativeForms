@@ -11,7 +11,7 @@ import {
     OPEN_PM_CONFIRM_WINDOW,
     CLOSE_PM_CONFIRM_WINDOW,
     SET_PM_REQUESTER_INFO,
-    SET_PM_CURR_NUM_USERS,
+    SET_PM_CURR_NUM_GUESTS,
 
     SET_PM_WAIT_WINDOW_TABLE_ROWS
 } from '../actions/types'
@@ -30,7 +30,7 @@ const initialState = {
 
     pmRequesterUsername: '',
     pmRequesterSocketID: null,
-    pmCurrNumUsers: 0,
+    pmCurrNumGuests: 0,
 }
 
 export default function(state = initialState, action) {
@@ -105,10 +105,10 @@ export default function(state = initialState, action) {
                 pmRequesterSocketID: action.payload.requesterSocketID
             }
 
-        case SET_PM_CURR_NUM_USERS:
+        case SET_PM_CURR_NUM_GUESTS:
             return {
                 ...state,
-                pmCurrNumUsers: action.payload
+                pmCurrNumGuests: action.payload
             }
 
         case SET_PM_WAIT_WINDOW_TABLE_ROWS:
