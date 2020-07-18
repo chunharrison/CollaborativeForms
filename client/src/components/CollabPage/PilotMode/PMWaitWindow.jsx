@@ -1,13 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 // Redux
 import { connect } from 'react-redux';
 import { 
-    updatePMNumAccepts,
-    activatePM,
-    closePMWaitWindow,
-    setPMButton,
-    setPMIsDriver
+    setPMState,
+    closePMWaitWindow 
 } from '../../../actions/pilotActions'
  
 // Components
@@ -15,68 +12,18 @@ import Button from 'react-bootstrap/Button'; // open source
 import Modal from 'react-bootstrap/Modal'; // open source
 import { 
     TacoTable, 
-    DataType, 
-    SortDirection, 
-    Formatters, 
-    Summarizers, 
-    TdClassNames 
+    DataType,
 } from 'react-taco-table'; // open source
+
+// Libraries
+import axios from 'axios'
 
 
 const PMWaitWindow = (props) => {
 
-    function sendScrollPercent() {
-        props.userSocket.emit("sendScrollPercent", props.canvasContainerRef.current.scrollTop)
-    }
+    const [socketUpdated, setSocketUpdated] = useState(false)
 
-    useEffect(() => {
-        // console.log('props.pmShowWaitWindow', props.pmShowWaitWindow)
-
-        props.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
-            props.pmWaitWindowTableRows.forEach((item) => {
-                if (item.guestID === confirmingUserGuestID) {
-                    item['status'] = 'Accepted'
-                }
-            })
-
-            props.updatePMNumAccepts(props.pmNumAccepts + 1)
-
-            
-            console.log(props.pmWaitWindowTableRows.length, props.pmNumAccepts)
-            if (props.pmWaitWindowTableRows.length === props.pmNumAccepts+1) {
-                document.addEventListener('scroll', sendScrollPercent, true);
-
-                // TODO (HARRISON)
-                // const token = localStorage.jwtToken;
-                // setAuthToken(token);
-                // // Decode token and get user info and exp
-                // const decoded = jwt_decode(token);
-                
-                setTimeout(() => {
-                    props.activatePM()
-                    props.closePMWaitWindow()
-                    props.setPMButton('Cancel', 'danger')
-                    props.setPMIsDriver(true)
-                }, 2500)
-                props.userSocket.emit('pilotModeActivated', {username: props.userName})
-            }
-        })
-
-        props.userSocket.on("pilotModeDeclined", (confirmingUserGuestID) => {
-            // console.log(`pilot mode activation failed, ${username} declined the request`)
-
-            props.pmWaitWindowTableRows.forEach((item) => {
-                if (item.guestID === confirmingUserGuestID) {
-                    item['status'] = 'Declined'
-                }
-            })
-
-            setTimeout(() => {
-                props.closePMWaitWindow()
-                props.updatePMNumAccepts()
-            }, 2500)
-        })
-    })
+    let pmNumAccepts = 0
 
     const pmWaitColumns = [
         {
@@ -101,15 +48,80 @@ const PMWaitWindow = (props) => {
             }
         }
     ]
+
+    function sendScrollPercent() {
+        props.room.userSocket.emit("sendScrollPercent", props.canvasContainerRef.current.scrollTop)
+    }
     
     function handleClosePilotWaitingModal(event) {
         event.preventDefault()
         props.closePMWaitWindow()
     }
 
+    function activatePM() {
+        const options = {
+            params: {
+                roomCode: props.state.roomCode,
+                status: true,
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+        axios.post('/api/room/set-pilot-mode-status', options)
+    }
+    
+
+    useEffect(() => {
+        if (!socketUpdated) {
+            // props.room.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
+            //     console.log(props.pilot.pmWaitWindowTableRows)
+            //     props.pilot.pmWaitWindowTableRows.forEach((item) => {
+            //         console.log(item.guestID, confirmingUserGuestID)
+            //         if (item.guestID === confirmingUserGuestID) {
+            //             item['status'] = 'Accepted'
+            //             pmNumAccepts += 1
+            //         }
+            //     })
+                
+            //     if (props.pilot.pmWaitWindowTableRows.length === pmNumAccepts &&
+            //         props.pilot.pmWaitWindowTableRows.length !== 0) {
+            //         document.addEventListener('scroll', sendScrollPercent, true);
+    
+            //         setTimeout(() => {
+            //             activatePM()
+            //             props.setPMState(true)
+            //             props.closePMWaitWindow()
+            //         }, 2500)
+            //         props.room.userSocket.emit('pilotModeActivated')
+            //     }
+            // })
+
+            // props.room.userSocket.on("pilotModeDeclined", (confirmingUserGuestID) => {
+    
+            //     props.pilot.pmWaitWindowTableRows.forEach((item) => {
+            //         if (item.guestID === confirmingUserGuestID) {
+            //             item['status'] = 'Declined'
+            //         }
+            //     })
+    
+            //     setTimeout(() => {
+            //         props.closePMWaitWindow()
+            //     }, 2500)
+    
+            // })
+
+
+            setSocketUpdated(true)
+        }
+    })
+
     return (
         <div>
-            <Modal show={props.pmShowWaitWindow} backdrop="static">
+            <Modal show={props.pilot.pmShowWaitWindow} backdrop="static">
                 <Modal.Header>
                     <Modal.Title>Waiting Pilot Mode Confirmation</Modal.Title>
                 </Modal.Header>
@@ -118,7 +130,7 @@ const PMWaitWindow = (props) => {
                         className="pilot-mode-modal-table"
                         columns={pmWaitColumns}
                         columnHighlighting
-                        data={props.pmWaitWindowTableRows}
+                        data={props.pilot.pmWaitWindowTableRows}
                         striped
                         sortable
                     />
@@ -126,7 +138,7 @@ const PMWaitWindow = (props) => {
                 <Modal.Footer>
                     <Button variant="danger" onClick={(event) => handleClosePilotWaitingModal(event)}>
                         Cancel
-                </Button>
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </div>
@@ -135,21 +147,17 @@ const PMWaitWindow = (props) => {
 
 
 const mapStateToProps = state => ({
-    userSocket: state.room.userSocket,
-    userName: state.room.userName,
+    // room
+    room: state.room,
 
     // doc
     canvasContainerRef: state.doc.canvasContainerRef,
 
-    pmShowWaitWindow: state.pilot.pmShowWaitWindow,
-    pmNumAccepts: state.pilot.pmNumAccepts,
-    pmWaitWindowTableRows: state.pilot.pmWaitWindowTableRows
+    // pilot
+    pilot: state.pilot
 })
 
 export default connect(mapStateToProps ,{
-    updatePMNumAccepts,
-    activatePM,
-    closePMWaitWindow,
-    setPMButton,
-    setPMIsDriver
+    setPMState,
+    closePMWaitWindow
 })(PMWaitWindow);

@@ -42,14 +42,7 @@ router.post('/add-guest', (req, res) => {
             // replace with updated data
             db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
         }
-        // replace with updated data
-        // db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
     })
-
-    // replace with updated data
-    // db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
-
-    // send result
 })
 
 router.delete('/delete', (req, res) => {

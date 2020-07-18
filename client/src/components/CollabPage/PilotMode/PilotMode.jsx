@@ -4,76 +4,143 @@ import pilotImg from './pilot-mode.png';
 // Redux
 import { connect } from 'react-redux';
 import { 
-    activatePM,
-    deactivatePM,
-    setPMIsDriver,
-    setPMDriverName,
-    setPMButton,
-    updatePMNumAccepts,
+    setPMState,
 
     openPMWaitWindow,
-    closePMWaitWindow,
+    setPMWaitWindowTableRows,
     openPMConfirmWindow,
-    closePMConfirmWindow,
 
-    setPMRequesterInfo,
-    setPMCurrNumGuests,
-    setPMWaitWindowTableRows
+    setPMRequesterSocketID,
 } from '../../../actions/pilotActions'
+
+// libraries
+import axios from 'axios';
 
 
 const PilotMode = (props) => {
     
     const [socketUpdated, setSocketUpdated] = useState(false)
+    const [pmWaitWindowTableRows, setPmWaitWindowTableRows] = useState([])
+    let pmNumAccepts = 0
+
+    function sendScrollPercent() {
+        props.room.userSocket.emit("sendScrollPercent", props.canvasContainerRef.current.scrollTop)
+    }
+
+    function activatePM() {
+        const options = {
+            params: {
+                roomCode: props.state.roomCode,
+                status: true,
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+        axios.post('/api/room/set-pilot-mode-status', options)
+    }
+
+    function deactivatePM() {
+        const options = {
+            params: {
+                roomCode: props.state.roomCode,
+                status: false,
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST',
+                'Access-Control-Allow-Headers': '*',
+            },
+        }
+        axios.post('/api/room/set-pilot-mode-status', options)
+    }
 
     useEffect(() => {
+        if (pmWaitWindowTableRows !== []) {
+            // console.log(pmWaitWindowTableRows)
+            // props.room.userSocket.emit("pilotModeRequested", props.room.userSocket.id)
+        }
+
         if (!socketUpdated) {
-            props.userSocket.on("confirmPilotMode", (requestData) => {
-                // console.log(currNumUsers)
-                const { currNumGuests, requesterSocketID } = requestData
-                
+            props.room.userSocket.on("confirmPilotMode", (requestData) => {
+                const { requesterSocketID, pmWaitWindowTableRows } = requestData
                 props.openPMConfirmWindow()
-                props.setPMRequesterInfo('TODO', requesterSocketID)
-                props.setPMCurrNumGuests(currNumGuests)
+                props.setPMRequesterSocketID(requesterSocketID)
             })
 
-            props.userSocket.on("setScrollPercent", (scrollPercent) => {
-                // console.log("setScrollPercent")
+            props.room.userSocket.on("setScrollPercent", (scrollPercent) => {
                 props.canvasContainerRef.current.scrollTop = scrollPercent
             })
 
-            props.userSocket.on('pilotModeStopped', () => {
-                // reactivate scroll effects
-                console.log('pilotModeStopped')
-                // this.setState(() => {
-                //     props.deactivatePM()
-                //     // props.setPMIsDriver(false)
-                //     // props.setPMButton('Activate', 'info')
-                // })
-                props.deactivatePM()
+            props.room.userSocket.on('pilotModeStopped', () => {
+                deactivatePM()
+                props.setPMState(false)
             })
 
             // person is using the pilot mode right now for the room
-            props.userSocket.on('pilotModeActivatedByUser', (driverUsername) => {
-                // console.log("PILOTMODEACTIVATREDDGDKFNGSJGFSGF")
-                props.activatePM()
-                // props.setPMDriverName(driverUsername)
-                // props.setPMButton('Activated', 'warning')
+            props.room.userSocket.on('pilotModeActivated', () => {
+                activatePM()
+                props.setPMState(true)
             })
+
+            props.room.userSocket.on('pilotModeUserConnected', () => {
+                console.log('pilotModeUserConnected')
+                if (props.auth.isAuthenticated) {
+                    document.addEventListener('scroll', sendScrollPercent, true);
+                } 
+
+                props.setPMState(true)
+            })
+
+            props.room.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
+                console.log(pmWaitWindowTableRows)
+                pmWaitWindowTableRows.forEach((item) => {
+                    console.log(item.guestID, confirmingUserGuestID)
+                    if (item.guestID === confirmingUserGuestID) {
+                        item['status'] = 'Accepted'
+                        pmNumAccepts += 1
+                    }
+                })
+                
+                if (pmWaitWindowTableRows.length === pmNumAccepts &&
+                    pmWaitWindowTableRows.length !== 0) {
+                    document.addEventListener('scroll', sendScrollPercent, true);
+    
+                    setTimeout(() => {
+                        activatePM()
+                        props.setPMState(true)
+                        props.closePMWaitWindow()
+                    }, 2500)
+                    props.room.userSocket.emit('pilotModeActivated')
+                }
+            })
+
+            props.room.userSocket.on("pilotModeDeclined", (confirmingUserGuestID) => {
+    
+                pmWaitWindowTableRows.forEach((item) => {
+                    if (item.guestID === confirmingUserGuestID) {
+                        item['status'] = 'Declined'
+                    }
+                })
+    
+                setTimeout(() => {
+                    props.closePMWaitWindow()
+                }, 2500)
+    
+            })
+
 
             setSocketUpdated(true)
         }
-    })
+    }, [pmWaitWindowTableRows])
 
     function requestPilotMode() {
-        // request pilot mode to other users via socket.io and then
-        // it returns a callback function 
-        // let otherUsers = this.state.currentUsers
-        // delete otherUsers[this.state.socket.id]
-
-        // for list of users that need to confirm or decline the request
         let pmWaitWindowTableRowsNew = []
-        const currentUsersEntries = Object.entries(props.room.guests)
+        const currentUsersEntries = Object.entries(props.room.guestObject)
         for (const [guestID, username] of currentUsersEntries) {
             const rowValues = {
                 "guestID": guestID,
@@ -83,39 +150,47 @@ const PilotMode = (props) => {
             pmWaitWindowTableRowsNew.push(rowValues)
         }
 
+
+        // redux
         props.openPMWaitWindow()
+        console.log(pmWaitWindowTableRowsNew, pmWaitWindowTableRows)
+        setPmWaitWindowTableRows(pmWaitWindowTableRowsNew)
+        console.log(pmWaitWindowTableRowsNew, pmWaitWindowTableRows)
+
+        console.log(props.tableRows)
         props.setPMWaitWindowTableRows(pmWaitWindowTableRowsNew)
-    
+        console.log(props.tableRows)
+        
+        // socket.io
         const requestData = {
-            currNumGuests: Object.keys(props.room.guests).length,
-            requesterSocketID: props.userSocket
+            requesterSocketID: props.room.userSocket.id,
+            pmWaitWindowTableRows: pmWaitWindowTableRowsNew,
         }
-        props.userSocket.emit("pilotModeRequested", requestData)
+        props.room.userSocket.emit("pilotModeRequested", requestData)
     }
 
-    function sendScrollPercent() {
-        props.userSocket.emit("sendScrollPercent", props.canvasContainerRef.current.scrollTop)
-    }
 
-    // button that is clicked when the room is in Pilot Mode
-    // if the Driver clicks it, it changes the 
+    
     function handlePMButtonClick(e) {
-        console.log("handlePMButtonClick")
         e.preventDefault()
+
         // already activated 
-
         // the driver deactivates the Pilot Mode 
-        if (props.pmActivated && props.auth.isAuthenticated) {
+        if (props.pilot.pmActivated && props.auth.isAuthenticated) {
+            // remove scroll event listener function
             document.removeEventListener('scroll', sendScrollPercent, true);
-
-            props.deactivatePM()
-            props.updatePMNumAccepts(0)
             
-            props.userSocket.emit('pilotModeStopped')
+            // redux
+            props.setPMState(false) // state
+            deactivatePM() // db
+
+            // emit
+            props.room.userSocket.emit('pilotModeStopped')
         }
 
-        // 
-        else if (!props.pmActivated && props.auth.isAuthenticated) {
+        // not activated
+        // request
+        else if (!props.pilot.pmActivated && props.auth.isAuthenticated) {
             requestPilotMode()
         }
     }
@@ -126,7 +201,7 @@ const PilotMode = (props) => {
             className="pilot-mode-button"
             onClick={(e) => handlePMButtonClick(e)}>
             <img src={pilotImg}/>
-            {props.pmActivated ? <div className='pilot-mode-active'></div> : <div className='pilot-mode-inactive'></div>}
+            {props.pilot.pmActivated ? <div className='pilot-mode-active'></div> : <div className='pilot-mode-inactive'></div>}
         </button>
     )
 }
@@ -137,37 +212,21 @@ const mapStateToProps = state => ({
 
     // room
     room: state.room,
-    userName: state.room.userName,
-    userSocket: state.room.userSocket,
-    currentUsers: state.room.currentUsers,
 
     // doc
     canvasContainerRef: state.doc.canvasContainerRef,
 
     // pilot mode
-    pmActivated: state.pilot.pmActivated,
-    pmIsDriver: state.pilot.pmIsDriver,
-    pmButtonLabel: state.pilot.pmButtonLabel,
-    pmButtonVariant: state.pilot.pmButtonVariant,
-    // pmNumAccepts: state.pilot.pmNumAccepts,
-
-    // pmShowWaitWindow: state.pilot.pmShowWaitWindow,
-    // pmShowConfirmWindow: state.pilot.pmShowConfirmWindow,
+    pilot: state.pilot,
+    tableRows: state.pilot.pmWaitWindowTableRows
 })
 
 export default connect(mapStateToProps, {
-    activatePM,
-    deactivatePM,
-    setPMIsDriver,
-    setPMDriverName,
-    setPMButton,
-    updatePMNumAccepts,
-    openPMWaitWindow,
-    closePMWaitWindow,
-    openPMConfirmWindow,
-    closePMConfirmWindow,
+    setPMState,
 
-    setPMRequesterInfo,
-    setPMCurrNumGuests,
-    setPMWaitWindowTableRows
+    openPMWaitWindow,
+    setPMWaitWindowTableRows,
+    openPMConfirmWindow,
+
+    setPMRequesterSocketID,
 })(PilotMode);

@@ -5,6 +5,7 @@ import {
     SET_ROOM_CODE,
     SET_HOST_NAME,
     UPDATE_CURRENT_GUESTS,
+    UPDATE_CURRENT_GUEST_OBJECT,
     OPEN_INVITE_GUESTS_WINDOW,
     CLOSE_INVITE_GUESTS_WINDOW,
     SET_INVITATION_LINK,
@@ -19,6 +20,7 @@ const initialState = {
     roomCode: null,
     hostName: '',
     guests: [],
+    guestObject: {},
     showInviteGuestsModal: false,
     showInviteGuestsAlert: false,
     invitationLink: ''
@@ -60,6 +62,12 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 guests: action.payload
+            }
+
+        case UPDATE_CURRENT_GUEST_OBJECT:
+            return {
+                ...state, 
+                guestObject: action.payload
             }
 
         case OPEN_INVITE_GUESTS_WINDOW:

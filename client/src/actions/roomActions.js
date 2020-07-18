@@ -5,6 +5,7 @@ import {
     SET_ROOM_CODE,
     SET_HOST_NAME,
     UPDATE_CURRENT_GUESTS,
+    UPDATE_CURRENT_GUEST_OBJECT,
     OPEN_INVITE_GUESTS_WINDOW,
     CLOSE_INVITE_GUESTS_WINDOW,
     SET_INVITATION_LINK,
@@ -31,6 +32,13 @@ export const updateCurrentGuests = currentGuests => dispatch => {
     dispatch({
         type: UPDATE_CURRENT_GUESTS,
         payload: currentGuests
+    })
+}
+
+export const updateCurrentGuestObject = guestObject => dispatch => {
+    dispatch({
+        type: UPDATE_CURRENT_GUEST_OBJECT,
+        payload: guestObject
     })
 }
 

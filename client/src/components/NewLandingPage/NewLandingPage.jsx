@@ -18,8 +18,6 @@ import rectangleThree from './rectangle-3.png';
 import tick from './tick.png';
 import plus from './plus.png';
 
-// libraries
-import { Redirect } from 'react-router-dom'; // open source
 // redux
 import { connect } from 'react-redux'
 
@@ -96,7 +94,6 @@ class LandingPage extends React.Component {
     handleAccountPortalClick = e => {
         e.preventDefault()
 
-        // return <Redirect to={{ pathname: '/account-portal' }} />
         this.props.history.push("/account-portal")
     }
 

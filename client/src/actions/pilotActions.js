@@ -1,66 +1,33 @@
+import axios from "axios";
 import { 
-    PM_ACTIVATED,
-    PM_DEACTIVATED,
-    SET_PM_IS_DRIVER,
-    SET_PM_DRIVER_NAME,
-    SET_PM_BUTTON,
-    UPDATE_PM_NUM_ACCEPTS,
+    // state
+    SET_PM_STATE,
 
+    // modal window
     OPEN_PM_WAIT_WINDOW,
     CLOSE_PM_WAIT_WINDOW,
+    SET_PM_WAIT_WINDOW_TABLE_ROWS,
     OPEN_PM_CONFIRM_WINDOW,
     CLOSE_PM_CONFIRM_WINDOW,
-    SET_PM_REQUESTER_INFO,
-    SET_PM_CURR_NUM_GUESTS,
 
-    SET_PM_WAIT_WINDOW_TABLE_ROWS,
+    // requester
+    SET_PM_REQUESTER_SOCKET_ID
 } from './types'
 
-export const activatePM = () => dispatch => {
+
+
+// STATE //
+
+export const setPMState = (PMState) => dispatch => {
     dispatch({
-        type: PM_ACTIVATED,
-        payload: true
+        type: SET_PM_STATE,
+        payload: PMState
     })
 }
 
-export const deactivatePM = () => dispatch => {
-    dispatch({
-        type: PM_DEACTIVATED,
-        payload: false
-    })
-}
 
-export const setPMIsDriver = (bool) => dispatch => {
-    dispatch({
-        type: SET_PM_IS_DRIVER,
-        payload: bool
-    })
-}
 
-export const setPMDriverName = (driverName) => dispatch => {
-    dispatch({
-        type: SET_PM_DRIVER_NAME,
-        payload: driverName
-    })
-}
-
-export const setPMButton = (pmButtomLabel, pmButtonVariant) => dispatch => {
-    dispatch({
-        type: SET_PM_BUTTON,
-        payload: {
-            pmButtomLabel,
-            pmButtonVariant
-        }
-    })
-}
-
-export const updatePMNumAccepts = numAccepts => dispatch => {
-    dispatch({
-        type: UPDATE_PM_NUM_ACCEPTS,
-        payload: numAccepts
-    })
-}
-
+// MODAL WINDOW //
 
 export const openPMWaitWindow = () => dispatch => {
     dispatch({
@@ -73,6 +40,13 @@ export const closePMWaitWindow = () => dispatch => {
     dispatch({
         type: CLOSE_PM_WAIT_WINDOW,
         payload: false
+    })
+}
+
+export const setPMWaitWindowTableRows = waitWindowTableRows => dispatch => {
+    dispatch({
+        type: SET_PM_WAIT_WINDOW_TABLE_ROWS,
+        payload: waitWindowTableRows
     })
 }
 
@@ -92,26 +66,13 @@ export const closePMConfirmWindow = () => dispatch => {
     })
 }
 
-export const setPMRequesterInfo = (requesterUserName, requesterSocketID) => dispatch => {
-    dispatch({
-        type: SET_PM_REQUESTER_INFO,
-        payload: {
-            requesterUserName,
-            requesterSocketID
-        }
-    })
-}
 
-export const setPMCurrNumGuests = (currNumGuests) => dispatch => {
-    dispatch({
-        type: SET_PM_CURR_NUM_GUESTS,
-        payload: currNumGuests
-    })
-}
 
-export const setPMWaitWindowTableRows = (waitWindowTableRows) => dispatch => {
+// REQUESTER //
+
+export const setPMRequesterSocketID = requesterSocketID => dispatch => {
     dispatch({
-        type: SET_PM_WAIT_WINDOW_TABLE_ROWS,
-        payload: waitWindowTableRows
+        type: SET_PM_REQUESTER_SOCKET_ID,
+        payload: requesterSocketID
     })
 }

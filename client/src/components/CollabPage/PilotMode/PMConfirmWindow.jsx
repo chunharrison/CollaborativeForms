@@ -16,14 +16,16 @@ const PMConfirmWindow = (props) => {
     function handleClosePMConfirmWindow(event, confirmed) {
         event.preventDefault()
 
+        // redux
         props.closePMConfirmWindow()
 
+        // socket.io
         const callbackData = {
             confirmed: confirmed,
             confirmingUserGuestID: props.guestID,
             requesterSocketID: props.pmRequesterSocketID,
         }
-
+        // console.log(callbackData)
         props.userSocket.emit("pilotModeRequestCallback", callbackData)
     }
 

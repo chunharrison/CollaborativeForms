@@ -47,6 +47,7 @@ import {
     setUserSocket, 
     setRoomCode,
     updateCurrentGuests,
+    updateCurrentGuestObject,
     setHostName,
     setGuestID,
 } from '../../actions/roomActions'
@@ -171,9 +172,7 @@ class CollabPage extends React.Component {
             },
         }
 
-        axios.post('/api/guests/add-guest', options).then(res => {
-            // return res.users
-        })
+        axios.post('/api/guests/add-guest', options)
         
     };
 
@@ -240,6 +239,7 @@ class CollabPage extends React.Component {
                 guestList: currentGuestList
             }, () => {
                 this.props.updateCurrentGuests(currentGuestList)
+                this.props.updateCurrentGuestObject(res.data.guestList)
             })
         })
     }
@@ -881,6 +881,7 @@ class CollabPage extends React.Component {
         socket.on('updateGuestList', (data) => {
             let guests = [...Object.values(data.currentGuests)]
             this.props.updateCurrentGuests(guests)
+            this.props.updateCurrentGuestObject(data.currentGuests)
         })
 
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
@@ -1203,6 +1204,7 @@ export default connect(mapStateToProps, {
     setCurrentDoc,
     setCurrentZoom,
     updateCurrentGuests,
+    updateCurrentGuestObject,
     setToolMode,
     setPrevToolMode,
     setShape,

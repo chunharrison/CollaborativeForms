@@ -230,6 +230,10 @@ io.on('connection', (socket)=>{
                     socket.to(roomCode).emit('updateGuestList', {currentGuests: result.guests})
                     db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
                 } 
+
+                if (result.pilotModeActivated) {
+                    socket.emit('pilotModeUserConnected')
+                }
             } 
             
             // could not find the database under the given roomCode
@@ -432,18 +436,8 @@ io.on('connection', (socket)=>{
             }
         })
 
-        socket.on('pilotModeActivated', (data) => {
-            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
-                if (err) throw err;
-
-                pilotModeDriverData = {
-                    name: data.username,
-                    id: data.driverID
-                }
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: true, pilotModeDriver: pilotModeDriverData}})
-            })
-
-            socket.to(roomCode).emit('pilotModeActivatedByUser', data.username)
+        socket.on('pilotModeActivated', () => {
+            socket.to(roomCode).emit('pilotModeActivated')
         })
 
         socket.on("sendScrollPercent", (scrollPercent) => {
