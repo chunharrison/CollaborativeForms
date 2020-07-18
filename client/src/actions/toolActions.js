@@ -17,7 +17,12 @@ import { SET_CURRENT_ZOOM,
     SET_DRAW_COLOR,
     SET_TEXT_COLOR,
     SET_TEXT_OPACITY,
-    SET_TEXT_FONT_SIZE, } from './types'
+    SET_TEXT_FONT_SIZE,
+    ADD_HIGHLIGHT,
+    ADD_COMMENT,
+    ADD_PAGE_HIGHLIGHT,
+    DELETE_HIGHLIGHT,
+    SET_PANEL_MODE, } from './types'
 
 export const setCurrentZoom = newZoom => dispatch => {
     dispatch({
@@ -159,5 +164,49 @@ export const setTextFontSize = textFontSize => dispatch => {
     dispatch({
         type: SET_TEXT_FONT_SIZE,
         payload: textFontSize
+    })
+}
+
+export const addHighlight = entry => dispatch => {
+    dispatch({
+        type: ADD_HIGHLIGHT,
+        payload: {key: entry.key,
+                id:entry.id,
+                values: entry.values,
+                text: entry.text}
+    })
+}
+
+export const addComment = entry => dispatch => {
+    dispatch({
+        type: ADD_COMMENT,
+        payload: {key: entry.key,
+                id:entry.id,
+                values: entry.values,
+                text: entry.text,
+                comment: entry.comment}
+    })
+}
+
+export const addPageHighlight = entry => dispatch => {
+    dispatch({
+        type: ADD_PAGE_HIGHLIGHT,
+        payload: {key: entry.key,
+                values: entry.values,}
+    })
+}
+
+export const deleteHighlight = entry => dispatch => {
+    dispatch({
+        type: DELETE_HIGHLIGHT,
+        payload: {key: entry.key,
+                id: entry.id}
+    })
+}
+
+export const setPanelMode = mode => dispatch => {
+    dispatch({
+        type: SET_PANEL_MODE,
+        payload: mode
     })
 }

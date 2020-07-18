@@ -16,9 +16,11 @@ import ZoomOut from '../ZoomOut/ZoomOut';
 import ToggleShape from '../ToggleShape/ToggleShape';
 import ToggleDraw from '../ToggleDraw/ToggleDraw';
 import ToggleText from '../ToggleText/ToggleText';
+import ToggleHighlighter from '../ToggleHighlighter/ToggleHighlighter';
 import InviteUser from './InviteUser/InviteUser'
 import InviteUserPopup from './InviteUser/InviteUserPopup'
 import UsersList from './UsersList/UsersList'
+import CommentsPanel from '../CommentsPanel/CommentsPanel'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -29,6 +31,7 @@ import { nanoid } from 'nanoid';
 import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
+import * as rb from "rangeblock";
 // import Tour from 'reactour'; 
 import Select from 'react-select';
 
@@ -52,12 +55,19 @@ import { setCurrentZoom,
     setPrevToolMode,
     setShape,
     setPanelToggle,
+    addHighlight,
+    addComment,
+    addPageHighlight,
+    setPanelMode,
+    deleteHighlight,
 } from '../../actions/toolActions'
 
 //images
 import usersImg from './users.png';
-import settingsImg from './settings.png'
-
+import settingsImg from './settings.png';
+import pagesImg from './pages.png';
+import commentImg from './comment.png';
+import deleteImg from './delete.png';
 //CSS
 import './CollabPage.css';
 import { toHexStringOfMinLength } from 'pdf-lib';
@@ -82,6 +92,7 @@ class CollabPage extends React.Component {
             origY: 0,
             drawTrueCanvasId: [],
             lastCanvas: 1,
+            selectedArea: null,
 
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
@@ -91,9 +102,10 @@ class CollabPage extends React.Component {
 
         // Browser Functionality
         this.scrollToPage = this.scrollToPage.bind(this);
-
         //highlighter
         this.handleSelection = this.handleSelection.bind(this);
+        this.receiveHighlight = this.receiveHighlight.bind(this);
+        this.receiveComment = this.receiveComment.bind(this);
         // Zoom
         this.setZoom = this.setZoom.bind(this);
         // Signature
@@ -145,7 +157,6 @@ class CollabPage extends React.Component {
       }
 
     addGuest() {
-        console.log(this.state.roomCode, this.state.username, this.state.guestID)
         const options = {
             params: {
                 roomCode: this.state.roomCode,
@@ -268,6 +279,11 @@ class CollabPage extends React.Component {
                     document.getElementById(pageNum.toString()).fabric.add(signatureObject)
                 })
             })
+        })
+
+        this.props.userSocket.emit('getCurrentPageHighlights', pageNum, (currentPageHighlightList) => {
+            console.log(currentPageHighlightList);
+            this.props.addPageHighlight({key: pageNum, values: currentPageHighlightList})
         })
 
         //triggered when mousing over canvas or object
@@ -564,8 +580,34 @@ class CollabPage extends React.Component {
     ######################################### Highlighter ####################################
     ################################################################################################# */
 
-    handleSelection() {
-        console.log('hi')
+    handleSelection(e) {
+        let tempValue = rb.extractSelectedBlock(window, document);
+        if (typeof tempValue !== 'undefined' && tempValue !== null && this.state.selectedArea !== tempValue && this.props.toolMode === 'highlighter') {
+            this.setState({selectedArea: tempValue}, () => {
+                if (typeof this.state.selectedArea.rangeCache.m_cac.classList !== 'undefined' && this.state.selectedArea.rangeCache.m_cac.classList.contains('react-pdf__Page__textContent')) {
+                    let key = this.state.selectedArea.rangeCache.m_cac.parentNode.getAttribute('data-page-number');
+                    let id = this.state.selectedArea.id;
+                    let pageData = { highlight: [this.state.selectedArea.dimensions, this.state.selectedArea.text, ''], pageNum: key, id: id }
+                    this.props.addHighlight({key: key, id: id, values: this.state.selectedArea.dimensions, text: this.state.selectedArea.text});
+                    this.props.userSocket.emit('highlightIn', pageData);
+
+                } else if (typeof this.state.selectedArea.rangeCache.m_cac.parentNode.parentNode.classList !== 'undefined' && this.state.selectedArea.rangeCache.m_cac.parentNode.parentNode.classList.contains('react-pdf__Page__textContent')) {
+                    let key = this.state.selectedArea.rangeCache.m_cac.parentNode.parentNode.parentNode.getAttribute('data-page-number');
+                    let id = this.state.selectedArea.id;
+                    let pageData = { highlight: [this.state.selectedArea.dimensions, this.state.selectedArea.text, ''], pageNum: key, id: id }
+                    this.props.addHighlight({key: key, id: id, values: this.state.selectedArea.dimensions, text: this.state.selectedArea.text}) 
+                    this.props.userSocket.emit('highlightIn', pageData)
+                }
+            });
+        }
+    }
+
+    receiveHighlight(pageData) {
+        this.props.addHighlight({key: pageData.pageNum, id: pageData.id, values: pageData.values[pageData.id][0], text: pageData.text}) 
+    }
+
+    receiveComment(pageData) {
+        this.props.addComment({key: pageData.pageNum, id: pageData.id, values: pageData.values, text: pageData.text, comment: pageData.comment}) 
     }
 
     /* #################################################################################################
@@ -663,6 +705,13 @@ class CollabPage extends React.Component {
                 this.props.setPrevToolMode(this.props.toolMode);
                 this.props.setToolMode('select');
             }
+        } else if(e.keyCode === 72 && e.target.type !== 'textarea'){
+            e.preventDefault();
+
+            if (this.props.toolMode !== 'highlighter') {
+                this.props.setPrevToolMode(this.props.toolMode);
+                this.props.setToolMode('highlighter');
+            }
         } else if (e.keyCode === 66 && e.target.type !== 'textarea') {
             let fabricCanvas = document.getElementById(this.state.lastCanvas.toString()).fabric
             fabricCanvas.isDrawingMode = true;
@@ -694,6 +743,7 @@ class CollabPage extends React.Component {
         let element = document.getElementById(`container-${e.target.id.split('-')[1]}`);
         element.scrollIntoView();
     }
+
 
     /* #################################################################################################
     ################################################################################################# */
@@ -853,23 +903,26 @@ class CollabPage extends React.Component {
         // })
 
         // Signatures
-        socket.on("addOut", (pageData) => this.receiveAdd(pageData))
-        socket.on("editOut", (pageData) => this.receiveEdit(pageData))
-        socket.on("deleteOut", (pageData) => this.receiveDelete(pageData))
+        socket.on("addOut", (pageData) => this.receiveAdd(pageData));
+        socket.on("editOut", (pageData) => this.receiveEdit(pageData));
+        socket.on("deleteOut", (pageData) => this.receiveDelete(pageData));
+        //highlights & comments
+        socket.on("highlightOut", (pageData) => this.receiveHighlight(pageData));
+        socket.on("commentOut", (pageData) => this.receiveComment(pageData));
+        socket.on('commentDeleteOut', (pageData) => this.props.deleteHighlight({key: pageData.pageNum, id:pageData.id}));
 
         // set socket.io to state
-        this.setState({ socket: socket })
+        this.setState({ socket: socket });
     }
 
     /* #################################################################################################
     ################################################################################################# */
     //Close intro popup
     closeTour() {
-        this.setState({ isTourOpen: false })
+        this.setState({ isTourOpen: false });
     }
 
     test() {
-        console.log('sddf')
         this.setState({
             testPageRendered: true
         })
@@ -934,6 +987,7 @@ class CollabPage extends React.Component {
 
     componentWillUnmount() {
         document.removeEventListener("keydown", this.handleKeyDown, false);
+        document.removeEventListener("keyup", this.handleKeyUp, false);
     }
 
 
@@ -1037,8 +1091,14 @@ class CollabPage extends React.Component {
                 {/* don't render until we receive the document from the server */}
                 <div className='body-container' onMouseUp={this.handleSelection}>
                     <div className={`outer ${this.props.panelToggle ? 'panel-true' : 'panel-false'}`}>
+                        <button className='panel-page-button' style={{'backgroundColor': `${this.props.panelMode === 'page' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`}} onClick={() => this.props.setPanelMode('page')}>
+                            <img src={pagesImg} className='panel-image'/>
+                        </button>
+                        <button className='panel-comment-button' style={{'backgroundColor': `${this.props.panelMode === 'comment' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`}} onClick={() => this.props.setPanelMode('comment')}>
+                            <img src={commentImg} className='panel-image'/>
+                        </button>
                         <div id='browser-canvas-container'>
-                            {pageBrowser}
+                            {this.props.panelMode === 'page' ? pageBrowser : <CommentsPanel/>}
                         </div>
                     </div>
                     {this.props.currentDoc !== null && this.props.userSocket !== null 
@@ -1053,6 +1113,7 @@ class CollabPage extends React.Component {
                             <ToggleShape/>
                             <ToggleDraw/>
                             <ToggleText/>
+                            <ToggleHighlighter/>
                         </div>  
                     </div>
                 </div>
@@ -1127,6 +1188,7 @@ const mapStateToProps = state => ({
     textOpacity: state.tool.textOpacity,
     textFontSize: state.tool.textFontSize,
     panelToggle: state.tool.panelToggle,
+    panelMode: state.tool.panelMode,
 })
 
 
@@ -1145,4 +1207,9 @@ export default connect(mapStateToProps, {
     setPrevToolMode,
     setShape,
     setPanelToggle,
+    addHighlight,
+    addComment,
+    addPageHighlight,
+    setPanelMode,
+    deleteHighlight,
 })(CollabPage)

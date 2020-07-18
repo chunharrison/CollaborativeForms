@@ -1,20 +1,22 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react'
 
 // Components
+import Highlighter from '../../Highlighter/Highlighter';
 import { Page } from 'react-pdf';
 
 // Libraries
-import { useInView } from 'react-intersection-observer'
+import { useInView } from 'react-intersection-observer';
 
 // Redux
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 import { 
     setPageDimensions,
- } from '../../../actions/docActions'
+ } from '../../../actions/docActions';
 
 import {
-    setPagesZooms
-} from '../../../actions/toolActions'
+    setPagesZooms,
+    addComment,
+} from '../../../actions/toolActions';
 import { set } from 'lodash';
 
 // props: pageNum, dataURLFormat, width, height
@@ -101,6 +103,10 @@ const LoadPage = (props) => {
                         (oneSecondReached) 
                     ? 
                         (<div className="father-of-two" ref={setRefs} >
+                            {/* HIGHLIGHT LAYER */}
+                            <Highlighter
+                                pageNum={props.pageNum}
+                            />
                             {/* PDF CANVAS */}
                             <Page 
                                 scale={thisPageZoom}
@@ -147,5 +153,6 @@ const mapStateToProps = state => ({
 
 export default connect(mapStateToProps, {
     setPageDimensions,
-    setPagesZooms
+    setPagesZooms,
+    addComment
 })(LoadPage);

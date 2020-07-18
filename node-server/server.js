@@ -140,7 +140,8 @@ app.post('/api/create-room', (req,res)=>{
     let roomData = {
         roomCode: req.body.roomCode,
         fileName: req.body.fileName,
-        signatures: {}, 
+        signatures: {},
+        highlights: {}, 
         host: {id: req.body.userId, name: req.body.userName},
         guests: {},
         pilotModeActivated: false,
@@ -187,8 +188,6 @@ app.delete('/api/delete-document', function(req, res) {
 });
 
 app.put('/api/edit-document-name', function(req, res) {
-    db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { users: result.users }});
-
     db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
         if (err) throw err;
         deleteDocument(`${req.body.roomCode}.pdf`);
@@ -261,6 +260,20 @@ io.on('connection', (socket)=>{
                     decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 }
                 callback(decryptedSignatureObjectList);
+            })
+        })
+
+        socket.on('getCurrentPageHighlights', (pageNum, callback) => {
+            db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+                if (err) throw err;
+
+                let currentPageHighlights = {};
+
+                if (result.highlights[pageNum]) {
+                    currentPageHighlights = result.highlights[pageNum];
+
+                }
+                callback(currentPageHighlights);
             })
         })
 
@@ -359,6 +372,42 @@ io.on('connection', (socket)=>{
 
                 // emit the changes to other users in the room
                 socket.to(roomCode).emit('deleteOut', pageData)
+            })
+        })
+
+        socket.on("highlightIn", (pageData) => {
+            console.log('highlight incoming');
+            console.log(pageData);
+            db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
+                let highlights = result.highlights;
+                let highlight = pageData.highlight;
+                highlights[pageData.pageNum] = {...highlights[pageData.pageNum], [pageData.id]: highlight};
+                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                    socket.to(roomCode).emit('highlightOut', {pageNum: pageData.pageNum, id: pageData.id, values: highlights[pageData.pageNum]})
+                })        
+            })
+        })
+
+        socket.on("commentIn", (pageData) => {
+            console.log('comment incoming')
+            db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
+                let highlights = result.highlights;
+                let comment = pageData.comment;
+                highlights[pageData.pageNum][pageData.id][2] = comment;
+                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                    socket.to(roomCode).emit('commentOut', pageData)
+                })        
+            })
+        })
+
+        socket.on("commentDelete", (pageData) => {
+            console.log('deleting comment')
+            db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
+                let highlights = result.highlights;
+                delete highlights[pageData.pageNum][pageData.id];
+                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                    socket.to(roomCode).emit('commentDeleteOut', pageData)
+                })        
             })
         })
 

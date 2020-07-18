@@ -17,14 +17,23 @@ import { SET_CURRENT_ZOOM,
     SET_DRAW_COLOR,
     SET_TEXT_COLOR,
     SET_TEXT_OPACITY,
-    SET_TEXT_FONT_SIZE, } from '../actions/types'
+    SET_TEXT_FONT_SIZE,
+    ADD_HIGHLIGHT,
+    ADD_COMMENT,
+    ADD_PAGE_HIGHLIGHT,
+    DELETE_HIGHLIGHT,
+    SET_PANEL_MODE } from '../actions/types'
+
+import { omit } from 'lodash';
 
 const initialState = {
     //zoom
     currentZoom: 1,
     pagesZooms: [],
 
+    //panel
     panelToggle: false,
+    panelMode: 'page',
 
     //general
     toolMode: 'select',
@@ -52,6 +61,9 @@ const initialState = {
     textColor: 'rgb(0, 0, 0)',
     textOpacity: 100,
     textFontSize: 12,
+
+    //highlighter
+    highlightDict: {},
 }
 
 export default function(state = initialState, action) {
@@ -158,7 +170,47 @@ export default function(state = initialState, action) {
                 ...state,
                 textFontSize: action.payload
             }
+        case ADD_HIGHLIGHT:
+            return {
+                ...state,
+                highlightDict: {
+                  ...state.highlightDict, [action.payload.key]: {
+                      ...state.highlightDict[action.payload.key], [action.payload.id]: [action.payload.values, action.payload.text, '']
+                    }
+                }
+            }
+        case ADD_COMMENT:
+            return {
+                ...state,
+                highlightDict: {
+                    ...state.highlightDict, [action.payload.key]: {
+                        ...state.highlightDict[action.payload.key], [action.payload.id]: [action.payload.values, action.payload.text, action.payload.comment]
+                    }
+                }
+            }
+        case ADD_PAGE_HIGHLIGHT:
+            return {
+                ...state,
+                highlightDict: {
+                    ...state.highlightDict, [action.payload.key]: action.payload.values
+                }
+            }
+ 
+        case DELETE_HIGHLIGHT:
+            return {
+                ...state,
+                highlightDict: {
+                    ...state.highlightDict, [action.payload.key]: omit(state.highlightDict[action.payload.key], action.payload.id)
+                }
+            }
+
+        case SET_PANEL_MODE:
+            return {
+                ...state,
+                panelMode: action.payload
+            }
     
+            
         default:
             return state;
     }

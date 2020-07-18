@@ -1,16 +1,16 @@
 import React from "react";
-import LandingPage from './LandingPage/LandingPage'
-import InvalidRoomCodePage from './CollabPage/InvalidRoomCodePage/InvalidRoomCodePage'
-import CollabPage from './CollabPage/CollabPage'
-import DocumentsPage from './DocumentsPage/DocumentsPage'
-import NewLandingPage from './NewLandingPage/NewLandingPage'
-import PrivateRoute from './private-route/PrivateRoute'
-import GuestJoin from './GuestJoin/GuestJoin'
-
+import LandingPage from './LandingPage/LandingPage';
+import InvalidRoomCodePage from './CollabPage/InvalidRoomCodePage/InvalidRoomCodePage';
+import CollabPage from './CollabPage/CollabPage';
+import DocumentsPage from './DocumentsPage/DocumentsPage';
+import NewLandingPage from './NewLandingPage/NewLandingPage';
+import PrivateRoute from './private-route/PrivateRoute';
+import GuestJoin from './GuestJoin/GuestJoin';
+import CommentsPanel from './CommentsPanel/CommentsPanel';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
-import { Provider } from "react-redux"
-import store from "../store"
+import { Provider } from "react-redux";
+import store from "../store";
 
 import jwt_decode from "jwt-decode";
 import setAuthToken from "../utils/setAuthToken";
@@ -56,6 +56,7 @@ function App() {
           <Switch>
             <PrivateRoute exact path='/account-portal' component={DocumentsPage}/>
           </Switch>
+          <Route path='/component-testing' component={CommentsPanel}/>
           <Route path='/test' component={LandingPage}/>
           <Route path='/join-room' component={GuestJoin}/>
         </Router>

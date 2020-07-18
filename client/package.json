@@ -20,6 +20,7 @@
     "pdf-lib": "^1.5.0",
     "pdfjs-dist": "^2.3.200",
     "query-string": "^6.12.0",
+    "rangeblock": "^1.2.0",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",
     "react-copy-to-clipboard": "^5.0.2",
