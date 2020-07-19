@@ -25,7 +25,7 @@ const PMConfirmWindow = (props) => {
             confirmingUserGuestID: props.guestID,
             requesterSocketID: props.pmRequesterSocketID,
         }
-        // console.log(callbackData)
+
         props.userSocket.emit("pilotModeRequestCallback", callbackData)
     }
 

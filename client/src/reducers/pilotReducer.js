@@ -47,13 +47,6 @@ export default function(state = initialState, action) {
                 ...state,
                 pmShowConfirmWindow: action.payload 
             }
-
-        case SET_PM_WAIT_WINDOW_TABLE_ROWS:
-            console.log('SET_PM_WAIT_WINDOW_TABLE_ROWS', action.payload )
-            return {
-                ...state,
-                pmWaitWindowTableRows: action.payload
-            }
         
         case OPEN_PM_WAIT_WINDOW:
             return {
@@ -66,8 +59,11 @@ export default function(state = initialState, action) {
                 ...state,
                 pmShowWaitWindow: action.payload 
             }
-
-
+        case SET_PM_WAIT_WINDOW_TABLE_ROWS:
+            return {
+                ...state,
+                pmWaitWindowTableRows: action.payload
+            }
 
         // REQUESTER // 
         case SET_PM_REQUESTER_SOCKET_ID:

@@ -245,7 +245,7 @@ class CollabPage extends React.Component {
     }
 
     renderFabricCanvas = (pageNum, width, height) => {
-        let self = this
+        let self = this;
 
         // get the canvas element created by react-pdf
         const pageCanvasWrapperElement = document.getElementsByClassName(`react-pdf__Page ${pageNum}`)[0];

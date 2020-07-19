@@ -43,14 +43,6 @@ export const closePMWaitWindow = () => dispatch => {
     })
 }
 
-export const setPMWaitWindowTableRows = waitWindowTableRows => dispatch => {
-    dispatch({
-        type: SET_PM_WAIT_WINDOW_TABLE_ROWS,
-        payload: waitWindowTableRows
-    })
-}
-
-
 export const openPMConfirmWindow = () => dispatch => {
     dispatch({
         type: OPEN_PM_CONFIRM_WINDOW,
@@ -66,6 +58,12 @@ export const closePMConfirmWindow = () => dispatch => {
     })
 }
 
+export const setPMWaitWindowTableRows = waitWindowTableRows => dispatch => {
+    dispatch({
+        type: SET_PM_WAIT_WINDOW_TABLE_ROWS,
+        payload: waitWindowTableRows
+    })
+}
 
 
 // REQUESTER //

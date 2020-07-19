@@ -430,6 +430,7 @@ io.on('connection', (socket)=>{
             console.log("pilotModeRequestCallback", confirmed, confirmingUserGuestID, requesterSocketID)
             
             if (confirmed) {
+                console.log('confirmed')
                 socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserGuestID)
             } else {
                 socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUserGuestID)
