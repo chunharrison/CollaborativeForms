@@ -82,5 +82,21 @@ router.get('/get-guests', (req, res) => {
     })
 })
 
+router.get('/get-id-occupied', (req, res) => {
+    res.header("Access-Control-Allow-Credentials", true);
+
+    const { roomCode, guestID } =  req.query;
+    
+    // find
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+        
+        // send
+        if (result) {
+            res.send({occupied: result.guests.hasOwnProperty(guestID)})
+        }
+    })
+})
+
 
 module.exports = router;

@@ -78,6 +78,8 @@ class CollabPage extends React.Component {
         super(props);
 
         this.state = {
+            guestIdOccupied: false,
+
             //User info
             username:'',
             currentObjectOwner: null,
@@ -946,6 +948,27 @@ class CollabPage extends React.Component {
         const roomCode = '' + queryString.parse(this.props.location.search).roomCode
         const action = '' + queryString.parse(this.props.location.search).action
         const guestID = '' + queryString.parse(this.props.location.search).guestID
+        console.log(guestID)
+        if (guestID !== 'undefined') {
+            console.log('guestid !== undefined')
+            const options = {
+                params: {
+                    roomCode: roomCode,
+                    guestID: guestID
+                },
+                headers: {
+                    'Access-Control-Allow-Credentials': true,
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET',
+                    'Access-Control-Allow-Headers': '*',
+                },
+              };
+        
+              axios.get('/api/guests/get-id-occupied', options).then(res => {
+                  console.log( res.data.occupied)
+                this.setState({guestIdOccupied: res.data.occupied})
+              })
+        }
         this.props.setRoomCode(roomCode) 
         this.props.setGuestID(guestID)
         this.setState({ username, roomCode, action, guestID }, () => {
@@ -1052,6 +1075,12 @@ class CollabPage extends React.Component {
 
 
         return (
+            <div>
+                {
+                    this.state.guestIdOccupied
+                ?
+                    <div>lmao</div>
+                :
             <div className='collab-page' onMouseMove={this.mouseMove}>
 
                 {/* HEADER */}
@@ -1135,6 +1164,8 @@ class CollabPage extends React.Component {
                 <Alert variant='danger' show={this.state.disconnected}>
                     You are currently disconnected. The changes you make might not be saved.
                 </Alert>
+            </div>
+    }
             </div>
         )
     }
