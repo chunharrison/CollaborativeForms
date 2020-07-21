@@ -82,7 +82,7 @@ class Login extends Component {
             </span>
             </div>
             
-            <a href="#" className="pw-forget">Forgot your password?</a>
+            <p type='button' onClick={() => this.props.setForgot()} className="pw-forget">Forgot your password?</p>
 
             <button
               type="submit"

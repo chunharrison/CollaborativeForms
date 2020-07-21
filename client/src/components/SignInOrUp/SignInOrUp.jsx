@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import Register from "../Register/Register"
 import Login from "../Login/Login"
-
+import ForgotPassword from '../ForgotPassword/ForgotPassword'
 // redux 
 import { connect } from 'react-redux'
 
@@ -11,6 +11,18 @@ import './css/SignInOrUp.css'
 class SignInOrUp extends Component {
     constructor(props) {
         super(props)
+
+        this.state = {
+            forgot: false,
+            shrink: false,
+        }
+
+        this.setForgot = this.setForgot.bind(this);
+
+    }
+
+    setForgot() {
+        this.setState({forgot: !this.state.forgot}); 
     }
 
     onSignUpPanelClick(e) {
@@ -55,9 +67,12 @@ class SignInOrUp extends Component {
                 <div className='sign-in-out-abstract2'>
 
                 </div>
-                <div id="sign-in-out-form-container" className="sign-in-out-form-container">
+                {!this.state.forgot ? 
+                <div id="sign-in-out-form-container" className={`sign-in-out-form-container`}>
                     <Register/>
-                    <Login/>
+                    <Login
+                    setForgot={this.setForgot}
+                    />
                     <div class="overlay-container">
                         <div class="overlay">
                             <div class="overlay-panel overlay-left">
@@ -73,6 +88,10 @@ class SignInOrUp extends Component {
                         </div>
                     </div>
                 </div>
+                :
+                <ForgotPassword/>
+                }
+                
             </div>
         )
     }

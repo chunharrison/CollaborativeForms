@@ -16,6 +16,7 @@ import jwt_decode from "jwt-decode";
 import setAuthToken from "../utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "../actions/authActions";
 import SignInOrUp from "./SignInOrUp/SignInOrUp";
+import ResetPassword from "./ResetPassword/ResetPassword";
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";
 // import Dashboard from "./components/dashboard/Dashboard";
@@ -59,6 +60,7 @@ function App() {
           <Route path='/component-testing' component={CommentsPanel}/>
           <Route path='/test' component={LandingPage}/>
           <Route path='/join-room' component={GuestJoin}/>
+          <Route path='/reset' component={ResetPassword}/>
         </Router>
       </Provider>
     </div>

@@ -196,3 +196,69 @@
 	color: #eb6f69;
 	text-align: left;
 }
+
+.forgot-password-container {
+	position:absolute;
+	top:50%;
+	left:50%;
+	-ms-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+	background-color: #fff;
+	border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
+	-moz-box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
+	box-shadow: 0px 0px 8px 3px rgba(0,0,0,0.1);
+	overflow: hidden;
+	width: 35%;
+	height: 30%;
+	display:flex;
+	flex-direction:column;
+	justify-content: center;
+	align-items:center;
+}
+
+.forgot-password-header {
+	font-size:20px;
+	margin-top:-1em;
+	margin-bottom:1em;
+}
+
+.forgot-password-input {
+	background-color: transparent;
+	border: none;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.281);
+	outline:none;
+	margin-top: 10px;
+	width: 50%;
+	margin:1em;
+}
+
+.forgot-password-message {
+	margin:1em;
+	position:absolute;
+	top:75%;
+}
+
+@keyframes fadeInBottom {
+    0% {
+        opacity: 0;
+        bottom: -40px;
+    }
+    100% {
+        opacity: 1;
+        bottom: 0px;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out 0s both;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
