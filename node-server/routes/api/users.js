@@ -6,13 +6,15 @@ const jwt = require("jsonwebtoken");
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
+const validateEmailInput = require("../../validation/email");
+const validatePasswordInput = require("../../validation/password");
 
 // Load User model
 const User = require("../../models/User");
 
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('./modules/email');
 
-
+//create one time use token that will expire in an hour. token consists of current pw + create date so once pw gets changed the token is no longer valid
 const usePasswordHashToMakeToken = ({
   password,
   _id: userId,
@@ -111,15 +113,25 @@ router.post("/login", (req, res) => {
   });
 });
 
+//reset password in case the user forgot
 router.get("/forgot-password", async (req, res) => {
   const { email } = req.query;
+  const { errors, isValid } = validateEmailInput(req.query);
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   let user = await User.findOne({ email }).exec();
   if (user === null) {
     return res.status(404).json("No user with that email exists");
   }
+  //create one time token
   const token = usePasswordHashToMakeToken(user);
+  //craete url containing token, which the  user will use to send back and validate the reset request
   const url = getPasswordResetURL(user, token);
+  //formatting for the email
   const emailTemplate = resetPasswordTemplate(user, url);
+  //send email to specified address
   const sendEmail = (res) => {
       transporter.sendMail(emailTemplate, (err, info) => {
           if (err) {
@@ -135,6 +147,11 @@ router.get("/forgot-password", async (req, res) => {
 
 router.post("/new-password", (req, res) => {
   const { userId, token, password } = req.body
+  const { errors, isValid } = validatePasswordInput(req.body);
+  // Check validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }  
   // highlight-start
   User.findOne({ _id: userId }).then(user => {
       const secret = user.password + "-" + user.createdAt

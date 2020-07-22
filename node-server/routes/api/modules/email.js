@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 
 const getPasswordResetURL = (user, token) =>
   `http://localhost:3000/reset/${user._id}/${token}`
-
+//create email template, this will show up in the email that is sent to the address
 const resetPasswordTemplate = (user, url) => {
   const from = process.env.MAILER_LOGIN
   const to = user.email

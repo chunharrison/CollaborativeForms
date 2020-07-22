@@ -10,9 +10,11 @@ const ResetPassword = (props) => {
     const [password, setPassword] = useState(null);
     const [confirmedPassword, setConfirmedPassword] = useState(null)
     const [submitted, setSubmitted] = useState(false);
-
+    const [message, setMessage] = useState('');
+    //send new password to server with temp token that was made with combining the prev password and its date created
   function updatePassword(e) {
     e.preventDefault()
+    //get userid and token from url query
     const userId  = props.location.pathname.split('/')[2];
     const token = props.location.pathname.split('/')[3];
     axios
@@ -21,12 +23,24 @@ const ResetPassword = (props) => {
         {
             userId: userId, 
             token: token, 
-            password: password 
+            password: password,
+            password2: confirmedPassword,
         }
         )
-        .then(res => console.log("RESPONSE FROM SERVER TO CLIENT:", res))
-        .catch(err => console.log("SERVER ERROR TO CLIENT:", err))
-    setSubmitted(!submitted);
+        .then(res => 
+            setSubmitted(!submitted))
+        .catch(function(error) {
+            if (error.response) {
+                if (error.response.data.password) {
+                    setMessage(error.response.data.password);
+
+                } else if ( error.response.data.password2) {
+                    setMessage(error.response.data.password2);
+                } else {
+                    setMessage(error.response.data);                    
+                }            
+            }
+        })
     }
 
     return (
@@ -69,6 +83,7 @@ const ResetPassword = (props) => {
                     <button className="signin-button login-register-button">
                     Update password
                     </button>
+                    <p className='forgot-password-message'>{message}</p>
                 </form>
             )}
         </div>
