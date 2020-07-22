@@ -1,15 +1,16 @@
 import React from 'react'
 
+import SendMessage from './SendMessage'
+import BugReport from './BugReport'
 
-const ContactUs = (props) => {
 
-    return (
-        <div>
-            <h3>
-                
-            </h3>
-        </div>
-    )
+const ContactUs = () => {
+    return (<div>
+        <SendMessage/>
+        <BugReport/>
+    </div>)
 }
 
+
 export default ContactUs
+

@@ -7,6 +7,7 @@ import NewLandingPage from './NewLandingPage/NewLandingPage';
 import PrivateRoute from './private-route/PrivateRoute';
 import GuestJoin from './GuestJoin/GuestJoin';
 import CommentsPanel from './CommentsPanel/CommentsPanel';
+import ContactUs from './ContactUs/ContactUs'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Provider } from "react-redux";
@@ -61,6 +62,7 @@ function App() {
           <Route path='/test' component={LandingPage}/>
           <Route path='/join-room' component={GuestJoin}/>
           <Route path='/reset' component={ResetPassword}/>
+          <Route path='/contact-us' component={ContactUs}/>
         </Router>
       </Provider>
     </div>

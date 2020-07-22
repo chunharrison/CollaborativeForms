@@ -22,6 +22,7 @@ const nanoid = require("nanoid")
 const users = require("./routes/api/users");
 const guests = require("./routes/api/guests")
 const room = require("./routes/api/room")
+const emails = require("./routes/api/emails")
 
 
 // Bodyparser middleware
@@ -51,6 +52,7 @@ require("./config/passport")(passport);
 app.use("/api/users", users);
 app.use("/api/guests", guests)
 app.use("/api/room", room)
+app.use("/api/emails", emails)
 
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {

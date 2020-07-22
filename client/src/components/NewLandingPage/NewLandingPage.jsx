@@ -114,7 +114,7 @@ class LandingPage extends React.Component {
                         <p className='nav-logo'>cosign</p>
                         <p className='nav-button'>Product</p>
                         <p className='nav-button'>Pricing</p>
-                        <p className='nav-button'>Contact us</p>
+                        <p className='nav-button' onClick={() => {this.props.history.push("/contact-us")}}>Contact us</p>
                         <p className='nav-button'>Demo</p>
                     </div>
                     <div className='nav-right'>
