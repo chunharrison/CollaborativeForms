@@ -70,46 +70,46 @@ router.post("/login", (req, res) => {
     // Form validation
   const { errors, isValid } = validateLoginInput(req.body);
   // Check validation
-    if (!isValid) {
-      return res.status(400).json(errors);
-    }
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   const email = req.body.email;
-    const password = req.body.password;
+  const password = req.body.password;
   // Find user by email
-    User.findOne({ email }).then(user => {
-      // Check if user exists
-      if (!user) {
-        return res.status(404).json({ emailnotfound: "Email not found" });
+  User.findOne({ email }).then(user => {
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ emailnotfound: "Email not found" });
+    }
+    // Check password
+    bcrypt.compare(password, user.password).then(isMatch => {
+      if (isMatch) {
+        // User matched
+        // Create JWT Payload
+        const payload = {
+          id: user.id,
+          name: user.name
+        };
+        // Sign token
+        jwt.sign(
+          payload,
+          process.env.JWT_PRIVATE_KEY,
+          {
+            expiresIn: 31556926 // 1 year in seconds
+          },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token
+            });
+          }
+        );
+      } else {
+        return res
+          .status(400)
+          .json({ passwordincorrect: "Password incorrect" });
       }
-      // Check password
-      bcrypt.compare(password, user.password).then(isMatch => {
-        if (isMatch) {
-          // User matched
-          // Create JWT Payload
-          const payload = {
-            id: user.id,
-            name: user.name
-          };
-          // Sign token
-          jwt.sign(
-            payload,
-            process.env.JWT_PRIVATE_KEY,
-            {
-              expiresIn: 31556926 // 1 year in seconds
-            },
-            (err, token) => {
-              res.json({
-                success: true,
-                token: "Bearer " + token
-              });
-            }
-          );
-        } else {
-          return res
-            .status(400)
-            .json({ passwordincorrect: "Password incorrect" });
-        }
-      });
+    });
   });
 });
 
@@ -174,6 +174,56 @@ router.post("/new-password", (req, res) => {
     .catch(() => {
     res.status(404).json("Invalid user")
   })
+});
+
+router.post("/change-password", (req, res) => {
+  const { userId, password, password2, oldPassword } = req.body;
+
+  if (password !== password2) {
+    return res
+      .status(400)
+      .json({ passwordincorrect: "New passwords do not match" });
+  } 
+  // highlight-start
+  User.findOne({ _id: userId }).then(user => {
+      if (userId === user.id) {
+        bcrypt.compare(oldPassword, user.password).then(isMatch => {
+          if (isMatch) {
+            // User matched
+            bcrypt.genSalt(10, (err, salt) => {
+              bcrypt.hash(password, salt, (err, hash) => {
+                if (err) throw err;
+                user.password = hash;
+                user
+                  .save()
+                  .then(user => res.send())
+                  .catch(err => console.log(err));
+              });
+            });
+          } else {
+            return res
+              .status(400)
+              .json({ passwordincorrect: "Password incorrect" });
+          }
+        });
+      }
+    })
+    // highlight-end
+    .catch(() => {
+    res.status(404).json("Invalid user")
+  })
+});
+
+//reset password in case the user forgot
+router.get("/get-email", async (req, res) => {
+  const { id } = req.query;
+  
+  let user = await User.findOne({ id }).exec();
+  if (user === null) {
+    return res.status(404).json("That user does not exist");
+  }
+
+  return res.send(user.email);
 });
 
 module.exports = router;

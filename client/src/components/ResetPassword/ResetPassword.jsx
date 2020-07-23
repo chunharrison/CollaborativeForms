@@ -8,7 +8,7 @@ import './ResetPassword.css'
 const ResetPassword = (props) => {
 
     const [password, setPassword] = useState(null);
-    const [confirmedPassword, setConfirmedPassword] = useState(null)
+    const [confirmedPassword, setConfirmedPassword] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [message, setMessage] = useState('');
     //send new password to server with temp token that was made with combining the prev password and its date created

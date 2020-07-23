@@ -18,6 +18,7 @@ import setAuthToken from "../utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "../actions/authActions";
 import SignInOrUp from "./SignInOrUp/SignInOrUp";
 import ResetPassword from "./ResetPassword/ResetPassword";
+import AccountPortal from "./AccountPortal/AccountPortal";
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";
 // import Dashboard from "./components/dashboard/Dashboard";
@@ -56,9 +57,8 @@ function App() {
           <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
           <Route exact path='/account' component={SignInOrUp} />
           <Switch>
-            <PrivateRoute exact path='/account-portal' component={DocumentsPage}/>
+            <PrivateRoute exact path='/account-portal' component={AccountPortal}/>
           </Switch>
-          <Route path='/component-testing' component={CommentsPanel}/>
           <Route path='/test' component={LandingPage}/>
           <Route path='/join-room' component={GuestJoin}/>
           <Route path='/reset' component={ResetPassword}/>
