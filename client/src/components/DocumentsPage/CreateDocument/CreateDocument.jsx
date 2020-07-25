@@ -265,7 +265,7 @@ const CreateDocument = props => {
                 </label>
                 <input id="pdf-file-input" type="file" name="file" onChange={onPdfUpload}/>
             </div>              
-            <Modal show={showPdfModal} onHide={(event) => handleClosePdfModal(event, false)} size="xl">
+            <Modal className='hehexd' show={showPdfModal} onHide={(event) => handleClosePdfModal(event, false)} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>{selectedFileName} (preview)</Modal.Title>
                     {showProgressBar ? null :
