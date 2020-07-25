@@ -74,20 +74,20 @@
 .account-password-placeholder {
     height:35px;
     background-color: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.1);
     align-self: center;
     justify-self: center;
     width:50% !important;
+    border-radius: 5px;
+    background: #f1f1f1;
+    box-shadow: inset 5px 5px 10px #c1c1c1, 
+            inset -5px -5px 10px #ffffff;
 }
 
 .account-button-container {
     align-self: center;
-    justify-self: center;
 }
 
 .account-edit-button {
-    align-self: center;
-    justify-self: center;
     padding-left:1em;
     padding-right:1em;
     padding-top:0.5em;

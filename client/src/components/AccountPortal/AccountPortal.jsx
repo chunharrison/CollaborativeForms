@@ -37,6 +37,7 @@ const AccountPortal = props => {
                         <img className='documents-nav-button-img' src={settingsImg}/>
                         <p className='documents-nav-button'>SETTINGS</p>
                     </div>
+                    <p className='account-portal-logo'>cosign</p>
             </div>
             <div className='documents-background'>
                 {activeButton === 'account' ? <AccountPage/> : null}

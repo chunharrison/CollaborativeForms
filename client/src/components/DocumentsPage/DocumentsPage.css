@@ -13,6 +13,19 @@
     src: url('Rubik-Light.ttf');
 }
 
+@font-face {
+    font-family: myriadpro-bold;
+    src: url('MyriadPro-Bold.ttf');
+}
+
+.account-portal-logo {
+    font-family:myriadpro-bold;
+    font-size:35px;
+    color: #555;
+    margin-top: auto;
+    margin-bottom:1.5em;
+}
+
 .documents-page {
     display:flex;
     height:100%;
@@ -23,6 +36,7 @@
 .documents-nav {
     display:flex;
     flex-direction:column;
+    align-items: center;
     height: 90%;
     width:18vw;
     margin-left:3em;
@@ -56,9 +70,13 @@ box-shadow:  5px 5px 10px #a9a9a9,
 }
 
 .documents-nav-button-container {
+    width:60%;
     display:flex;
     align-items:center;
-    justify-content: flex-start;
+    align-self:flex-start;
+    margin-left:3.5vw;
+    padding-left:1em;
+    padding-right:1em;
     margin-top:2vh;
     margin-bottom:2vh;
     padding-top: 2vh;
@@ -89,7 +107,7 @@ box-shadow:  5px 5px 10px #a9a9a9,
 
 .documents-nav-button-img {
     width:1.3vw;
-    margin-left:4vw;
+    margin-left:0vw;
     margin-right:2vw;
 }
 
