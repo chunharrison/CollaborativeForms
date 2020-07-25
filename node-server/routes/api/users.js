@@ -214,7 +214,7 @@ router.post("/change-password", (req, res) => {
   })
 });
 
-//reset password in case the user forgot
+//get user email
 router.get("/get-email", async (req, res) => {
   const { id } = req.query;
   

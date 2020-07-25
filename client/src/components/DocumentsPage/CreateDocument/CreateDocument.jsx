@@ -8,7 +8,6 @@ import PropTypes from "prop-types";
 import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
 
 import { getMetadata } from '../../PDFManipulation/PDFMetadata';
 import { removeFromPDF } from '../../PDFManipulation/RemoveFromPDF';
@@ -17,6 +16,7 @@ import { removeFromPDF } from '../../PDFManipulation/RemoveFromPDF';
 import PDFViewer from '../PDFViewer/PDFViewer';
 
 import addImg from './add.png';
+import tickImg from './tick.png';
 
 const CreateDocument = props => {
     
@@ -268,6 +268,10 @@ const CreateDocument = props => {
             <Modal show={showPdfModal} onHide={(event) => handleClosePdfModal(event, false)} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>{selectedFileName} (preview)</Modal.Title>
+                    {showProgressBar ? null :
+                    <button className='modal-button' onClick={(event) => handleClosePdfModal(event, true)}>
+                        <img src={tickImg} className='modal-img'/>
+                    </button>}
                 </Modal.Header>
                 <Modal.Body className='modal-body'>
                     {showProgressBar ? 
@@ -284,12 +288,6 @@ const CreateDocument = props => {
                     :
                     pdfViewer}
                 </Modal.Body>
-                <Modal.Footer>
-                {showProgressBar ? null :
-                    <Button variant="primary" onClick={(event) => handleClosePdfModal(event, true)}>
-                        Okay
-                    </Button>}
-                </Modal.Footer>
             </Modal>
             <Alert variant='danger' show={invalidPdfAlertVisible}>
                 Make sure the provided file is a Pdf document.
