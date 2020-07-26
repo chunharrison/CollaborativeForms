@@ -425,7 +425,7 @@ box-shadow:  5px 5px 10px #a9a9a9,
     margin-top:2em;
 }
 
-.modal-dialog {
+.account-modal-dialog {
     margin-top: 5em;
 }
 
@@ -434,7 +434,7 @@ box-shadow:  5px 5px 10px #a9a9a9,
     border-radius:5px;
 }
 
-.modal-header  {
+.account-modal-header  {
     border:none;
     position:absolute;
     top:0px;
@@ -446,39 +446,29 @@ box-shadow:  5px 5px 10px #a9a9a9,
     width:98%;
 }
 
-
-.modal-footer {
-    position:absolute;
-    border: none;
-    background-color: transparent;
-    border-radius:5px;
-    width:95%;
-    z-index:3;
-}
-
-.modal-body {
+.account-modal-body {
     background-color: rgb(248, 248, 248);
     border-radius:7px;
     height:80vh;
 
 }
 
-.modal-body::-webkit-scrollbar-track {
+.account-modal-body::-webkit-scrollbar-track {
     border-radius: 10px;
     background-color: transparent;
   }
   
-.modal-body::-webkit-scrollbar {
+.account-modal-body::-webkit-scrollbar {
     width: 10px;
     background-color: transparent;
 }
 
-.modal-body::-webkit-scrollbar-thumb {
+.account-modal-body::-webkit-scrollbar-thumb {
     border-radius: 10px;
     background-color: #555;
 }
 
-.modal-button {
+.account-modal-button {
     position:relative;
     top:4px;
     margin: -1rem 0rem -1rem auto;

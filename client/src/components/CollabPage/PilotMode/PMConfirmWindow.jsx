@@ -8,8 +8,10 @@ import { closePMConfirmWindow } from '../../../actions/pilotActions'
 import Button from 'react-bootstrap/Button'; // open source
 import Modal from 'react-bootstrap/Modal'; // open source
 
-
 import 'react-taco-table/dist/react-taco-table.css';
+
+import closeImg from './close.png';
+import tickImg from './tick.png';
 
 const PMConfirmWindow = (props) => {
 
@@ -32,21 +34,21 @@ const PMConfirmWindow = (props) => {
 
     return(
         <div>
-            <Modal show={props.pmShowConfirmWindow} backdrop="static">
-                <Modal.Header>
+            <Modal className='pilot-modal-dialog' show={props.pmShowConfirmWindow} backdrop="static">
+                <Modal.Header className='pilot-modal-header'>
                     <Modal.Title>Pilot Mode Requested</Modal.Title>
+                    <div>
+                        <button className='account-modal-button' onClick={(event) => handleClosePMConfirmWindow(event, true)}>
+                            <img src={tickImg} className='modal-img'/>
+                        </button>
+                        <button className='account-modal-button' onClick={(event) => handleClosePMConfirmWindow(event, false)}>
+                            <img src={closeImg} className='modal-img-close'/>
+                        </button>
+                    </div>
                 </Modal.Header>
-                <Modal.Body className='modal-body'>
+                <Modal.Body className='pilot-confirm-modal-body'>
                     <p>{props.pmRequesterUsername} has requested to be in charge of navigating through the document.</p>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="success" onClick={(event) => handleClosePMConfirmWindow(event, true)}>
-                        Confirm
-                    </Button>
-                    <Button variant="danger" onClick={(event) => handleClosePMConfirmWindow(event, false)}>
-                        Deny
-                    </Button>
-                </Modal.Footer>
             </Modal>
         </div>
     )

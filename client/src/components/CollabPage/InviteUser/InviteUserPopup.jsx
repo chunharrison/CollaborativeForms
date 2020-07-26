@@ -33,20 +33,19 @@ const InviteUserPopup = (props) => {
 
     return(
         <div>
-            <Modal show={props.showInviteGuestsModal} onHide={() => handleCloseModal()}>
-                <Modal.Header>
+            <Modal className='invite-modal-dialog' show={props.showInviteGuestsModal} onHide={() => handleCloseModal()}>
+                <Modal.Header className='invite-modal-header'>
                     <Modal.Title>Invite Others</Modal.Title>
+                    <CopyToClipboard text={props.invitationLink}>
+                        <button className='invite-modal-button' onClick={() => handleCloseModal()}>Copy</button>
+                    </CopyToClipboard>
+
                 </Modal.Header>
-                <Modal.Body className='modal-body'>
+                <Modal.Body className='invite-modal-body'>
                     <h3>
                         {props.invitationLink}
                     </h3>
                 </Modal.Body>
-                <Modal.Footer>
-                    <CopyToClipboard text={props.invitationLink}>
-                        <Button onClick={() => handleCloseModal()}>Copy</Button>
-                    </CopyToClipboard>
-                </Modal.Footer>
             </ Modal>
 
             <Alert show={props.showInviteGuestAlert} variant={'danger'}>

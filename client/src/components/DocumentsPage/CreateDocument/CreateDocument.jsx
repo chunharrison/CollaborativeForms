@@ -265,15 +265,15 @@ const CreateDocument = props => {
                 </label>
                 <input id="pdf-file-input" type="file" name="file" onChange={onPdfUpload}/>
             </div>              
-            <Modal  show={showPdfModal} onHide={(event) => handleClosePdfModal(event, false)} size="xl">
-                <Modal.Header closeButton>
+            <Modal className='account-modal-dialog' show={showPdfModal} onHide={(event) => handleClosePdfModal(event, false)} size="xl">
+                <Modal.Header className='account-modal-header' closeButton>
                     <Modal.Title>{selectedFileName} (preview)</Modal.Title>
                     {showProgressBar ? null :
-                    <button className='modal-button' onClick={(event) => handleClosePdfModal(event, true)}>
+                    <button className='account-modal-button' onClick={(event) => handleClosePdfModal(event, true)}>
                         <img src={tickImg} className='modal-img'/>
                     </button>}
                 </Modal.Header>
-                <Modal.Body className='modal-body'>
+                <Modal.Body className='account-modal-body'>
                     {showProgressBar ? 
                     <div style={{height: '500px'}}>
                         <div className="wrapper">

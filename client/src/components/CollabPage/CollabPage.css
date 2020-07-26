@@ -740,3 +740,90 @@ body {
     transition: background-color 10ms linear;
     
 }
+
+.pilot-modal-dialog {
+    margin-top: 5em;
+}
+
+.pilot-modal-header {
+    border:none;
+    background-color:rgb(248, 248, 248);
+    z-index:2;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    width:100%;
+}
+
+.pilot-modal-body {
+    background-color: rgb(248, 248, 248);
+    border-radius:7px;
+    height:40vh;
+
+}
+
+.pilot-confirm-modal-body {
+    background-color: rgb(248, 248, 248);
+    border-radius:7px;
+    height:10vh;
+}
+
+.modal-img-close {
+    position:relative;
+    top:-2px;
+    height:14px;
+    justify-self: flex-end;
+    filter: invert(21%) sepia(0%) saturate(1295%) hue-rotate(189deg) brightness(101%) contrast(90%);
+}
+
+.modal-img-close:hover {
+    filter: invert(0%) sepia(0%) saturate(0%) hue-rotate(31deg) brightness(102%) contrast(100%);
+}
+
+.invite-modal-dialog {
+    margin-top: 5em;
+}
+
+.invite-modal-dialog .modal-dialog {
+    min-width:700px;
+}
+
+.invite-modal-header {
+    border:none;
+    background-color:rgb(248, 248, 248);
+    z-index:2;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    width:100%;
+}
+
+.invite-modal-body {
+    background-color: rgb(248, 248, 248);
+    border-radius:7px;
+    height:10vh;
+
+}
+
+.invite-confirm-modal-body {
+    background-color: rgb(248, 248, 248);
+    border-radius:7px;
+    height:10vh;
+}
+
+.invite-modal-button {
+    position:relative;
+    top:4px;
+    margin: -1rem 0rem -1rem auto;
+    border:none;
+    background-color:transparent;
+    padding:0.5em;
+}
+
+.invite-modal-button:hover {
+    background-color: rgb(228, 228, 228);
+}
+
+.dropdown-toggle {
+    margin-right:1em;
+}

@@ -18,6 +18,7 @@ import {
 // Libraries
 import axios from 'axios'
 
+import closeImg from './close.png';
 
 const PMWaitWindow = (props) => {
 
@@ -102,11 +103,14 @@ const PMWaitWindow = (props) => {
 
     return (
         <div>
-            <Modal show={props.pilot.pmShowWaitWindow} backdrop="static">
-                <Modal.Header>
-                    <Modal.Title>Waiting Pilot Mode Confirmation</Modal.Title>
+            <Modal className='pilot-modal-dialog' show={props.pilot.pmShowWaitWindow} backdrop="static">
+                <Modal.Header className='pilot-modal-header'>
+                    <Modal.Title>Waiting for Guests</Modal.Title>
+                    <button className='account-modal-button' onClick={(event) => handleClosePilotWaitingModal(event)}>
+                        <img src={closeImg} className='modal-img'/>
+                    </button>
                 </Modal.Header>
-                <Modal.Body className='modal-body'>
+                <Modal.Body className='pilot-modal-body'>
                     <TacoTable
                         className="pilot-mode-modal-table"
                         columns={pmWaitColumns}
@@ -116,11 +120,6 @@ const PMWaitWindow = (props) => {
                         sortable
                     />
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="danger" onClick={(event) => handleClosePilotWaitingModal(event)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
             </Modal>
         </div>
     )
