@@ -72,7 +72,7 @@ const DocumentCard = props => {
     function handleCardClick() {
         props.history.push({
             pathname: `/collab`,
-            search: `?username=${props.auth.user.name}&roomCode=${props.documentCode}&action=create`,
+            search: `?username=${props.auth.user.name}&roomCode=${props.documentCode}`,
             state: {id: props.auth.user.id},
         })
     }

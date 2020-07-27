@@ -34,8 +34,13 @@ const InviteUser = (props) => {
         // console.log(props.roomCode)
         axios.get('/api/guests/check-space-availability', options).then(res => {
             let invitationLink = ''
+            console.log('here')
             if (!res.data.full) {
+                console.log('first')
                 invitationLink = `http://localhost:3000/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
+                if (props.isDemoPage) {
+                    invitationLink += '&type=demo'
+                }
                 props.openInviteGuestsWindow()
             } else {
                 invitationLink = 'You\'ve reached your account\'s guest capacity!'

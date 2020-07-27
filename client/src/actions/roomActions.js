@@ -65,6 +65,7 @@ export const setHostName = hostName => dispatch => {
 }
 
 export const openInviteGuestsWindow = () => dispatch => {
+    console.log('openInviteGuestsWindow')
     dispatch({
         type: OPEN_INVITE_GUESTS_WINDOW,
         payload: true

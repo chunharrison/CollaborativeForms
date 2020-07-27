@@ -18,7 +18,7 @@ const InviteUserPopup = (props) => {
     const [showAlert, setShowAlert] = useState(props.showInviteGuestAlert)
 
     useEffect(() => {
-
+        console.log(props.showInviteGuestsModal)
     })
 
     function handleCloseModal() {

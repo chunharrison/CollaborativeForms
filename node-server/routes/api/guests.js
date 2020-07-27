@@ -18,8 +18,8 @@ router.get('/check-space-availability', (req, res) => {
         if (err) throw err;
 
         let full = true
-        // TODO change the 5 to a variable
-        if (result && Object.keys(result.guests).length <= 5) {
+        
+        if (result && Object.keys(result.guests).length <= result.numMaxGuests) {
             full = false
         }
 

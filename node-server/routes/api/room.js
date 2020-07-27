@@ -21,6 +21,7 @@ router.get('/get-host-id', (req, res) => {
 
 router.get('/get-host-name', (req, res) => {
     const { roomCode } = req.query;
+    console.log('/get-host-name', roomCode)
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
         // console.log(result.host.name)

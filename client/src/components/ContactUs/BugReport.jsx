@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import classnames from "classnames";
 
-import EmailService from '../../services/email.service'
 import { bugReport } from '../../actions/emailActions'
 
 const BugReport = (props) => {

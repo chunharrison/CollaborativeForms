@@ -15,6 +15,8 @@
 
     import downloadImg from './download.png'
 
+    import './DownloadDoc.css'
+
     const DownloadDoc = (props) => {
         //ORDER: 
         //rect: 'rect',page,x,y,width,height,color,opacity,bordercolor,borderwidth,borderopacity
@@ -111,10 +113,9 @@
             let oldObjectNames = getObjectNames(pdfDoc, props.numPages);
             // get pages
             let pages = pdfDoc.getPages()
+
             // loop through all the pages
             for (let pageNum = 1; pageNum <= props.numPages; pageNum++) {
-
-
                 // request the list of signatures that are on that page from the server
                 props.userSocket.emit(
                     'getCurrentPageSignatures', 
@@ -125,12 +126,18 @@
                         // loop through the array and add all the signatures to the page
                         objects.forEach(async function (object) {
                             insertObject(pages[pageNum - 1], object, object.get('type'), pageNum);
-                
                         })
                     })
 
                 })
+
+                // if (props.demoPageDownload) {
+                //     pages[pageNum - 1].begin_template_ext(0, 0, "watermark={location=ontop opacity=60%}");
+                //     pages[pageNum - 1].fit_textline("Cosign", 0, 0, "fontsize=12 fontname=Helvetica-Bold encoding=unicode fillcolor=red " + "boxsize={595 842} stamp=ll2ur");
+                //     pages[pageNum - 1].end_template_ext(0, 0);
+                // }
             }
+
             // its kind of cringe but I had to give it a wait time aha
             // before saving & downloading the pdf
             // I think this is because the drawIamge function above takes time to render
@@ -153,9 +160,25 @@
         }
 
         return (
-            <button className='tool' onClick={event => downloadProc(event)}>
-                <img src={downloadImg}/>
-            </button>
+            <div>
+            {
+                !props.demoPageDownload 
+                ? 
+                <div class="dropdown">
+                    <button className='tool'>
+                        <img src={downloadImg}/>
+                    </button>
+                    {/* <div class="dropdown-content">
+                        <a href="#" onClick={event => downloadProc(event)}>Signed</a>
+                        <a href="#">Original</a>
+                    </div> */}
+                </div>
+                :
+                <button className='tool' onClick={event => downloadProc(event)}>
+                    <img src={downloadImg}/>
+                </button>
+            }
+            </div>
         )
     }
 

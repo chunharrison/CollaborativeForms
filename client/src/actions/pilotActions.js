@@ -1,4 +1,3 @@
-import axios from "axios";
 import { 
     // state
     SET_PM_STATE,

@@ -249,7 +249,7 @@ const CreateDocument = props => {
             setShowProgressBar(false);
             props.history.push({
                 pathname: `/collab`,
-                search: `?username=${props.auth.user.name}&roomCode=${roomKey}&action=create`,
+                search: `?username=${props.auth.user.name}&roomCode=${roomKey}`,
                 state: {id: props.auth.user.id},
             })
         })

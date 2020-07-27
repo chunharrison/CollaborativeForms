@@ -63,12 +63,11 @@ import { setCurrentZoom,
     deleteHighlight,
 } from '../../actions/toolActions'
 
-//images
-import usersImg from './users.png';
+// images
 import settingsImg from './settings.png';
 import pagesImg from './pages.png';
 import commentImg from './comment.png';
-import deleteImg from './delete.png';
+
 //CSS
 import './CollabPage.css';
 import { toHexStringOfMinLength } from 'pdf-lib';
@@ -210,7 +209,6 @@ class CollabPage extends React.Component {
         }
 
         axios.get('/api/room/get-host-name', options).then(res => {
-            // console.log(res.data.hostName)
             this.setState({
                 hostName: res.data.hostName
             }, () => {
@@ -233,7 +231,6 @@ class CollabPage extends React.Component {
         }
 
         axios.get('/api/room/get-guest-list', options).then(res => {
-            console.log(res.data.guestList)
 
             let currentGuestList = [...Object.values(res.data.guestList)]
             if (!this.props.auth.isAuthenticated) currentGuestList.push(this.state.username)
@@ -284,7 +281,6 @@ class CollabPage extends React.Component {
         })
 
         this.props.userSocket.emit('getCurrentPageHighlights', pageNum, (currentPageHighlightList) => {
-            console.log(currentPageHighlightList);
             this.props.addPageHighlight({key: pageNum, values: currentPageHighlightList})
         })
 
@@ -823,18 +819,12 @@ class CollabPage extends React.Component {
         }
     }
 
-    invalidRoomCodeProc() {
-        this.setState({
-            invalidRoomCodeGiven: true
-        })
-    }
-
-    getDocument() {
+    getDocument(roomCode) {
         // request PDF
         const generateGetUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-get-url`;
         const options = {
             params: {
-                Key: `${this.props.roomCode}.pdf`,
+                Key: `${roomCode}.pdf`,
                 ContentType: 'application/pdf'
             },
             headers: {
@@ -851,12 +841,11 @@ class CollabPage extends React.Component {
             fetch(getURL)
                 .then(response => response.blob()).then((blob) => {
                     this.props.setCurrentDoc(blob) // redux
-                    this.setState({ givenPDFDocument: blob })
                 })
         });
     }
 
-    setSocket(username, roomCode, action, guestID) {
+    setSocket(username, roomCode, guestID) {
         // Socket.io
         const socket = io(this.state.endpoint);
         this.props.setUserSocket(socket) // redux
@@ -887,23 +876,6 @@ class CollabPage extends React.Component {
         })
 
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
-
-        // Pilot Mode
-        // TODO (HARRISON)
-        // socket.on('welcomeBackDriver', () => {
-        //     document.addEventListener('scroll', this.sendScrollPercent, true);
-            
-        //     setTimeout(this.setState({
-        //         // send scroll percentage
-        //         pmActivated: true,
-
-        //         // 
-        //         pmWaitConfirmModalShow: false,
-        //         pmButtonLabel: 'Cancel',
-        //         pmButtonVariant: 'danger',
-        //         pmIsDriver: true,
-        //     }), 2500)
-        // })
 
         // Signatures
         socket.on("addOut", (pageData) => this.receiveAdd(pageData));
@@ -944,13 +916,19 @@ class CollabPage extends React.Component {
         // parse the query parameters and set states accordingly
         // query: ?username=username&roomCode=roomCode
         // THEN setup Socket.io object
-        const username = '' + queryString.parse(this.props.location.search).username
-        const roomCode = '' + queryString.parse(this.props.location.search).roomCode
-        const action = '' + queryString.parse(this.props.location.search).action
-        const guestID = '' + queryString.parse(this.props.location.search).guestID
-        console.log(guestID)
+        let username = '' + queryString.parse(this.props.location.search).username
+        let roomCode = '' + queryString.parse(this.props.location.search).roomCode
+        let guestID = '' + queryString.parse(this.props.location.search).guestID
+        console.log( username, roomCode, guestID)
+
+        // DEMO PAGE
+        if (this.props.demoPage) {
+            this.getDocument('demo')
+        } else {
+            this.getDocument(roomCode)
+        }
+
         if (guestID !== 'undefined') {
-            console.log('guestid !== undefined')
             const options = {
                 params: {
                     roomCode: roomCode,
@@ -965,16 +943,14 @@ class CollabPage extends React.Component {
               };
         
               axios.get('/api/guests/get-id-occupied', options).then(res => {
-                  console.log( res.data.occupied)
                 this.setState({guestIdOccupied: res.data.occupied})
               })
         }
         this.props.setRoomCode(roomCode) 
         this.props.setGuestID(guestID)
-        this.setState({ username, roomCode, action, guestID }, () => {
-            this.setSocket(username, roomCode, action, guestID); // Socket.io
-            this.getDocument()
-
+        // TODO: set roomCode in the CreateDocument.jsx & DocumentCard.jsx in redux
+        this.setState({ username, roomCode, guestID, }, () => {
+            this.setSocket(username, roomCode, guestID); // Socket.io
             // UsersList
             this.setStateHostName()
             this.setStateGuestList()
@@ -1017,6 +993,12 @@ class CollabPage extends React.Component {
 
     /* #################################################################################################
     ################################################################################################# */
+
+    invalidRoomCodeProc() {
+        this.setState({
+            invalidRoomCodeGiven: true
+        })
+    }
 
     render() {
         // State Variables 
@@ -1079,7 +1061,7 @@ class CollabPage extends React.Component {
                 {
                     this.state.guestIdOccupied
                 ?
-                    <div>lmao</div>
+                    <div>This Guest ID is already being used by someone else.</div>
                 :
             <div className='collab-page' onMouseMove={this.mouseMove}>
 
@@ -1104,12 +1086,12 @@ class CollabPage extends React.Component {
                         }
                     </div>
                     <div className='header-tools-right'>
-                        <UsersList/>
-                        <InviteUser/>
+                        <InviteUser isDemoPage={this.props.demoPage}/>
                         {/* <div className='tool'>
                             <img src={usersImg}/>
                         </div> */}
-                        <DownloadDoc/>
+                        <UsersList/>
+                        <DownloadDoc demoPageDownload={this.props.demoPage}/>
                         <div className='tool'>
                             <img src={settingsImg}/>
                         </div>

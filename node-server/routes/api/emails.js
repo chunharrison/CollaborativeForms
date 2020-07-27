@@ -23,7 +23,7 @@ router.post('/send-message', (req, res) => {
         service: 'Gmail',
         port: 465,
         auth: {
-            user: process.env.MAILER_ADDRESS,
+            user: process.env.MAILER_LOGIN,
             pass: process.env.MAILER_PASSWORD
         }
     });

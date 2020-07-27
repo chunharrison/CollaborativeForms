@@ -23,6 +23,7 @@ const users = require("./routes/api/users");
 const guests = require("./routes/api/guests")
 const room = require("./routes/api/room")
 const emails = require("./routes/api/emails")
+const demo = require("./routes/api/demo")
 
 
 // Bodyparser middleware
@@ -53,6 +54,7 @@ app.use("/api/users", users);
 app.use("/api/guests", guests)
 app.use("/api/room", room)
 app.use("/api/emails", emails)
+app.use("/api/demo", demo)
 
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
@@ -107,8 +109,8 @@ app.get('/api/get-guest-space-id', (req, res) => {
 
         let openedSpaceID = null
         let full = true
-        // TODO change the 5 to a variable
-        if (result && Object.keys(result.guests).length <= 5) {
+
+        if (result && Object.keys(result.guests).length <= result.numMaxGuests) {
             openedSpaceID = nanoid
             full = false
         }
@@ -123,8 +125,7 @@ app.get('/api/get-spaces-left', (req, res) => {
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 
-        // TODO change the 5 to a variable
-        if (result && Object.keys(result.guests).length < 5) {
+        if (result && Object.keys(result.guests).length < result.numMaxGuests) {
             res.send({spaceAvailable: true})
         } else {
             res.send({spaceAvailable: false})
@@ -146,6 +147,7 @@ app.post('/api/create-room', (req,res)=>{
         highlights: {}, 
         host: {id: req.body.userId, name: req.body.userName},
         guests: {},
+        numMaxGuests: 3, 
         pilotModeActivated: false,
     }
 

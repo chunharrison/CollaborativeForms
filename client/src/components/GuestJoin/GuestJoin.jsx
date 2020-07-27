@@ -20,7 +20,12 @@ const GuestJoin = (props) => {
     function onSubmit(e) {
         e.preventDefault()
         
-        props.history.push(`/collab?username=${userName}&roomCode=${roomCode}&action=join&guestID=${guestID}`)
+        const isDemoPage = '' + queryString.parse(props.location.search).type
+        if (isDemoPage === 'demo') {
+            props.history.push(`/demo?username=${userName}&roomCode=${roomCode}&guestID=${guestID}`)
+        } else {
+            props.history.push(`/collab?username=${userName}&roomCode=${roomCode}&guestID=${guestID}`)
+        }
     }   
 
     return (

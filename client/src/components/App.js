@@ -2,8 +2,8 @@ import React from "react";
 import LandingPage from './LandingPage/LandingPage';
 import InvalidRoomCodePage from './CollabPage/InvalidRoomCodePage/InvalidRoomCodePage';
 import CollabPage from './CollabPage/CollabPage';
+import DemoPage from './DemoPage/DemoPage'
 import DocumentsPage from './DocumentsPage/DocumentsPage';
-import NewLandingPage from './NewLandingPage/NewLandingPage';
 import PrivateRoute from './private-route/PrivateRoute';
 import GuestJoin from './GuestJoin/GuestJoin';
 import CommentsPanel from './CommentsPanel/CommentsPanel';
@@ -52,17 +52,20 @@ function App() {
     <div id="main">
       <Provider store={store}>
         <Router>
-          <Route exact path='/' component={NewLandingPage}/>
+          <Route exact path='/' component={LandingPage}/>
           <Route path='/collab' component={CollabPage}/>
-          <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
           <Route exact path='/account' component={SignInOrUp} />
           <Switch>
             <PrivateRoute exact path='/account-portal' component={AccountPortal}/>
           </Switch>
-          <Route path='/test' component={LandingPage}/>
+          <Route path='/component-testing' component={CommentsPanel}/>
           <Route path='/join-room' component={GuestJoin}/>
           <Route path='/reset' component={ResetPassword}/>
+          <Route path='/demo' component={DemoPage}/>
           <Route path='/contact-us' component={ContactUs}/>
+
+          {/* ERROR PAGES */}
+          <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
         </Router>
       </Provider>
     </div>

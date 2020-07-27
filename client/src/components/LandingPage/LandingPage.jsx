@@ -1,22 +1,34 @@
 import React from "react";
-import { Link, Redirect } from 'react-router-dom';
-import { nanoid } from 'nanoid';
-import PDFViewer from './PDFViewer/PDFViewer';
-import axios from 'axios';
 
-import PropTypes from "prop-types";
-import { connect } from "react-redux";
+// libraries
+import { InView } from 'react-intersection-observer'
+import { nanoid } from 'nanoid'
+import axios from 'axios'
 
+//images
+import redCursor from './cursor.png';
+import underline from './underline.png';
+import typeIndicator from './type-indicator.png';
+import circleEdit from './circle.png';
+import pattern from './pattern.png';
+import triangle from './triangle.png';
+import rectangle from './rectangle.png';
+import downArrow from './down-arrow.png';
+import featureOne from './feature-one.png';
+import rectangleOne from './rectangle-1.png';
+import rectangleTwo from './rectangle-2.png';
+import rectangleThree from './rectangle-3.png';
+import tick from './tick.png';
+import plus from './plus.png';
 
-// Components
-import Button from 'react-bootstrap/Button';
-// import Form from 'react-bootstrap/Form';
-import Alert from 'react-bootstrap/Alert';
-import Modal from 'react-bootstrap/Modal';
+// redux
+import { connect } from 'react-redux'
 
-
+// components
 import { logoutUser } from "../../actions/authActions";
 
+// file 
+import demoFile from './sample.pdf'
 
 // css
 import './LandingPage.css';
@@ -25,365 +37,282 @@ class LandingPage extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            canvas: null,
-            imgDatas: null,
-            pageHeight: null,
-            pageWidth: null,
-            selectedFile: null,
-            selectedFileName: 'PDF File',
-            pdfViewer: null,
-            showPDFModal: false,
-            showProgressBar: false,
+            typeBlink:false,
 
-            usernameCreate: null,
-            usernameJoin: null,
-            roomKey: null,
-            redirect: null,
-
-            createRoomAlertVisible: false,
-            createRoomFileAlertOutline: '',
-            createRoomNameAlertOutline: '',
-
-            joinRoomAlertVisible: false,
-            joinRoomRoomCodeAlertOutline: '',
-            joinRoomNameAlertOutline: '',
-            joinRoomAlertTimeout: null,
-
-            invalidPDFAlertVisible: false,
         }
 
-        this.fileInputRef = React.createRef();
-        this.createRoomAlertTimeout = null;
-        this.createRoomAlertTimeoutSF = null;
-        this.createRoomAlertTimeoutUN = null;
-        this.joinRoomAlertTimeout = null;
-        this.joinRoomAlertTimeoutRC = null;
-        this.joinRoomAlertTimeoutUN = null;
-
-        this.uploadFile = this.uploadFile.bind(this);
-        this.onPDFUpload = this.onPDFUpload.bind(this);
-
-        // Alert messages
-        this.onCreateRoomAlert = this.onCreateRoomAlert.bind(this);
-        this.onJoinRoomAlert = this.onJoinRoomAlert.bind(this);
-        this.onInvalidPDFAlert = this.onInvalidPDFAlert.bind(this);
-
-        // PDF preview Modal
-        this.handleClosePDFModal = this.handleClosePDFModal.bind(this);
-        this.handleShowPDFModal = this.handleShowPDFModal.bind(this);
-
-    }
-
-    onLogoutClick = e => {
-        e.preventDefault();
-        this.props.logoutUser();
-    };
-
-    uploadFile() {
-        const { selectedFile } = this.state;
-        const contentType = selectedFile.type; // eg. image/jpeg or image/svg+xml
-        const generatePutUrl = `${process.env.REACT_APP_BACKEND_ADDRESS}/api/generate-put-url`;
-        let options = {
-            params: {
-                Key: `${this.state.roomKey}.pdf`,
-                ContentType: contentType
-            },
-            headers: {
-                'Content-Type': contentType,
-            },
-        };
-        axios.get(generatePutUrl, options).then(res => {
-            // console.log('AXIOS GET')
-          const {
-            data: { putURL }
-          } = res;
-          this.setState({showProgressBar: true});
-          //upload file via url that was sent back from the server
-          delete axios.defaults.headers.common["Authorization"]
-          axios
-            .put(putURL, selectedFile)
-            .then(res => {
-                const token = localStorage.getItem("jwtToken")
-                axios.defaults.headers.common["Authorization"] = token
-                // console.log('success');
-                this.setState({
-                    showPDFModal: false,
-                    showProgressBar:false
-                });
-            })
-            .catch(err => {
-            //   console.log('err', err);
-              this.setState({showPDFModal: false,
-                            showProgressBar:false});
-            });
-        });
-    };
-
-
-    // triggers when PDF file is uploaded, 
-    // generates a unique room key if there isn't one
-    onPDFUpload = event => {
-        if (this.state.roomKey === null) {
-            this.setState ( {
-                roomKey: nanoid()
-            })
-        }
-
-        if (event.target.files[0]) {
-            this.setState ({
-                selectedFile: event.target.files[0],
-                selectedFileName: event.target.files[0].name,
-                pdfViewer: <PDFViewer renderFive={true} selectedFile={event.target.files[0]}></PDFViewer>,
-                showPDFModal: true
-            }, () => {
-                this.handleShowPDFModal();
-            })
-    
-        }
-    }
-
-    // triggers when a person tries to create a new room without giving required info
-    // it shows an alert for few seconds indicating which info is needed
-    onCreateRoomAlert = (event) => {
-        event.preventDefault()
-
-        clearTimeout(this.createRoomAlertTimeout)
-        this.setState({ createRoomAlertVisible: true }, () => { 
-            this.createRoomAlertTimeout = window.setTimeout(()=>{
-                this.setState({ createRoomAlertVisible: false })
-            }, 3500)
-        });
-
-        if (this.state.selectedFile === null) {
-            clearTimeout(this.createRoomAlertTimeoutSF)
-            this.setState({ 
-                createRoomFileAlertOutline: 'alert-outline-createroomfile'
-            }, () => { 
-                this.createRoomAlertTimeoutSF = window.setTimeout(()=>{
-                    this.setState({ 
-                        createRoomFileAlertOutline: ''
-                    })
-                }, 3500)
-            });
-        } else {
-            this.setState({ createRoomFileAlertOutline: '' })
-        }
-
-        if (this.state.usernameCreate === null || this.state.usernameCreate === '') {
-            clearTimeout(this.createRoomAlertTimeoutUN)
-            this.setState({ createRoomNameAlertOutline: 'alert-outline-createroomname' }, () => { 
-                this.createRoomAlertTimeoutUN = window.setTimeout(()=>{
-                    this.setState({ createRoomNameAlertOutline: '' })
-                }, 3500)
-            });
-        } else {
-            this.setState({ createRoomNameAlertOutline: '' })
-        }
-    }
-
-    // triggers when a person tries to enter an existing room without giving required info
-    // it shows an alert for 3 seconds indicating which info is needed
-    // this is maybe retarded way of doing this idk aha
-    onJoinRoomAlert = (event) => {
-        event.preventDefault()
-
-        clearTimeout(this.joinRoomAlertTimeout)
-        this.setState({ joinRoomAlertVisible: true }, () => {
-            this.joinRoomAlertTimeout = window.setTimeout(() => {
-                this.setState({ joinRoomAlertVisible: false })
-            }, 3500)
-        });
-
-        if (this.state.roomKey === null || this.state.roomKey === '') {
-            clearTimeout(this.joinRoomAlertTimeoutRC)
-            this.setState({ joinRoomRoomCodeAlertOutline: 'alert-outline-joinroomcode' }, () => { 
-                this.joinRoomAlertTimeoutRC = window.setTimeout(()=>{
-                    this.setState({ joinRoomRoomCodeAlertOutline: '' })
-                }, 3500)
-            });
-        } else {
-            this.setState({ joinRoomRoomCodeAlertOutline: '' })
-        }
-
-        if (this.state.usernameJoin === null || this.state.usernameJoin === '') {
-            clearTimeout(this.joinRoomAlertTimeoutUN)
-            this.setState({ joinRoomNameAlertOutline: 'alert-outline-joinroomname' }, () => { 
-                this.joinRoomAlertTimeoutUN = window.setTimeout(()=>{
-                    this.setState({ joinRoomNameAlertOutline: '' })
-                }, 3500)
-            });
-        } else {
-            this.setState({ joinRoomNameAlertOutline: '' })
-        }
-    }
-
-    onInvalidPDFAlert = () => {
-        this.setState({ invalidPDFAlertVisible: true }, () => {
-            window.setTimeout(() => {
-                this.setState({ invalidPDFAlertVisible: false})
-            }, 5000)
-        })
-    }
-
-    // closes the PDF viewer modal
-    handleClosePDFModal = (event, accepted) => {
-        // event.preventDefault();
-        // the error message shows whenever a person uploads any file other than PDF
-        const errorMessage = document.getElementsByClassName('react-pdf__message react-pdf__message--error') 
-        const largePDFMessage = document.getElementsByClassName('too-large-pdf')
-        
-        if (accepted && errorMessage.length === 0 && largePDFMessage.length === 0) {
-            this.uploadFile()
-        } else {
-
-            if (errorMessage.length !== 0) {
-                this.onInvalidPDFAlert();
-            }
-
-            this.setState({
-                selectedFile: null,
-                selectedFileName: null,
-                pdfViewer: null,
-                showPDFModal: false
-            })
-            document.getElementById("pdf-file-input").value = "";
-        }
-    }
-
-    // opens the PDF viewer modal
-    handleShowPDFModal = () => {
-        this.setState({
-            imgDatas: null, // resets the imgDatas to make sure we have the data of the new PDF
-            pageHeight: 0,
-            pageWidth: 0,
-            showPDFModal: true
-        })
-    }
-
-    generateAlertMessages() {
-        return this.state.alertMessages.map((msg) =>
-            <p>
-                {msg}
-            </p>
-        )
+        this.fadeInLeft = this.fadeInLeft.bind(this);
+        this.fadeInRight = this.fadeInRight.bind(this);
+        this.fadeInBottom = this.fadeInBottom.bind(this);
+        this.fadeInBottomSlow = this.fadeInBottomSlow.bind(this);
     }
 
     componentDidMount() {
-        let visited = localStorage["landingPageVisited"];
-        if(visited) {
-            this.setState({mounted: true});
-        } else {
-             //this is the first time
-             localStorage["landingPageVisited"] = true;
-             this.setState({mounted: true});
-        }
+        let self = this;
+        setInterval(function(){ 
+           self.setState({typeBlink: !self.state.typeBlink}) 
+        }, 600);
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.imgDatas === null && prevState.imgDatas !== this.state.imgDatas) {
-            this.setState({
-                showPDFModal: false
+    fadeInLeft(inView, entry ) {
+        if (inView && !entry.target.classList.contains('fade-in-left')) {
+            entry.target.classList.add("fade-in-left");
+        }
+        
+    }
+
+    fadeInRight(inView, entry ) {
+        if (inView && !entry.target.classList.contains('fade-in-right')) {
+            entry.target.classList.add("fade-in-right");
+        }
+        
+    }
+
+    fadeInBottom(inView, entry ) {
+        if (inView && !entry.target.classList.contains('fade-in-bottom')) {
+            entry.target.classList.add("fade-in-bottom");
+        }
+        
+    }
+
+    fadeInBottomSlow(inView, entry ) {
+        if (inView && !entry.target.classList.contains('fade-in-bottom-slow')) {
+            entry.target.classList.add("fade-in-bottom-slow");
+        }
+        
+    }
+
+
+    // login
+    handleLogInClick = e => {
+        e.preventDefault()
+
+        this.props.history.push("/account")
+    }
+
+    handleLogOutClick = e => {
+        e.preventDefault()
+
+        this.props.logoutUser();
+    }
+
+    handleAccountPortalClick = e => {
+        e.preventDefault()
+
+        this.props.history.push("/account-portal")
+    }
+
+    handleSignUpClick = e => {
+        e.preventDefault()
+
+        localStorage.setItem('signup', true)
+        this.props.history.push("/account")
+    }
+
+    handleDemoClick = e => {
+        e.preventDefault()
+
+        if (!this.props.auth.isAuthenticated) {
+            this.props.history.push("/account")
+        } else {
+            const demoRoomCode = nanoid()
+            
+            axios.post(`/api/demo/create-demo-room`, {
+                roomCode: demoRoomCode, 
+                userId: this.props.auth.user.id, 
+                userName: this.props.auth.user.name, 
+                fileName: 'demo'
+            }).then(res => {
+                this.props.history.push({
+                    pathname: `/demo`,
+                    search: `?username=${this.props.auth.user.name}&roomCode=${demoRoomCode}`,
+                    state: {id: this.props.auth.user.id},
+                })
             })
         }
-
     }
 
     render() {
-        let fileValue = ''
-        if (this.fileInputRef.current === null || typeof this.fileInputRef.current.files[0] === 'undefined') {
-            fileValue = 'File...';
-        } else {
-            fileValue = this.fileInputRef.current.files[0].name;
-        }
+        let blink = this.state.typeBlink === true ? null : 'blink';
 
         return (
             <div className='grid-container'>
-                <p onClick={this.onLogoutClick} className="nav2"> Logout </p>
-                <div className='create-room-container'>
-                    <div className='create-room'>
-                        <p className='room-header'>CREATE ROOM</p>
-                        <div className={`file-input-container ${this.state.createRoomFileAlertOutline}`}>
-                            <input type="text" className='selected-file' value={fileValue} disabled></input>
-                            <label htmlFor="pdf-file-input" className='custom-file-upload'>
-                                Browse
-                            </label>
-                            <input id="pdf-file-input" type="file" name="file" ref={this.fileInputRef} onChange={this.onPDFUpload}/>
-                        </div>
-                        <input placeholder="Name..." className={`name-input ${this.state.createRoomNameAlertOutline}`} type="text" onChange={(event) => this.setState({ usernameCreate: event.target.value })}></input>
-                        <Link 
-                            onClick={event => (!this.state.usernameCreate || !this.state.selectedFile) ? this.onCreateRoomAlert(event) : null} 
-                            to={{
-                                pathname: `/collab`,
-                                search: `?username=${this.state.usernameCreate}&roomCode=${this.state.roomKey}&action=create`
-                            }}>
-                            <Button variant="primary" type="submit" className='create-room-button'>Create Room</Button>
-                        </Link>
+                <div className='nav'>
+                    <div className='nav-left'>
+                        <p className='nav-logo'>cosign</p>
+                        <p className='nav-button'>Product</p>
+                        <p className='nav-button'>Pricing</p>
+                        <p className='nav-button' onClick={() => {this.props.history.push("/contact-us")}}>Contact us</p>
+                        <p className='nav-button' onClick={e => {this.handleDemoClick(e)}}>Demo</p>
+                    </div>
+                    <div className='nav-right'>
+                        {
+                            this.props.auth.isAuthenticated
+                            ?
+                                <p className='nav-button' onClick={e => this.handleLogOutClick(e)}>Log out</p>
+                            :
+                                <p className='nav-button' onClick={e => this.handleLogInClick(e)}>Log in</p>
+                        }
+                        {
+                            this.props.auth.isAuthenticated
+                            ?
+                                <p className='nav-register-button' onClick={e => this.handleAccountPortalClick(e)}>Account Portal</p>
+                            :
+                                <p className='nav-register-button' onClick={e => this.handleSignUpClick(e)}>Sign up</p>
+                        }
                     </div>
                 </div>
-                <div className='join-room-container'>
-                    <div className='join-room'>
-                        <p className='join-room-header'>JOIN ROOM</p>
-                        <input placeholder="Room Code..." className={`join-room-input ${this.state.joinRoomRoomCodeAlertOutline}`} type="text" 
-                            onChange={(event) => this.setState({ roomKey: event.target.value })}></input>
-                        <input placeholder="Name..." className={`join-name-input ${this.state.joinRoomNameAlertOutline}`} type="text" 
-                            onChange={(event) => this.setState({ usernameJoin: event.target.value })}></input>
-                        <Link onClick={event => (!this.state.usernameJoin || !this.state.roomKey) ? this.onJoinRoomAlert(event) : null} 
-                            to={{ pathname: `/collab`,
-                                search: `?username=${this.state.usernameJoin}&roomCode=${this.state.roomKey}&action=join`, }}>
-                            <Button variant="primary" className='create-room-button join-room-button' type="submit">Enter Room</Button>
-                        </Link>
+                <div className='welcome'>
+                    <div className='header-container'>
+                        <div className='real-cursor'>
+                            <p className='header-real'>real</p>
+                            <img src={redCursor} className='red-cursor'/>
+                        </div>
+                        <p className='header-time'>time</p>
+                        <p className='header-pdf'>pdf</p>
+                        <div className='signing-underline'>
+                            <p className='header-signing'>signing</p>
+                            <img src={underline} className='underline'/>
+                        </div>
+                    </div> 
+                    <div className='header-container-2'>
+                        <p className='header-and'>and</p>
+                        <p className='header-collaboration'>collaboration</p>
+                        <img src={typeIndicator} className={`type-indicator ${blink}`}/>
+                    </div>
+                    <p className='description'>Sign PDF documents real time with clients <br/> and team members alike with our online <br/> collaborative platform</p>
+                    <img src={pattern} className='pattern'/>
+                    <img src={circleEdit} className='circle-edit'/>
+                    <img src={triangle} className='triangle'/>
+                    <img src={rectangle} className='rectangle'/>
+                    <div className='welcome-button-container'>
+                        <p className='welcome-demo-button'>Try our demo</p>
+                    </div>
+                    <p className='learn-more'>Learn More</p>
+                    <img src={downArrow} className='down-arrow'/>
+                </div>
+                <div className='feature'>
+                    <InView as="div" className='feature-image-container' onChange={this.fadeInLeft}>
+                        <img src={featureOne} className='feature-image'/>
+                    </InView>
+                    <InView as="div" className='feature-text' onChange={this.fadeInRight}>
+                            <p className='feature-header'>Sign documents together.</p>
+                            <p className='feature-description'>Be it clients, team members or anyone else. Our real time platform allows users to invite others and sign pdf documents together in real time, making sure <span>nothing is missed!</span></p>
+                    </InView>
+                </div>
+                <div className='feature' style={{backgroundColor: '#f9f9f9'}}>
+                    <InView as="div" className='feature-text' onChange={this.fadeInLeft}>
+                            <p className='feature-header'>Navigate your guests.</p>
+                            <p className='feature-description'>Our Pilot mode allows our users to be in full controll of the document, allowing them to navigate <span>everyone’s attention</span> to their desired page destination!</p>
+                    </InView>
+                    <InView as="div" className='feature-image-container' onChange={this.fadeInRight}>
+                        <img src={featureOne} className='feature-image'/>
+                    </InView>
+                </div>
+                <div className='feature'>
+                    <InView as="div" className='feature-image-container' onChange={this.fadeInLeft}>
+                        <img src={featureOne} className='feature-image'/>
+                    </InView>
+                    <InView as="div" className='feature-text' onChange={this.fadeInRight}>
+                            <p className='feature-header'>Freedom of choice.</p>
+                            <p className='feature-description'>The wide range of tools available to cosign users allow them to do even more with their pdf documents. From <span>drawing</span> and <span>creating shapes</span> to being <span>in control of who gets to move signatures</span>, specifying <span>download permissions</span> among their guests and many more.</p>
+                    </InView>
+                </div>
+                <div className='try-demo'>
+                    <img src={rectangleOne} className='rectangle-one'/>
+                    <img src={rectangleTwo} className='rectangle-two'/>
+                    <img src={rectangleThree} className='rectangle-three'/>
+                    <p className='try-demo-header'>Try our free demo</p>
+                    <p className='try-demo-description'>We recommend opening multiple windows in order to experience the real time strength of the app</p>
+                    <p className='try-demo-button'>Demo</p>
+                </div>
+                <div className='join-us'>
+                    <p className='join-us-header'>Join us today</p>
+                    <p className='join-us-description'>Upgrade later</p>
+                    <div className='pricing'>
+                        <p className='choose-plan-header'>Choose your plan</p>
+                        <div className='pricing-card-container'>
+                            <InView as="div" className='pricing-card' onChange={this.fadeInBottom}>
+                                <div className='pricing-card-small'>
+                                    <p className='pricing-card-tier-small'>Jester</p>
+                                    <div className='pricing-card-underline-small'></div>
+                                    <div className='pricing-card-price-container'>
+                                        <p className='pricing-card-price-currency-small'>$</p>
+                                        <p className='pricing-card-price-value-small'>0</p>
+                                        <p className='pricing-card-price-recurrence-small'>for a week</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick-small' src={tick} />
+                                        <p className='pricing-card-perk-description-small'>host 1 document at a time</p>
+                                    </div>
+                                    <p className='pricing-card-button-small'>
+                                        Choose
+                                    </p>
+                                </div>
+                                
+                            </InView>
+                            <InView as="div" className='pricing-card' onChange={this.fadeInBottomSlow}>
+                                <div className='pricing-card-large'>
+                                    <p className='pricing-card-tier'>Peasant</p>
+                                    <div className='pricing-card-underline'></div>
+                                    <div className='pricing-card-price-container'>
+                                        <p className='pricing-card-price-currency'>$</p>
+                                        <p className='pricing-card-price-value'>5</p>
+                                        <p className='pricing-card-price-recurrence'>monthly</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick' src={tick} />
+                                        <p className='pricing-card-perk-description'>host 3 documents at a time</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick' src={tick} />
+                                        <p className='pricing-card-perk-description'>get a lil lick from our 2 CEOs</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick' src={plus} />
+                                        <p className='pricing-card-perk-description'>all jester features</p>
+                                    </div>
+                                    <p className='pricing-card-button-large'>
+                                        Choose
+                                    </p>
+                                </div>
+                            </InView>
+                            <InView as="div" className='pricing-card' onChange={this.fadeInBottom}>
+                                <div className='pricing-card-small'>
+                                    <p className='pricing-card-tier-small'>Lancelot</p>
+                                    <div className='pricing-card-underline-small'></div>
+                                    <div className='pricing-card-price-container'>
+                                        <p className='pricing-card-price-currency-small'>$</p>
+                                        <p className='pricing-card-price-value-small'>10</p>
+                                        <p className='pricing-card-price-recurrence-small'>monthly</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick-small' src={tick} />
+                                        <p className='pricing-card-perk-description-small'>host unlimited documents at a time</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick-small' src={plus} />
+                                        <p className='pricing-card-perk-description-small'>all previous features</p>
+                                    </div>
+                                    <p className='pricing-card-button-small'>
+                                        Choose
+                                    </p>
+                                </div>
+                            </InView>
+                        </div>
                     </div>
                 </div>
-                <Alert variant='danger' show={this.state.createRoomAlertVisible || this.state.joinRoomAlertVisible}>
-                    Make sure you included all the required information. 
-                </Alert>
-                <Alert variant='danger' show={this.state.invalidPDFAlertVisible}>
-                    Make sure the provided file is a PDF document.
-                </Alert>
-                <Modal show={this.state.showPDFModal} onHide={(event) => this.handleClosePDFModal(event, false)} size="xl">
-                    <Modal.Header closeButton>
-                        <Modal.Title>{this.state.selectedFileName} (preview)</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className='modal-body'>
-                        {this.state.showProgressBar ? null : this.state.pdfViewer}
-                        {this.state.showProgressBar ? 
-                        <div style={{height: '500px'}}>
-                            <div className="wrapper">
-                                <span className="circle circle-1"></span>
-                                <span className="circle circle-2"></span>
-                                <span className="circle circle-3"></span>
-                                <span className="circle circle-4"></span>
-                                <span className="circle circle-5"></span>
-                                <span className="circle circle-6"></span>
-                            </div>
-                        </div>
-                        :
-                        null}
-                    </Modal.Body>
-                    <Modal.Footer>
-                    {this.state.showProgressBar ? null :
-                        <Button variant="primary" onClick={(event) => this.handleClosePDFModal(event, true)}>
-                            Okay
-                        </Button>}
-                    </Modal.Footer>
-                </Modal>
             </div> 
         );
     }
 }
 
-LandingPage.propTypes = {
-    logoutUser: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
-};
 
 const mapStateToProps = state => ({
-auth: state.auth
-});
+    // room
+    auth: state.auth
+})
 
-export default connect(
-mapStateToProps,
-{ logoutUser }
-)(LandingPage);
-
-// export default LandingPage;
+export default connect(mapStateToProps, {
+    logoutUser
+})(LandingPage);
