@@ -456,6 +456,8 @@ body {
     flex-direction: column;
     background-color: transparent;
     padding-top:1em;
+    padding-left:0.5em;
+    padding-right:0.5em;
     border-radius: 5px;
 }
 

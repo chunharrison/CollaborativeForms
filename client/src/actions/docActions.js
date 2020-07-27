@@ -4,7 +4,8 @@ import {
     // SET_PAGES_ARRAY, 
     SET_RENDERFABRICCANVAS_FUNC,
     SET_NUM_PAGES,
-    SET_PAGE_DIMENSIONS 
+    SET_PAGE_DIMENSIONS,
+    SET_PAGE_DIMENSIONS_CHANGE 
 } from './types'
 
 
@@ -46,6 +47,13 @@ export const setRenderFabricCanvasFunc = renderFabricCanvas => dispatch => {
 export const setPageDimensions = newPageDimensions => dispatch => {
     dispatch({
         type: SET_PAGE_DIMENSIONS,
+        payload: newPageDimensions
+    })
+}
+
+export const setPageDimensionsChange = newPageDimensions => dispatch => {
+    dispatch({
+        type: SET_PAGE_DIMENSIONS_CHANGE,
         payload: newPageDimensions
     })
 }

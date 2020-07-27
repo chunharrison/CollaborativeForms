@@ -21,6 +21,7 @@ import InviteUser from './InviteUser/InviteUser'
 import InviteUserPopup from './InviteUser/InviteUserPopup'
 import UsersList from './UsersList/UsersList'
 import CommentsPanel from '../CommentsPanel/CommentsPanel'
+import PageBrowser from './PageBrowser/PageBrowser';
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -32,6 +33,7 @@ import io from "socket.io-client";
 import queryString from 'query-string';
 import axios from 'axios';
 import * as rb from "rangeblock";
+import html2canvas from 'html2canvas';
 // import Tour from 'reactour'; 
 import Select from 'react-select';
 
@@ -101,9 +103,7 @@ class CollabPage extends React.Component {
             disconnected: false,
             invalidRoomCodeGiven: false,
         }
-
-        // Browser Functionality
-        this.scrollToPage = this.scrollToPage.bind(this);
+        
         //highlighter
         this.handleSelection = this.handleSelection.bind(this);
         this.receiveHighlight = this.receiveHighlight.bind(this);
@@ -737,12 +737,6 @@ class CollabPage extends React.Component {
         }
     }
 
-    scrollToPage(e) {
-        let element = document.getElementById(`container-${e.target.id.split('-')[1]}`);
-        element.scrollIntoView();
-    }
-
-
     /* #################################################################################################
     ################################################################################################# */
 
@@ -1015,17 +1009,6 @@ class CollabPage extends React.Component {
             roomCodeCopy = <CopyRoomCode roomCode={this.props.roomCode}></CopyRoomCode>
         }
 
-        var pageBrowser = <p></p>
-        if (this.props.currentDoc !== null) {
-            pageBrowser = [...Array(this.props.numPages).keys()].map((number, index) =>
-                <div className='browser-page-and-number-container' key={`browser-page-${index}`}>
-                    <div id={`browser-${index + 1}`} style={{ 'minHeight': 200, 'width': 150, 'backgroundColor': 'white', 'backgroundSize': 'cover' }} onClick={this.scrollToPage}>
-                    </div>
-                    <p className='browser-page-number'>{index + 1}</p>
-                </div>
-            )
-        }
-
         let downloadLoader = (this.props.currentDoc === null ? <div style={{ height: '500px' }}>
             <div className="loader-wrapper">
                 <span className="circle circle-1"></span>
@@ -1110,7 +1093,7 @@ class CollabPage extends React.Component {
                             <img src={commentImg} className='panel-image'/>
                         </button>
                         <div id='browser-canvas-container'>
-                            {this.props.panelMode === 'page' ? pageBrowser : <CommentsPanel/>}
+                            {this.props.panelMode === 'page' ? <PageBrowser/> : <CommentsPanel/>}
                         </div>
                     </div>
                     {this.props.currentDoc !== null && this.props.userSocket !== null 

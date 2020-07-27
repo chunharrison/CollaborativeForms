@@ -11,6 +11,7 @@ import { useInView } from 'react-intersection-observer';
 import { connect } from 'react-redux';
 import { 
     setPageDimensions,
+    setPageDimensionsChange,
  } from '../../../actions/docActions';
 
 import {
@@ -93,7 +94,8 @@ const LoadPage = (props) => {
         setPageHeight(page.view[3])
         let newPageDimensions = props.pageDimensions
         newPageDimensions[props.pageNum - 1] = { 'width': page.view[2],  'height': page.view[3]}
-        props.setPageDimensions(newPageDimensions)
+        props.setPageDimensions(newPageDimensions);
+        props.setPageDimensionsChange(props.pageNum);
         setPageLoaded(true)
     }
 
@@ -113,7 +115,7 @@ const LoadPage = (props) => {
                                 pageNumber={props.pageNum}
                                 // renderTextLayer={false}
                                 renderAnnotationLayer={false}
-                                className={'lowest-canvas'}
+                                className={`lowest-canvas pdf-${props.pageNum}`}
                             />
 
                             {/* FABRIC CANVAS */}
@@ -154,5 +156,6 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
     setPageDimensions,
     setPagesZooms,
-    addComment
+    addComment,
+    setPageDimensionsChange
 })(LoadPage);
