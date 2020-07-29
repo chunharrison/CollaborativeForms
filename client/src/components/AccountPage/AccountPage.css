@@ -66,7 +66,7 @@
     transition: height .8s ease;
 }
 
-.expanded {
+.account-expanded {
     height:250px;
     transition: height .8s ease;
 }

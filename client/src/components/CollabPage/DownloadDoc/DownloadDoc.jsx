@@ -46,6 +46,7 @@
 
             //convert fabric objects only present on the canvas in to actual pdf objects embedded
             async function insertObject(currPage, object, type, pageNum) {
+                let pageHeight = currPage.getHeight();
                 if (type === 'image') {
                     // get the dataURI of the signature image
                     const signatureDataURI = object.src
@@ -68,7 +69,7 @@
                     let matchStroke = object.stroke.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawRectangle({
                         x: object.left,
-                        y: 841 - object.top - object.height,
+                        y: pageHeight - object.top - object.height,
                         width: object.width,
                         height:object.height,
                         borderColor: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
@@ -84,7 +85,7 @@
                     let matchStroke = object.stroke.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawSvgPath(object.path.join(' ').replace(/([A-Za-z ])\,/g, '$1 '), {
                         x: 0 + (object.left - object.get('originalX').originalX),
-                        y: 841 - (object.top - object.get('originalY').originalY),
+                        y: pageHeight - (object.top - object.get('originalY').originalY),
                         borderLineCap: 1,
                         borderWidth: object.strokeWidth,
                         borderColor: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
@@ -97,7 +98,7 @@
                     let matchStroke = object.fill.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawText(object.text, {
                         x: object.left,
-                        y: 841 - object.top - object.height,
+                        y: pageHeight - object.top - object.height,
                         size: parseInt(object.fontSize),
                         color: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
                         opacity: object.opacity,

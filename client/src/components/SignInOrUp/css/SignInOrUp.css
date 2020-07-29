@@ -58,7 +58,7 @@
 	position:relative;
 	height:100%;
 	width:100%;
-	background-color: rgba(238, 238, 238, 0.651);
+	background-color: rgba(255, 255, 255, 0.651);
 	overflow:hidden;
 }
 
@@ -67,21 +67,10 @@
 	background-color: #fc7b742a;
 	width: 200%;
 	height:50%;
-	transform: rotate(20deg);
-	top:-60%;
-	left:-50%;
-
-}
-
-.sign-in-out-abstract2 {
-	position:absolute;
-	background-color: #fc7b742a;
-	width: 200%;
-	height:50%;
-	transform: rotate(20deg);
-	top:100%;
-	left:-50%;
-
+	transform: rotate(5deg);
+	top:-10%;
+	left:-20%;
+    background: #EB6F69;
 }
 
 .sign-in-out-form-container {

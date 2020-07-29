@@ -68,11 +68,11 @@ const AccountPage = props => {
                 <div className='account-password-container'>
                     <p className='account-information-text'>Password</p>
                                          
-                    <div className={`account-placeholder-container ${edit ? 'expanded' : ''}`}>
+                    <div className={`account-placeholder-container ${edit ? 'account-expanded' : ''}`}>
                         {edit === false ?
                         <p className='account-password-placeholder'></p>
                         :
-                        <div className={`account-input-container ${edit ? 'expanded' : ''}`}>
+                        <div className={`account-input-container ${edit ? 'account-expanded' : ''}`}>
                             <input placeholder='Old Password...' className='account-input fade-in' type="password" onChange={(e) => setOldPassword(e.target.value)}
                             value={oldPassword}/>
                             <input placeholder='New Password...' className='account-input fade-in' type="password" onChange={(e) => setPassword(e.target.value)}

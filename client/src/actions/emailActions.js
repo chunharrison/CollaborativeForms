@@ -7,12 +7,22 @@ import {
 export const sendMessage = (emailData) => dispatch => {
     console.log('sendMessage')
     axios.post('/api/emails/send-message', emailData)
+        .then(res => {
+            return res;
+        })
         .catch(err => {
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
             })
         });
+}
+
+export const sendErrors = (err) => dispatch => {
+    dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+    })
 }
 
 export const bugReport = (emailData) => dispatch => {

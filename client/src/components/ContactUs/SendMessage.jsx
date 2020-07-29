@@ -1,26 +1,41 @@
 import React, { useState } from 'react' 
 import { connect } from 'react-redux'
 import classnames from "classnames";
+import axios from "axios";
 
-import { sendMessage } from '../../actions/emailActions'
+import { sendMessage, sendErrors } from '../../actions/emailActions';
 
+import SendButton from './SendButton';
 
 const SendMessage = (props) => {
 
-    const [email, setEmail] = useState('')
-    const [subject, setSubject] = useState('')
-    const [message, setMessage] = useState('')
-    
+    const [email, setEmail] = useState('');
+    const [subject, setSubject] = useState('');
+    const [message, setMessage] = useState('');
+    const [submitState, setSubmitState] = useState('Submit');
 
     function onSendMessageSubmit(e) {
-        e.preventDefault()
-        console.log('onSendMessageSubmit')
+        props.sendErrors({response: {data:{}}});
+        setSubmitState('Sending...')
         const emailData = {
             emailMessage: email, 
             subjectMessage: subject, 
             messageMessage: message
         }
-        props.sendMessage(emailData)
+
+        axios.post('/api/emails/send-message', emailData)
+        .then(res => {
+            setSubmitState('Sent!');
+            setTimeout(function(){ setSubmitState('Submit'); }, 1000);
+            setEmail('');
+            setSubject('');
+            setMessage('');
+        })
+        .catch(err => {
+            setSubmitState('Failed!');
+            setTimeout(function(){ setSubmitState('Submit'); }, 1000);
+            props.sendErrors(err);
+        });
     }
 
     function onChange(e) {
@@ -34,19 +49,12 @@ const SendMessage = (props) => {
     }
 
     return (
-        <div>
-            <div>
-                <h1>
-                    Send us a message
-                </h1>
-                <p>
-                    Ask us anything you want homie
-                </p>
-            </div>
-
-
+        <div className={`send-message-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
+            <p className='send-message-header'>
+                Send us a message
+            </p>
             <div className="contact-us-form-container">
-                <form noValidate onSubmit={onSendMessageSubmit}>
+                <form className='contact-us-form' noValidate>
                     <div className="contact-us-input-container">
                         <input
                             onChange={onChange}
@@ -84,19 +92,20 @@ const SendMessage = (props) => {
                             error={props.errors.messageMessage}
                             placeholder="Message"
                             id="send-message-message"
-                            className={classnames("contact-us-input", {
+                            className={classnames("contact-us-textarea", {
                                 invalid: props.errors.messageMessage
                             })}
                         />
                         <span className="red-text">{props.errors.messageMessage}</span>
                     </div> 
 
-                    <button
+                    <SendButton
                         type="submit"
-                        className=""
+                        submit={() => onSendMessageSubmit()}
+                        submitState={submitState}
                     >
                         Send
-                    </button>
+                    </SendButton>
                 </form>
             </div> 
         </div>
@@ -108,5 +117,6 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps, {
-    sendMessage
+    sendMessage,
+    sendErrors
 })(SendMessage)
