@@ -39,18 +39,17 @@ router.get('/get-guest-list', (req, res) => {
 })
 
 router.post('/set-pilot-mode-status', (req, res) => {  
-    console.log('/set-pilot-mode-status')
 
-    const { roomCode, status } = req.query;
+    const { roomCode, status } = req.body;
 
     db.collection("rooms").findOne({ roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 
         // update
-        if (result) {
-            result.pilotModeActivated = status
+        if (result !== null) {
+            console.log('SETTING set-pilot-mode-status')
             // replace with updated data
-            db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: result.pilotModeActivated}})
+            db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {pilotModeActivated: status}})
         }
     })
 })

@@ -47,7 +47,7 @@ const PMConfirmWindow = (props) => {
                     </div>
                 </Modal.Header>
                 <Modal.Body className='pilot-confirm-modal-body'>
-                    <p>{props.pmRequesterUsername} has requested to be in charge of navigating through the document.</p>
+                    <p>The host has requested to be in charge of navigating through the document.</p>
                 </Modal.Body>
             </Modal>
         </div>

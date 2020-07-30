@@ -7,8 +7,10 @@ import {
     setPMState,
 
     openPMWaitWindow,
+    closePMWaitWindow,
     setPMWaitWindowTableRows,
     openPMConfirmWindow,
+    
 
     setPMRequesterSocketID,
 } from '../../../actions/pilotActions'
@@ -26,35 +28,20 @@ const PilotMode = (props) => {
     }
 
     function activatePM() {
-        const options = {
-            params: {
-                roomCode: props.state.roomCode,
+        console.log(props.room.roomCode)
+        const params = {
+                roomCode: props.room.roomCode,
                 status: true,
-            },
-            headers: {
-                'Access-Control-Allow-Credentials': true,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': '*',
-            },
-        }
-        axios.post('/api/room/set-pilot-mode-status', options)
+            }
+        axios.post('/api/room/set-pilot-mode-status', params)
     }
 
     function deactivatePM() {
-        const options = {
-            params: {
-                roomCode: props.state.roomCode,
+        const params = {
+                roomCode: props.room.roomCode,
                 status: false,
-            },
-            headers: {
-                'Access-Control-Allow-Credentials': true,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': '*',
-            },
-        }
-        axios.post('/api/room/set-pilot-mode-status', options)
+            }
+        axios.post('/api/room/set-pilot-mode-status', params)
     }
 
     useEffect(() => {
@@ -69,13 +56,11 @@ const PilotMode = (props) => {
         })
 
         props.room.userSocket.on('pilotModeStopped', () => {
-            deactivatePM()
             props.setPMState(false)
         })
 
         // person is using the pilot mode right now for the room
         props.room.userSocket.on('pilotModeActivated', () => {
-            activatePM()
             props.setPMState(true)
         })
 
@@ -89,9 +74,7 @@ const PilotMode = (props) => {
         })
 
         props.room.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
-            console.log(props.pmWaitWindowTableRows);
             props.pmWaitWindowTableRows.forEach((item) => {
-                console.log(item.guestID, confirmingUserGuestID)
                 if (item.guestID === confirmingUserGuestID) {
                     item['status'] = 'Accepted'
                     pmNumAccepts += 1
@@ -136,13 +119,11 @@ const PilotMode = (props) => {
             })
     
             props.room.userSocket.off('pilotModeStopped', () => {
-                deactivatePM()
                 props.setPMState(false)
             })
     
             // person is using the pilot mode right now for the room
             props.room.userSocket.off('pilotModeActivated', () => {
-                activatePM()
                 props.setPMState(true)
             })
     
@@ -275,6 +256,7 @@ export default connect(mapStateToProps, {
     setPMState,
 
     openPMWaitWindow,
+    closePMWaitWindow,
     setPMWaitWindowTableRows,
     openPMConfirmWindow,
 

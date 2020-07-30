@@ -49,30 +49,10 @@ const PMWaitWindow = (props) => {
             }
         }
     ]
-
-    function sendScrollPercent() {
-        props.room.userSocket.emit("sendScrollPercent", props.canvasContainerRef.current.scrollTop)
-    }
     
     function handleClosePilotWaitingModal(event) {
         event.preventDefault()
         props.closePMWaitWindow()
-    }
-
-    function activatePM() {
-        const options = {
-            params: {
-                roomCode: props.state.roomCode,
-                status: true,
-            },
-            headers: {
-                'Access-Control-Allow-Credentials': true,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': '*',
-            },
-        }
-        axios.post('/api/room/set-pilot-mode-status', options)
     }
     
 

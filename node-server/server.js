@@ -236,8 +236,11 @@ io.on('connection', (socket)=>{
                 } 
 
                 if (result.pilotModeActivated) {
+                    console.log('pilotModeUserConnected')
                     socket.emit('pilotModeUserConnected')
                 }
+
+                console.log(result.guests)
             } 
             
             // could not find the database under the given roomCode
@@ -467,7 +470,8 @@ io.on('connection', (socket)=>{
             // update the list of users in the database
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
-                if (result & !isHost) {
+                if (result !== null & !isHost) {
+                    console.log("removing guest")
                     // remove the first occurence of the username from database
                     delete result.guests[guestID]
 
