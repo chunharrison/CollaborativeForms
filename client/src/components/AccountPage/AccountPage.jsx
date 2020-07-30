@@ -15,12 +15,7 @@ const AccountPage = props => {
     const [email, setEmail] = useState('');
     const [edit, setEdit] = useState(false);
     const [message, setMessage] = useState(false);
-    async function getEmail() {
-        const url = '/api/users/get-email';
-        let res = await axios.get(url, {id: props.auth.user.id});
-        setEmail(res.data);
-    }
-
+    
     function submitPassword() {
         axios
             .post(
@@ -47,11 +42,6 @@ const AccountPage = props => {
                 }
             })
         }
-    
-
-    useEffect(() => {
-        getEmail();
-    }, []);
 
     return (
         <div className='account-container fade-in-bottom'>
@@ -63,7 +53,7 @@ const AccountPage = props => {
                 </div>
                 <div className='account-email-container'>
                     <p className='account-information-text'>Email</p>
-                    <p>{email}</p>
+                    <p>{props.auth.user.email}</p>
                 </div>
                 <div className='account-password-container'>
                     <p className='account-information-text'>Password</p>

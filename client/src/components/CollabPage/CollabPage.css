@@ -254,6 +254,10 @@ body {
     box-shadow: none !important;
 }
 
+.css-26l3qy-menu {
+    background-color: rgba(0, 0, 0, 0.116) !important;
+}
+
 .clipboard-button {
     border:none;
     background-color: white;

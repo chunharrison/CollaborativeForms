@@ -1069,11 +1069,11 @@ class CollabPage extends React.Component {
                         }
                     </div>
                     <div className='header-tools-right'>
+                        <UsersList/>
                         <InviteUser isDemoPage={this.props.demoPage}/>
                         {/* <div className='tool'>
                             <img src={usersImg}/>
                         </div> */}
-                        <UsersList/>
                         <DownloadDoc demoPageDownload={this.props.demoPage}/>
                         <div className='tool'>
                             <img src={settingsImg}/>

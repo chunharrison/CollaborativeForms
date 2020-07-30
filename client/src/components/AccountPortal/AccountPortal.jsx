@@ -7,11 +7,12 @@ import { logoutUser } from "../../actions/authActions";
 
 import DocumentsPage from '../DocumentsPage/DocumentsPage';
 import AccountPage from '../AccountPage/AccountPage';
+import HelpPage from '../HelpPage/HelpPage';
 
 //Images
 import accountsImg from './accounts.png';
 import documentsImg from './documents.png';
-import settingsImg from './settings.png';
+import questionImg from './question.png';
 
 
 const AccountPortal = props => {
@@ -33,15 +34,16 @@ const AccountPortal = props => {
                         <img className='documents-nav-button-img' src={documentsImg}/>
                         <p className='documents-nav-button'>DOCUMENTS</p>
                     </div>
-                    <div className={`documents-nav-button-container ${activeButton === 'settings' ? 'documents-nav-active-button' : '' }`} onClick={() => setActiveButton('settings')}>
-                        <img className='documents-nav-button-img' src={settingsImg}/>
-                        <p className='documents-nav-button'>SETTINGS</p>
+                    <div className={`documents-nav-button-container ${activeButton === 'help' ? 'documents-nav-active-button' : '' }`} onClick={() => setActiveButton('help')}>
+                        <img className='documents-nav-button-img' src={questionImg}/>
+                        <p className='documents-nav-button'>HELP</p>
                     </div>
                     <p className='account-portal-logo'>cosign</p>
             </div>
             <div className='documents-background'>
                 {activeButton === 'account' ? <AccountPage/> : null}
                 {activeButton === 'documents' ? <DocumentsPage/> : null}
+                {activeButton === 'help' ? <HelpPage/> : null}
 
             </div>
         </div>
