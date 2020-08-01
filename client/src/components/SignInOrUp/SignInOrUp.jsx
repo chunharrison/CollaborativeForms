@@ -73,17 +73,17 @@ class SignInOrUp extends Component {
                     <Login
                     setForgot={this.setForgot}
                     />
-                    <div class="overlay-container">
-                        <div class="overlay">
-                            <div class="overlay-panel overlay-left">
+                    <div className="overlay-container">
+                        <div className="overlay">
+                            <div className="overlay-panel overlay-left">
                                 <h1>Welcome Back!</h1>
                                 <p className="panel-description">LMAO EZ</p>
-                                <button class="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
+                                <button className="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
                             </div>
-                            <div class="overlay-panel overlay-right">
+                            <div className="overlay-panel overlay-right">
                                 <h1>Hello, Friend!</h1>
                                 <p className="panel-description">LMAO EZ</p>
-                                <button class="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
+                                <button className="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
                             </div>
                         </div>
                     </div>

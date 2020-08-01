@@ -15,7 +15,6 @@ const SendButton = (props) => {
         }, 200);
         setTimeout(function(){ submitLabel.current.classList.remove('submit-button-fade-out'); }, 400);
         setTimeout(function(){ submitLabel.current.classList.remove('submit-button-fade-in'); }, 600);
-        console.log(submitLabel.current.classList)
     }, [props.submitState])
 
     function triggerSubmit(e) {

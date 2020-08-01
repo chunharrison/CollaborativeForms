@@ -7,7 +7,6 @@ const validateMessageInput = require("../../validation/messageValidation")
 const validateBugReportInput = require("../../validation/bugReportValidation")
 
 router.post('/send-message', (req, res) => {
-    console.log('/send-message')
 
     // validation 
     const { errors, isValid } = validateMessageInput(req.body)
@@ -16,8 +15,6 @@ router.post('/send-message', (req, res) => {
     }
 
     const {email, subject, message} = req.body
-    console.log('/send-message', email, subject, message)
-    console.log(process.env.CONTACT_EMAIL_ADDRESS, process.env.MAILER_PASSWORD)
 
     var smtpTransport = nodemailer.createTransport({
         service: 'Gmail',
@@ -58,8 +55,6 @@ router.post('/bug-report', (req, res) => {
     }
 
     const {emailBug, subjectBug, messageBug} = req.body
-    console.log('/bug-report', emailBug, subjectBug, messageBug)
-    console.log(process.env.CONTACT_EMAIL_ADDRESS, process.env.MAILER_PASSWORD)
 
     var smtpTransport = nodemailer.createTransport({
         service: 'Gmail',

@@ -13,6 +13,7 @@ const PageBrowser = (props) => {
             {[...Array(props.numPages).keys()].map((values, index) =>
                 <SinglePage
                 index={index}
+                key={`browser-${index}`}
                 />
             )}
         </div>

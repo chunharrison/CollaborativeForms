@@ -43,31 +43,6 @@ const UsersList = (props) => {
     ]
     const avatarImageURL = 'https://react.semantic-ui.com/images/avatar/small/'
 
-    const [currentGuests, setCurrentGuests] = useState(props.currentGuests)
-    // const [currentGuestsDropdownOptions, setCurrentGuestsDropdownOptions] = useState(props.guests.map(userName => {
-    //     return {
-    //       key: userName,
-    //       text: userName,
-    //       value: userName,
-    //       image: avatarImageURL+avatarImages[Math.floor(Math.random()*avatarImages.length)]
-    //     }
-    // }))
-    
-    useEffect(() => {
-      
-    //   if (props.guests !== currentGuests) {
-    //     setCurrentGuests(props.guests.map(guestName => {
-    //       return {
-    //         key: guestName,
-    //         text: guestName,
-    //         value: guestName,
-    //         image: avatarImageURL+avatarImages[Math.floor(Math.random()*avatarImages.length)]
-    //       }
-    //   }))
-    //   }
-      console.log(props.guests)
-    })
-
     return (
         <Dropdown alignRight>
           <Dropdown.Toggle>
@@ -81,8 +56,8 @@ const UsersList = (props) => {
                 </Dropdown.Item>
 
               <Dropdown.Header>Guests</Dropdown.Header>
-              {props.guests.map(guestName => (
-                <Dropdown.Item>
+              {props.guests.map((guestName, i) => (
+                <Dropdown.Item key={`user-${i}`}>
                   <img src={avatarImageURL+avatarImages[Math.floor(Math.random()*avatarImages.length)]} className="user-list-img"/>
                   {guestName}
                 </Dropdown.Item>

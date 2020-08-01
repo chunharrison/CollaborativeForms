@@ -19,7 +19,7 @@ router.get('/check-space-availability', (req, res) => {
 
         let full = true
         
-        if (result && Object.keys(result.guests).length <= result.numMaxGuests) {
+        if (result !== null && Object.keys(result.guests).length < result.numMaxGuests) {
             full = false
         }
 
@@ -29,15 +29,13 @@ router.get('/check-space-availability', (req, res) => {
 
 router.post('/add-guest', (req, res) => {
     // res.header("Access-Control-Allow-Credentials", true);
-    // console.log(req)
     const { roomCode, guestName, guestID } =  req.body.params;
-    console.log('/add-guest', roomCode, guestName, guestID)
     // find
     db.collection("rooms").findOne({ roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 
         // update
-        if (result) {
+        if (result !== null) {
             result.guests[guestID] = guestName
             // replace with updated data
             db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {guests: result.guests}})
@@ -55,7 +53,7 @@ router.delete('/delete', (req, res) => {
         if (err) throw err;
         
         // remove
-        if (result) {
+        if (result !== null) {
             delete result.guests[guestID]
         }
     })
@@ -76,7 +74,7 @@ router.get('/get-guests', (req, res) => {
         if (err) throw err;
         
         // send
-        if (result) {
+        if (result !== null) {
             res.send(result.guests)
         }
     })
@@ -92,7 +90,7 @@ router.get('/get-id-occupied', (req, res) => {
         if (err) throw err;
         
         // send
-        if (result) {
+        if (result !== null) {
             res.send({occupied: result.guests.hasOwnProperty(guestID)})
         }
     })

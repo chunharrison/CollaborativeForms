@@ -10,7 +10,8 @@ import {
     CLOSE_INVITE_GUESTS_WINDOW,
     SET_INVITATION_LINK,
     OPEN_INVITE_GUESTS_ALERT,
-    CLOSE_INVITE_GUESTS_ALERT
+    CLOSE_INVITE_GUESTS_ALERT,
+    SET_ROOM_HOST_ID
 } from './types'
 
 
@@ -57,7 +58,6 @@ export const setRoomCode = roomCode => dispatch => {
 }
 
 export const setHostName = hostName => dispatch => {
-    console.log('setHostName', hostName)
     dispatch({
         type: SET_HOST_NAME,
         payload: hostName
@@ -65,7 +65,6 @@ export const setHostName = hostName => dispatch => {
 }
 
 export const openInviteGuestsWindow = () => dispatch => {
-    console.log('openInviteGuestsWindow')
     dispatch({
         type: OPEN_INVITE_GUESTS_WINDOW,
         payload: true
@@ -97,5 +96,12 @@ export const setInvitationLink = link => dispatch => {
     dispatch({
         type: SET_INVITATION_LINK,
         payload: link
+    })
+}
+
+export const setRoomHostID = hostID => dispatch => {
+    dispatch({
+        type: SET_ROOM_HOST_ID,
+        payload: hostID
     })
 }

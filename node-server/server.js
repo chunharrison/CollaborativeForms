@@ -99,33 +99,13 @@ app.get('/api/generate-put-url', (req,res)=>{
     });
 });
 
-app.get('/api/get-guest-space-id', (req, res) => {
-    res.header("Access-Control-Allow-Credentials", true);
-
-    const { roomCode } = req.query;
-    
-    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
-        if (err) throw err;
-
-        let openedSpaceID = null
-        let full = true
-
-        if (result && Object.keys(result.guests).length <= result.numMaxGuests) {
-            openedSpaceID = nanoid
-            full = false
-        }
-
-        res.send({full})
-    })
-})
-
 app.get('/api/get-spaces-left', (req, res) => {
     res.header("Access-Control-Allow-Credentials", true);
 
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
 
-        if (result && Object.keys(result.guests).length < result.numMaxGuests) {
+        if (result !== null && Object.keys(result.guests).length < result.numMaxGuests) {
             res.send({spaceAvailable: true})
         } else {
             res.send({spaceAvailable: false})
@@ -225,11 +205,9 @@ io.on('connection', (socket)=>{
             // (the room exists)
             if (result !== null) {
 
-                console.log(`fetching data from room: ${roomCode}`)
-
                 // update the guestlist
                 if (!isHost) {
-                    console.log('guestJoined', username, guestID)
+
                     result.guests[guestID] = username
                     socket.to(roomCode).emit('updateGuestList', {currentGuests: result.guests})
                     db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
@@ -239,8 +217,6 @@ io.on('connection', (socket)=>{
                     console.log('pilotModeUserConnected')
                     socket.emit('pilotModeUserConnected')
                 }
-
-                console.log(result.guests)
             } 
             
             // could not find the database under the given roomCode
@@ -387,8 +363,6 @@ io.on('connection', (socket)=>{
         })
 
         socket.on("highlightIn", (pageData) => {
-            console.log('highlight incoming');
-            console.log(pageData);
             db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
                 let highlights = result.highlights;
                 let highlight = pageData.highlight;
@@ -400,7 +374,6 @@ io.on('connection', (socket)=>{
         })
 
         socket.on("commentIn", (pageData) => {
-            console.log('comment incoming')
             db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
                 let highlights = result.highlights;
                 let comment = pageData.comment;
@@ -412,7 +385,6 @@ io.on('connection', (socket)=>{
         })
 
         socket.on("commentDelete", (pageData) => {
-            console.log('deleting comment')
             db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
                 let highlights = result.highlights;
                 delete highlights[pageData.pageNum][pageData.id];
@@ -425,9 +397,8 @@ io.on('connection', (socket)=>{
         // Pilot Mode //////////////////////////////////////////////////
         socket.on("pilotModeRequested", (requestData) => {
             // const { requesterUsername, requesterSocketID, currNumUsers } = requestData
-            console.log("pilotModeRequested")
             // emit to everyone else in the room to either accept or decline the request
-
+            console.log("pilotModeRequested", requestData)
             socket.to(roomCode).emit('confirmPilotMode', requestData)
         })
 
@@ -435,9 +406,7 @@ io.on('connection', (socket)=>{
         socket.on("pilotModeRequestCallback", (callbackData) => {
             const {confirmed, confirmingUserGuestID, requesterSocketID } = callbackData
             console.log("pilotModeRequestCallback", confirmed, confirmingUserGuestID, requesterSocketID)
-            
             if (confirmed) {
-                console.log('confirmed')
                 socket.to(requesterSocketID).emit('pilotModeUserAccepted', confirmingUserGuestID)
             } else {
                 socket.to(requesterSocketID).emit("pilotModeDeclined", confirmingUserGuestID)

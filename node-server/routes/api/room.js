@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-
 var db;
 var url = "mongodb://localhost:27017";
 var MongoClient = require('mongodb').MongoClient;
@@ -12,20 +11,21 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
 
 router.get('/get-host-id', (req, res) => {
     const { roomCode } = req.query;
+
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-
-        res.send({hostID: result.host.id})
+        let hostID = ''
+        if (result !== null) hostID = result.host.id
+        res.send({hostID: hostID})
     })
 })
 
 router.get('/get-host-name', (req, res) => {
     const { roomCode } = req.query;
-    console.log('/get-host-name', roomCode)
+
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-        // console.log(result.host.name)
-        res.send({hostName: result.host.name})
+        if (result !== null) res.send({hostName: result.host.name})
     })
 })
 
@@ -33,7 +33,6 @@ router.get('/get-guest-list', (req, res) => {
     const { roomCode } = req.query;
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-        // console.log(result.host.name)
         res.send({guestList: result.guests})
     })
 })

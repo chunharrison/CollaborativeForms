@@ -15,11 +15,7 @@ import {
 const InviteUserPopup = (props) => {
 
     const [showModal, setShowModal] = useState(props.showInviteGuestsModal)
-    const [showAlert, setShowAlert] = useState(props.showInviteGuestAlert)
-
-    useEffect(() => {
-        console.log(props.showInviteGuestsModal)
-    })
+    const [showAlert, setShowAlert] = useState(false) // props.showInviteGuestAlert
 
     function handleCloseModal() {
         setShowModal(false)
@@ -48,7 +44,7 @@ const InviteUserPopup = (props) => {
                 </Modal.Body>
             </ Modal>
 
-            <Alert show={props.showInviteGuestAlert} variant={'danger'}>
+            {/* <Alert show={props.showInviteGuestsAlert} variant={'danger'}>
                 <Alert.Heading>Room Full!</Alert.Heading>
                 <p> {props.invitationLink} </p>
                 <div className="d-flex justify-content-end">
@@ -56,14 +52,15 @@ const InviteUserPopup = (props) => {
                         Ok
                     </Button>
                 </div>
-            </Alert>
+            </Alert> */}
         </div>
     )
 }
 
 const mapStateToProps = state => ({
     showInviteGuestsModal: state.room.showInviteGuestsModal,
-    invitationLink: state.room.invitationLink
+    invitationLink: state.room.invitationLink,
+    showInviteGuestsAlert: state.room.showInviteGuestsAlert
 })
 
 export default connect(mapStateToProps, {

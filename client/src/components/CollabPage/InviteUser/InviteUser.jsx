@@ -31,12 +31,10 @@ const InviteUser = (props) => {
                 'Access-Control-Allow-Headers': '*',
             },
         };
-        // console.log(props.roomCode)
+
         axios.get('/api/guests/check-space-availability', options).then(res => {
             let invitationLink = ''
-            console.log('here')
             if (!res.data.full) {
-                console.log('first')
                 invitationLink = `http://localhost:3000/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
                 if (props.isDemoPage) {
                     invitationLink += '&type=demo'

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import {nanoid} from 'nanoid'
 
 // Components
 import { Document } from 'react-pdf'; // open source
@@ -53,13 +54,13 @@ const LoadDoc = (props) => {
     }
 
     const documentLoader = <div style={{ height: '500px' }}>
-        <div class="loader-wrapper">
-            <span class="circle circle-1"></span>
-            <span class="circle circle-2"></span>
-            <span class="circle circle-3"></span>
-            <span class="circle circle-4"></span>
-            <span class="circle circle-5"></span>
-            <span class="circle circle-6"></span>
+        <div className="loader-wrapper">
+            <span className="circle circle-1"></span>
+            <span className="circle circle-2"></span>
+            <span className="circle circle-3"></span>
+            <span className="circle circle-4"></span>
+            <span className="circle circle-5"></span>
+            <span className="circle circle-6"></span>
         </div>
     </div>
 
@@ -75,7 +76,7 @@ const LoadDoc = (props) => {
                 {/* Render the pages of the PDF */}
                 {
                     pagesArray.map((pageNum, i) => {
-                        return <LoadPage pageNum={pageNum} />
+                        return <LoadPage pageNum={pageNum} key={`page-${i}`}/>
                     })
                 }
             </div>

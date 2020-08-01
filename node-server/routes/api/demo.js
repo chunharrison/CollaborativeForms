@@ -10,7 +10,6 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
 });
 
 router.post('/create-demo-room', (req, res) => {
-    console.log('/create-demo-room')
     // Both Key and ContentType are defined in the client side.
     // Key refers to the remote name of the file.
     // ContentType refers to the MIME content type, in this case image/jpeg

@@ -10,7 +10,6 @@ import {
 const Highlighter = (props) => {
     let highlights = props.highlightDict[props.pageNum];
     function handleHighlight(e) {
-        console.log(e.target.parentNode.id);
     }
 
     return (

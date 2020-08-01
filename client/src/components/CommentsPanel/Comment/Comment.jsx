@@ -32,7 +32,6 @@ const Comment = (props) => {
     function scrollToHighlight(e) {
         let element = document.getElementById(`${e.target.parentNode.parentNode.id.substring(6)}`);
         element.scrollIntoView();
-        console.log(element.childNodes);
         element.childNodes.forEach((child) => {
             child.classList.add('highlight-box-red');
             setTimeout(function(){ child.classList.remove('highlight-box-red'); }, 500);

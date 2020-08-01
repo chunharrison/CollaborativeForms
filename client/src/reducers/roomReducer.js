@@ -10,7 +10,8 @@ import {
     CLOSE_INVITE_GUESTS_WINDOW,
     SET_INVITATION_LINK,
     OPEN_INVITE_GUESTS_ALERT,
-    CLOSE_INVITE_GUESTS_ALERT
+    CLOSE_INVITE_GUESTS_ALERT,
+    SET_ROOM_HOST_ID
 } from '../actions/types'
 
 const initialState = {
@@ -23,7 +24,8 @@ const initialState = {
     guestObject: {},
     showInviteGuestsModal: false,
     showInviteGuestsAlert: false,
-    invitationLink: ''
+    invitationLink: '',
+    hostID: '',
 }
 
 export default function(state = initialState, action) {
@@ -98,6 +100,12 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 showInviteGuestsAlert: action.payload
+            }
+
+        case SET_ROOM_HOST_ID: 
+            return {
+                ...state,
+                hostID: action.payload
             }
 
         default:

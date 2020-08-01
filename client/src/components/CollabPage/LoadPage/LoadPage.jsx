@@ -3,6 +3,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react'
 // Components
 import Highlighter from '../../Highlighter/Highlighter';
 import { Page } from 'react-pdf';
+import nanoid from 'nanoid';
 
 // Libraries
 import { useInView } from 'react-intersection-observer';
@@ -72,11 +73,9 @@ const LoadPage = (props) => {
             }
         }
 
-        // console.log(inView)
 
         if (pageLoaded && pageRendered && !fabricRendered) {
             
-            // console.log(props.renderFabricCanvas, typeof props.renderFabricCanvas)
             props.renderFabricCanvas(
                 props.pageNum,
                 pageWidth,
