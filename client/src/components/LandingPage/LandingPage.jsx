@@ -15,11 +15,17 @@ import triangle from './triangle.png';
 import rectangle from './rectangle.png';
 import downArrow from './down-arrow.png';
 import featureOne from './feature-one.png';
+import featureThree from './create-shapes-placeholder.png';
 import rectangleOne from './rectangle-1.png';
 import rectangleTwo from './rectangle-2.png';
 import rectangleThree from './rectangle-3.png';
 import tick from './tick.png';
 import plus from './plus.png';
+
+//videos
+import createShapesVid from './create-shapes.mp4';
+import createSignatureVid from './create-signature.mp4';
+import pilotModeVid from './pilot-mode.mp4';
 
 // redux
 import { connect } from 'react-redux'
@@ -38,7 +44,9 @@ class LandingPage extends React.Component {
         super(props);
         this.state = {
             typeBlink:false,
-
+            video1IsLoaded: false,
+            video2IsLoaded: false,
+            video3IsLoaded: false,
         }
 
         this.fadeInLeft = this.fadeInLeft.bind(this);
@@ -193,7 +201,23 @@ class LandingPage extends React.Component {
                 </div>
                 <div className='feature'>
                     <InView as="div" className='feature-image-container' onChange={this.fadeInLeft}>
-                        <img src={featureOne} className='feature-image'/>
+                    <div className="feature-image">
+                            <img
+                                src={featureThree}
+                                className='video-thumb'
+                                alt="thumb"
+                                style={{ opacity: this.state.video3IsLoaded ? 0 : 1 }}
+                            />
+                            <video
+                            className='feature-video'
+                                autoPlay
+                                playsInline
+                                muted
+                                src={createSignatureVid}
+                                onLoadedData={() => this.setState({video1IsLoaded: true})}
+                                style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
+                            />
+                        </div>
                     </InView>
                     <InView as="div" className='feature-text' onChange={this.fadeInRight}>
                             <p className='feature-header'>Sign documents together.</p>
@@ -206,12 +230,44 @@ class LandingPage extends React.Component {
                             <p className='feature-description'>Our Pilot mode allows our users to be in full controll of the document, allowing them to navigate <span>everyone’s attention</span> to their desired page destination!</p>
                     </InView>
                     <InView as="div" className='feature-image-container' onChange={this.fadeInRight}>
-                        <img src={featureOne} className='feature-image'/>
+                    <div className="feature-image">
+                            <img
+                                src={featureThree}
+                                className='video-thumb'
+                                alt="thumb"
+                                style={{ opacity: this.state.video3IsLoaded ? 0 : 1 }}
+                            />
+                            <video
+                            className='feature-video'
+                                autoPlay
+                                playsInline
+                                muted
+                                src={pilotModeVid}
+                                onLoadedData={() => this.setState({video1IsLoaded: true})}
+                                style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
+                            />
+                        </div>
                     </InView>
                 </div>
                 <div className='feature'>
                     <InView as="div" className='feature-image-container' onChange={this.fadeInLeft}>
-                        <img src={featureOne} className='feature-image'/>
+                        <div className="feature-image">
+                            <img
+                                src={featureThree}
+                                className='video-thumb'
+                                alt="thumb"
+                                style={{ opacity: this.state.video3IsLoaded ? 0 : 1 }}
+                            />
+                            <video
+                            className='feature-video'
+                                autoPlay
+                                playsInline
+                                muted
+                                src={createShapesVid}
+                                onLoadedData={() => this.setState({video3IsLoaded: true})}
+                                style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
+                            />
+                        </div>
                     </InView>
                     <InView as="div" className='feature-text' onChange={this.fadeInRight}>
                             <p className='feature-header'>Freedom of choice.</p>
@@ -301,6 +357,7 @@ class LandingPage extends React.Component {
                             </InView>
                         </div>
                     </div>
+                    
                 </div>
             </div> 
         );

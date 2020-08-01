@@ -49,7 +49,7 @@ const HelpPage = (props) => {
     }
 
     return (
-        <div className={`account-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
+        <div className={`help-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
             <p className='help-subheader'>
                 Send us your question
             </p>

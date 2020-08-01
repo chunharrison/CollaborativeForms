@@ -335,7 +335,7 @@ canvas {
 
 .nav-logo {
     font-family: 'myriad-pro';
-    font-size:50px;
+    font-size:3.5vw;
     color: black;
     padding:0.7em;
     padding-top:0.5em;
@@ -353,24 +353,34 @@ canvas {
 
 .nav-button {
     font-family: roboto-light;
-    font-size: 20px;
-    color: black;
+    font-size: 1.3vw;
+    color: rgb(90, 90, 90);
     padding-left:0.5em;
     padding-right:0.5em;
+    cursor:pointer;
+}
+
+.nav-button:hover {
+    color:black;
 }
 
 .nav-register-button {
     font-family: roboto-light;
-    font-size: 20px;
+    font-size: 1.3vw;
     color: white;
-    padding-left:3em;
-    padding-right:3em;
+    padding-left:2.5em;
+    padding-right:2.5em;
     padding-top:1em;
     padding-bottom: 1em;
     margin-left:2em;
     margin-right: 2em;
     background-color: #e66069;
     border-radius:40px;
+    cursor:pointer;
+}
+
+.nav-register-button:hover {
+    background-color: #e66f77;
 }
 
 .welcome {
@@ -539,10 +549,26 @@ canvas {
 }
 
 .feature-image {
+    position:relative;
     width: 35vw;
     box-shadow: 10px 10px 0 #666666;
     margin-left:4vw;
     margin-right:4vw;
+}
+
+.feature-video {
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
+.video-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transition: opacity 400ms ease 0ms;
 }
 
 .fade-in-left {
@@ -737,7 +763,6 @@ canvas {
 
 .pricing {
     width: 70vw;
-    height:35vw;
     background: rgb(176,99,70);
     background: linear-gradient(225deg, rgba(176,99,70,1) 0%, rgba(173,68,75,1) 100%);
     border-radius: 3vw;
@@ -756,6 +781,7 @@ canvas {
 .pricing-card-container {
     display: flex;
     justify-content: center;
+    margin-bottom:2vw;
 }
 
 .pricing-card {
@@ -803,7 +829,7 @@ canvas {
     background: linear-gradient(225deg, rgba(236,163,123,1) 0%, rgba(173,68,157,1) 100%);
     width:19vw;
     height:22vw;
-    margin:1em;
+    margin:1vw;
     border-radius: 2vw;
     box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
 }
@@ -841,8 +867,8 @@ canvas {
 .pricing-card-price-container {
     display:flex;
     justify-content:center;
-    margin-top:1em;
-    margin-bottom:1em;
+    margin-top:1vw;
+    margin-bottom:1vw;
 }
 
 .pricing-card-price-currency {
@@ -869,7 +895,7 @@ canvas {
 .pricing-card-perk {
     display: flex;
     justify-content: start;
-    margin:0.7em;
+    margin:0.7vw;
 }
 
 .pricing-card-perk-tick {
@@ -928,4 +954,186 @@ canvas {
     font-size: 0.9vw;
     margin-left:0.4em;
     color: rgba(255, 255, 255, 0.4);
+}
+
+.faq {
+    height:600px;
+    width: 70%;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-top:4em;
+    margin-bottom:4em;
+    border-radius: 1vw;
+}
+
+@media only screen and (max-width: 800px) {
+    .nav-button {
+        font-size: 2.3vw;
+    }
+    
+    .nav-register-button {
+        font-size: 2.3vw;
+        padding-left:2em;
+        padding-right:2em;
+        padding-top:0.66em;
+        padding-bottom: 0.66em;
+        margin-left:1em;
+        margin-right: 1em;
+    }
+
+    .header-real, .header-time, .header-pdf, .header-signing, .header-and, .header-collaboration {
+        font-size: 6vw;
+    }
+
+    .underline {
+        position: absolute;
+        top:6vw;
+        width:100%;
+        z-index:-1;
+    }
+
+    .description {
+        font-size: 2.5vw;
+    }
+
+    .triangle {
+        position:absolute;
+        left: -10vw;
+        top: 14vw;
+        width:20vw;
+    }    
+
+    .welcome-demo-button {
+        font-size: 2vw;
+    }
+
+    .learn-more {
+        font-size: 2vw;
+    }
+
+    .feature {
+        flex-direction: column;
+        height:600px;
+    }
+
+    .feature-image {
+        width: 55vw;
+    }
+
+    .feature-video {
+        width: 55vw;
+    }
+
+    .feature-text {
+        width: 50%;
+        padding-bottom:4vw;
+    }
+
+    .feature-header {
+        font-size: 4vw;
+    }
+
+    .feature-description {
+        font-size: 2vw;
+    }
+
+    .try-demo {
+        height: 35vw;
+    }
+
+    .try-demo-header {
+        font-size: 3.5vw;
+    }
+    
+    .try-demo-description {
+        font-size: 2vw;
+    }
+    
+    .try-demo-button {
+        font-size: 2vw;
+    }
+
+    .choose-plan-header {
+    font-size:3vw;
+    }
+
+    .join-us-header {
+        font-size: 4.5vw;
+    }
+    
+    .join-us-description {
+        font-size: 2.5vw;
+    }
+
+    .pricing-card-container {
+        flex-direction: column;
+    }
+
+    .pricing-card-small {
+        width:40vw;
+        height:45vw;
+    }
+
+    .pricing-card-large {
+        width: 40vw;
+        height: 45vw;
+    }
+    .pricing-card-button-small {
+        font-size:2vw;
+        width:15vw;
+        padding-top:1.5vw;
+        padding-bottom: 1.5vw;
+    }
+
+    .pricing-card-button-large {
+        font-size:2vw;
+        width:15vw;
+        padding-top:1.5vw;
+        padding-bottom: 1.5vw;
+    }
+
+    .pricing-card-tier {
+        font-size: 4vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline {
+        width: 4vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-tier-small {
+        font-size: 4vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline-small {
+        width: 4vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-price-currency, .pricing-card-price-currency-small {
+        font-size: 2.6vw;
+    }
+    
+    .pricing-card-price-value, .pricing-card-price-value-small {
+        font-size:8.5vw;
+    }
+    
+    .pricing-card-price-recurrence, .pricing-card-price-recurrence-small {
+        font-size:2.6vw;
+    }
+
+    .pricing-card-perk-tick, .pricing-card-perk-tick-small {
+        height: 1.4vw;
+    }
+    
+    .pricing-card-perk {
+        margin:2vw;
+    }
+
+    .pricing-card-perk-description, .pricing-card-perk-description-small {
+        font-size: 2vw;
+    }
 }
