@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 //Libraries
 import { connect } from 'react-redux';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 
 //components
 import InfiniteDocumentScroll from './InfiniteDocumentScroll/InfiniteDocumentScroll';
@@ -38,10 +38,10 @@ const DocumentsPage = props => {
 
 }
 
-DocumentsPage.propTypes = {
-        logoutUser: PropTypes.func.isRequired,
-        auth: PropTypes.object.isRequired
-  };
+// DocumentsPage.propTypes = {
+//         logoutUser: PropTypes.func.isRequired,
+//         auth: PropTypes.object.isRequired
+//   };
 
 const mapStateToProps = state => ({
     auth: state.auth    

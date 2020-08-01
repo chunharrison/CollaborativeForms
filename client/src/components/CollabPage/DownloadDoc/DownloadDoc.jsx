@@ -153,7 +153,6 @@
                 }
 
                 pdfDoc = addMetadata(pdfDoc, newObjectNames);
-                console.log(pdfDoc.getKeywords().split(' '));
                 const pdfBytes = await pdfDoc.save();
                 const fileName = "signed_document.pdf";
                 download(pdfBytes, fileName, "application/pdf");
@@ -165,11 +164,11 @@
             {
                 !props.demoPageDownload 
                 ? 
-                <div class="dropdown">
+                <div className="dropdown">
                     <button className='tool'>
                         <img src={downloadImg}/>
                     </button>
-                    {/* <div class="dropdown-content">
+                    {/* <div className="dropdown-content">
                         <a href="#" onClick={event => downloadProc(event)}>Signed</a>
                         <a href="#">Original</a>
                     </div> */}

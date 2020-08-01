@@ -54,32 +54,6 @@ const PMWaitWindow = (props) => {
         event.preventDefault()
         props.closePMWaitWindow()
     }
-    
-
-    useEffect(() => {
-        // props.room.userSocket.on("pilotModeUserAccepted", (confirmingUserGuestID) => {
-        //     console.log(props.pilot.pmWaitWindowTableRows);
-        //     props.pilot.pmWaitWindowTableRows.forEach((item) => {
-        //         console.log(item.guestID, confirmingUserGuestID)
-        //         if (item.guestID === confirmingUserGuestID) {
-        //             item['status'] = 'Accepted'
-        //             pmNumAccepts += 1
-        //         }
-        //     })
-            
-        //     if (props.pilot.pmWaitWindowTableRows.length === pmNumAccepts &&
-        //         props.pilot.pmWaitWindowTableRows.length !== 0) {
-        //         document.addEventListener('scroll', sendScrollPercent, true);
-
-        //         setTimeout(() => {
-        //             activatePM()
-        //             props.setPMState(true)
-        //             props.closePMWaitWindow()
-        //         }, 2500)
-        //         props.room.userSocket.emit('pilotModeActivated')
-        //     }
-        // })
-    }, [])
 
     return (
         <div>

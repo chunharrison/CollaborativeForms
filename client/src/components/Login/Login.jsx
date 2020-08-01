@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { loginUser } from "../../actions/authActions";
 import classnames from "classnames";
@@ -34,7 +34,6 @@ class Login extends Component {
       email: this.state.email,
       password: this.state.password
     };
-    console.log(userData)
     this.props.loginUser(userData); // since we handle the redirect within our component, we don't need to pass in this.props.history as a parameter
   };
 
@@ -98,11 +97,11 @@ class Login extends Component {
     }
   }
 
-Login.propTypes = {
-  loginUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
-  errors: PropTypes.object.isRequired
-};
+// Login.propTypes = {
+//   loginUser: PropTypes.func.isRequired,
+//   auth: PropTypes.object.isRequired,
+//   errors: PropTypes.object.isRequired
+// };
 
 const mapStateToProps = state => ({
   auth: state.auth,

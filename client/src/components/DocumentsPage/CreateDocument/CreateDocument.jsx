@@ -4,7 +4,7 @@ import {withRouter} from 'react-router-dom';
 import { fabric } from 'fabric';
 import { nanoid } from 'nanoid';
 import { connect } from 'react-redux';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 import Alert from 'react-bootstrap/Alert';
@@ -116,7 +116,6 @@ const CreateDocument = props => {
             },
         };
         let res = await axios.get(generatePutUrl, options)
-            // console.log('AXIOS GET')
         const {
             data: { putURL }
         } = res;
@@ -297,9 +296,9 @@ const CreateDocument = props => {
 
 }
 
-CreateDocument.propTypes = {
-        auth: PropTypes.object.isRequired
-};
+// CreateDocument.propTypes = {
+//         auth: PropTypes.object.isRequired
+// };
 
 const mapStateToProps = state => ({
     auth: state.auth    

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 //Libraries
 import { connect } from 'react-redux';
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 
 import { logoutUser } from "../../actions/authActions";
 
@@ -53,10 +53,10 @@ const AccountPortal = props => {
 
 }
 
-AccountPortal.propTypes = {
-    logoutUser: PropTypes.func.isRequired,
-    auth: PropTypes.object.isRequired
-};
+// AccountPortal.propTypes = {
+//     logoutUser: PropTypes.func.isRequired,
+//     auth: PropTypes.object.isRequired
+// };
 
 const mapStateToProps = state => ({
     auth: state.auth    

@@ -5,7 +5,6 @@ import {
 } from "./types"
 
 export const sendMessage = (emailData) => dispatch => {
-    console.log('sendMessage')
     axios.post('/api/emails/send-message', emailData)
         .then(res => {
             return res;

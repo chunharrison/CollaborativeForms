@@ -40,14 +40,14 @@ const TextOptions = props => {
                     }
                 </div>
                 <div className='sliders-container'>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Font Size</p>
-                        <input type="range" min="1" max="100" value={props.textFontSize} onChange={setTextFontSize} step='1' class="slider" />                        
+                        <input type="range" min="1" max="100" value={props.textFontSize} onChange={setTextFontSize} step='1' className="slider" />                        
                         <p className='slider-value'>{props.textFontSize}</p>
                     </div>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Opacity</p>
-                        <input type="range" min="1" max="100" value={props.textOpacity} onChange={setTextOpacity} step='1' class="slider" />
+                        <input type="range" min="1" max="100" value={props.textOpacity} onChange={setTextOpacity} step='1' className="slider" />
                         <p className='slider-value'>{props.textOpacity}%</p>
                     </div>
                 </div>

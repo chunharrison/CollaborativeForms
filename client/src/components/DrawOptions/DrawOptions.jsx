@@ -43,14 +43,14 @@ const DrawOptions = props => {
                     }
                 </div>
                 <div className='sliders-container'>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Size</p>
-                        <input type="range" min="1" max="100" value={props.drawBrushSize} onChange={setDrawBrushSize} step='1' class="slider" />
+                        <input type="range" min="1" max="100" value={props.drawBrushSize} onChange={setDrawBrushSize} step='1' className="slider" />
                         <p className='slider-value'>{props.drawBrushSize}</p>
                     </div>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Opacity</p>
-                        <input type="range" min="1" max="100" value={props.drawOpacity} onChange={setDrawOpacity} step='1' class="slider" />
+                        <input type="range" min="1" max="100" value={props.drawOpacity} onChange={setDrawOpacity} step='1' className="slider" />
                         <p className='slider-value'>{props.drawOpacity}%</p>
                     </div>
                 </div>

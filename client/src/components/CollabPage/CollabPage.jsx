@@ -38,7 +38,7 @@ import html2canvas from 'html2canvas';
 import Select from 'react-select';
 
 // redux
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { 
     setCurrentDoc, 
@@ -52,6 +52,7 @@ import {
     updateCurrentGuestObject,
     setHostName,
     setGuestID,
+    setRoomHostID
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -177,7 +178,7 @@ class CollabPage extends React.Component {
         
     };
 
-    getHostID() {
+    setStateHostID() {
         const options = {
             params: {
                 roomCode: this.state.roomCode
@@ -191,7 +192,41 @@ class CollabPage extends React.Component {
         }
 
         axios.get('/api/room/get-host-id', options).then(res => {
-            return res.hostID
+            this.setState({
+                hostID: res.data.hostID
+            }, () => {
+                this.props.setRoomHostID(res.data.hostID)
+
+                // TODO: harrison
+                // had to do this because getting of hostID was sync
+                // find a better way to do this synchronously 
+
+                // GUESTS
+                if (this.state.guestID !== 'undefined' && this.props.auth.user.id !== this.state.hostID) {
+                    const options = {
+                        params: {
+                            roomCode: this.state.roomCode,
+                            guestID: this.state.guestID
+                        },
+                        headers: {
+                            'Access-Control-Allow-Credentials': true,
+                            'Access-Control-Allow-Origin': '*',
+                            'Access-Control-Allow-Methods': 'GET',
+                            'Access-Control-Allow-Headers': '*',
+                        },
+                    };
+                
+                    axios.get('/api/guests/get-id-occupied', options).then(res => {
+                        this.setState({guestIdOccupied: res.data.occupied})
+                    })
+        
+                    this.props.setGuestID(this.state.guestID)
+                }
+                this.setStateGuestList()
+
+                // SOCKET
+                this.setSocket(this.state.username, this.state.roomCode, this.state.guestID);
+            })
         })
     }
 
@@ -233,7 +268,7 @@ class CollabPage extends React.Component {
         axios.get('/api/room/get-guest-list', options).then(res => {
 
             let currentGuestList = [...Object.values(res.data.guestList)]
-            if (!this.props.auth.isAuthenticated) currentGuestList.push(this.state.username)
+            if (this.props.auth.user.id !== this.state.hostID) currentGuestList.push(this.state.username)
             this.setState({
                 guestList: currentGuestList
             }, () => {
@@ -849,7 +884,8 @@ class CollabPage extends React.Component {
         // the server then emits an initial setup with:
         //      the document file, existing signature object and the list of people in the room
         socket.on('join', () => {
-            const isHost = this.props.auth.isAuthenticated
+            const isHost = this.props.auth.user.id === this.state.hostID
+            console.log("isHost = ", isHost)
             socket.emit('join', { username, roomCode, guestID, isHost });
         });
 
@@ -913,7 +949,6 @@ class CollabPage extends React.Component {
         let username = '' + queryString.parse(this.props.location.search).username
         let roomCode = '' + queryString.parse(this.props.location.search).roomCode
         let guestID = '' + queryString.parse(this.props.location.search).guestID
-        console.log( username, roomCode, guestID)
 
         // DEMO PAGE
         if (this.props.demoPage) {
@@ -922,32 +957,12 @@ class CollabPage extends React.Component {
             this.getDocument(roomCode)
         }
 
-        if (guestID !== 'undefined') {
-            const options = {
-                params: {
-                    roomCode: roomCode,
-                    guestID: guestID
-                },
-                headers: {
-                    'Access-Control-Allow-Credentials': true,
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET',
-                    'Access-Control-Allow-Headers': '*',
-                },
-              };
-        
-              axios.get('/api/guests/get-id-occupied', options).then(res => {
-                this.setState({guestIdOccupied: res.data.occupied})
-              })
-        }
         this.props.setRoomCode(roomCode) 
-        this.props.setGuestID(guestID)
         // TODO: set roomCode in the CreateDocument.jsx & DocumentCard.jsx in redux
         this.setState({ username, roomCode, guestID, }, () => {
-            this.setSocket(username, roomCode, guestID); // Socket.io
-            // UsersList
+            // HOST
             this.setStateHostName()
-            this.setStateGuestList()
+            this.setStateHostID() 
         });
 
         this.props.setCanvasContainerRef(this.canvasContainerRef)
@@ -1136,23 +1151,22 @@ class CollabPage extends React.Component {
     }
 }
 
-CollabPage.propTypes = {
-    // func
-    setUserSocket: PropTypes.func.isRequired,
-    setCurrentDoc: PropTypes.func.isRequired,
-    setCurrentZoom: PropTypes.func.isRequired,
-    setRoomCode: PropTypes.func.isRequired,
-    setRenderFabricCanvasFunc: PropTypes.func.isRequired,
-    setCanvasContainerRef: PropTypes.func.isRequired,
-    updateCurrentGuests: PropTypes.func.isRequired,
+// CollabPage.propTypes = {
+//     // func
+//     setUserSocket: PropTypes.func.isRequired,
+//     setCurrentDoc: PropTypes.func.isRequired,
+//     setCurrentZoom: PropTypes.func.isRequired,
+//     setRoomCode: PropTypes.func.isRequired,
+//     setRenderFabricCanvasFunc: PropTypes.func.isRequired,
+//     setCanvasContainerRef: PropTypes.func.isRequired,
+//     updateCurrentGuests: PropTypes.func.isRequired,
 
-    // var
-    userSocket: PropTypes.object.isRequired,
-    currentDoc: PropTypes.object.isRequired,
-    numPages: PropTypes.number.isRequired,
-    pageDimensions: PropTypes.array.isRequired,
-    currentZoom: PropTypes.number.isRequired
-}
+//     // var
+//     currentDoc: PropTypes.object.isRequired,
+//     numPages: PropTypes.number.isRequired,
+//     pageDimensions: PropTypes.array.isRequired,
+//     currentZoom: PropTypes.number.isRequired
+// }
 
 const mapStateToProps = state => ({
     // auth
@@ -1194,6 +1208,7 @@ export default connect(mapStateToProps, {
     setRoomCode, 
     setHostName,
     setGuestID,
+    setRoomHostID,
 
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,

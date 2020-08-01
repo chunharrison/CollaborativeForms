@@ -86,14 +86,14 @@ const ShapeOptions = props => {
                     }
                 </div>
                 <div className='sliders-container'>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Thickness</p>
-                        <input type="range" min="1" max="20" value={props.shapeBorderThickness} onChange={setShapeBorderThickness} step='1' class="slider" />                    
+                        <input type="range" min="1" max="20" value={props.shapeBorderThickness} onChange={setShapeBorderThickness} step='1' className="slider" />                    
                         <p className='slider-value'>{props.shapeBorderThickness}</p>
                     </div>
-                    <div class="slider-container">
+                    <div className="slider-container">
                         <p className='slider-description'>Opacity</p>
-                        <input type="range" min="1" max="100" value={props.shapeOpacity} onChange={setShapeOpacity} step='1' class="slider" />
+                        <input type="range" min="1" max="100" value={props.shapeOpacity} onChange={setShapeOpacity} step='1' className="slider" />
                         <p className='slider-value'>{props.shapeOpacity}%</p>
                     </div>
                 </div>

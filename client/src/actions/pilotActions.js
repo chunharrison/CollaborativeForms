@@ -50,7 +50,6 @@ export const openPMConfirmWindow = () => dispatch => {
 }
 
 export const closePMConfirmWindow = () => dispatch => {
-    console.log('closePMConfirmWindow')
     dispatch({
         type: CLOSE_PM_CONFIRM_WINDOW,
         payload: false
