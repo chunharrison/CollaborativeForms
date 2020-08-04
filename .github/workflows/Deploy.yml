@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd /var/www/cosign.pro/
+            cd /var/www/cosign.pro/CollaborationForms/
             git pull origin production
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend 
@@ -37,7 +37,7 @@ jobs:
             sudo npm install --unsafe-perm
             cd /var/www/cosign.pro/CollaborativeForms/client
             sudo npm install --unsafe-perm
-            sudo touch /var/www/cosign.pro/CollaboratoinForms/client/.env.production
+            sudo touch /var/www/cosign.pro/CollaborationForms/client/.env.production
             echo REACT_APP_BACKEND_ADDRESS=https://cosign.pro | sudo tee -a /var/www/cosign.pro/CollaboratoinForms/client/.env.production
             sudo npm run build --prefix /var/www/cosign.pro/CollaborativeForms/client/
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/build/ /var/www/cosign.pro/html
