@@ -776,12 +776,6 @@ class CollabPage extends React.Component {
     receiveEdit(pageData) {
         const { pageNum, modifiedSignatureObjectJSON } = pageData
         if (document.getElementById(pageNum.toString()) !== null) {
-<<<<<<< HEAD
-            fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function(modifiedSignatureObject) {
-                let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric
-    
-                fabricCanvasObject.getObjects().forEach(function(currentSignatureObject) {
-=======
             fabric.util.enlivenObjects([modifiedSignatureObjectJSON], function (modifiedSignatureObject) {
                 let fabricCanvasObject = document.getElementById(pageNum.toString()).fabric;
 
@@ -789,7 +783,6 @@ class CollabPage extends React.Component {
                 fabricCanvasObject.renderOnAddRemove = false;
 
                 fabricCanvasObject.getObjects().forEach(function (currentSignatureObject) {
->>>>>>> master
                     if (modifiedSignatureObject[0].id === currentSignatureObject.id) {
                         currentSignatureObject.set({
                             'top': modifiedSignatureObject[0].top,
