@@ -18,14 +18,23 @@
     import './DownloadDoc.css'
 
     const DownloadDoc = (props) => {
+        console.log(props.downloadOption)
+
         //ORDER: 
         //rect: 'rect',page,x,y,width,height,color,opacity,bordercolor,borderwidth,borderopacity
         //path: 'path',page,x,y,width,height,bordercolor,borderwidth,borderopacity,path
         //text: 'text',page,x,y,size,color,opacity
         const propertyList = []
         // downloads the document with all the signatures
-        async function downloadProc(event) {
-            event.preventDefault()
+        async function originalDownloadProc() {
+
+            // Blob -> ArrayBuffer
+            // const PDFArrayBuffer = await props.currentDoc.arrayBuffer();
+            console.log(props.currentDoc)
+            download(props.currentDoc, "original_document.pdf", "application/pdf")
+        }
+
+        async function downloadProc() {
 
             // change dataURI to a Uint8Array
             function dataURItoUint8Array(dataURI) {
@@ -159,19 +168,27 @@
             }, 2000)
         }
 
+        function handleOriginalDownloadClick(e) {
+            e.preventDefault()
+            if (props.downloadOption === 'Both' || props.downloadOption === 'Original') originalDownloadProc()
+        }
+
+        function handleSignedDownloadClick(e) {
+            e.preventDefault()
+            if (props.downloadOption === 'Both' || props.downloadOption === 'Signed') downloadProc()
+        }
+
         return (
             <div>
             {
                 !props.demoPageDownload 
                 ? 
-                <div className="dropdown">
-                    <button className='tool'>
-                        <img src={downloadImg}/>
-                    </button>
-                    {/* <div className="dropdown-content">
-                        <a href="#" onClick={event => downloadProc(event)}>Signed</a>
-                        <a href="#">Original</a>
-                    </div> */}
+                <div className="download-dropdown">
+                    <div className='tool'><img src={downloadImg}/></div>
+                    <div className="download-dropdown-content">
+                        <p className={`${props.downloadOption} original`} onClick={event => handleOriginalDownloadClick(event)}>Original</p>
+                        <p className={`${props.downloadOption} signed`} onClick={event => handleSignedDownloadClick(event)}>Signed</p>
+                    </div>
                 </div>
                 :
                 <button className='tool' onClick={event => downloadProc(event)}>
@@ -185,6 +202,7 @@
     const mapStateToProps = state => ({
         // room
         userSocket: state.room.userSocket,
+        downloadOption: state.room.downloadOption,
 
         // doc
         currentDoc: state.doc.currentDoc,

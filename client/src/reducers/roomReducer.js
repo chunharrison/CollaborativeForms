@@ -11,7 +11,12 @@ import {
     SET_INVITATION_LINK,
     OPEN_INVITE_GUESTS_ALERT,
     CLOSE_INVITE_GUESTS_ALERT,
-    SET_ROOM_HOST_ID
+    OPEN_ROOM_SETTINGS_WINDOW,
+    CLOSE_ROOM_SETTINGS_WINDOW,
+    SET_ROOM_HOST_ID,
+
+    SET_MAX_NUM_GUESTS,
+    SET_DOWNLOAD_OPTION
 } from '../actions/types'
 
 const initialState = {
@@ -24,8 +29,13 @@ const initialState = {
     guestObject: {},
     showInviteGuestsModal: false,
     showInviteGuestsAlert: false,
+    showRoomSettingsWindow: false,
     invitationLink: '',
     hostID: '',
+
+    // options
+    numMaxGuests: 3,
+    downloadOption: 'Both'
 }
 
 export default function(state = initialState, action) {
@@ -102,14 +112,37 @@ export default function(state = initialState, action) {
                 showInviteGuestsAlert: action.payload
             }
 
+        case OPEN_ROOM_SETTINGS_WINDOW:
+            return {
+                ...state,
+                showRoomSettingsWindow: action.payload
+            }
+
+        case CLOSE_ROOM_SETTINGS_WINDOW:
+            return {
+                ...state,
+                showRoomSettingsWindow: action.payload
+            }
+
         case SET_ROOM_HOST_ID: 
             return {
                 ...state,
                 hostID: action.payload
             }
 
+        case SET_MAX_NUM_GUESTS:
+            return {
+                ...state,
+                numMaxGuests: action.payload
+            }
+
+        case SET_DOWNLOAD_OPTION:
+            return {
+                ...state,
+                downloadOption: action.payload
+            }
+
         default:
             return state;
-            
     }
 }

@@ -14,6 +14,22 @@ const User = require("../../models/User");
 
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('./modules/email');
 
+//Check to make sure header is not undefined, if so, return Forbidden (403)
+const checkToken = (req, res, next) => {
+  const header = req.headers['authorization'];
+
+  if(typeof header !== 'undefined') {
+      const bearer = header.split(' ');
+      const token = bearer[1];
+
+      req.token = token;
+      next();
+  } else {
+      //If header is undefined return Forbidden (403)
+      res.sendStatus(403)
+  }
+}
+
 //create one time use token that will expire in an hour. token consists of current pw + create date so once pw gets changed the token is no longer valid
 const usePasswordHashToMakeToken = ({
   password,
@@ -96,7 +112,7 @@ router.post("/login", (req, res) => {
           payload,
           process.env.JWT_PRIVATE_KEY,
           {
-            expiresIn: 31556926 // 1 year in seconds
+            expiresIn: '24h'
           },
           (err, token) => {
             res.json({
@@ -177,54 +193,70 @@ router.post("/new-password", (req, res) => {
   })
 });
 
-router.post("/change-password", (req, res) => {
-  const { userId, password, password2, oldPassword } = req.body;
+router.post("/change-password", checkToken, (req, res) => {
+  jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+    if (err) {
+        //If error send Forbidden (403)
+        console.log('ERROR: Could not connect to the protected route');
+        res.sendStatus(403);
+    } else {
+      const { userId, password, password2, oldPassword } = req.body;
 
-  if (password !== password2) {
-    return res
-      .status(400)
-      .json({ passwordincorrect: "New passwords do not match" });
-  } 
-  // highlight-start
-  User.findOne({ _id: userId }).then(user => {
-      if (userId === user.id) {
-        bcrypt.compare(oldPassword, user.password).then(isMatch => {
-          if (isMatch) {
-            // User matched
-            bcrypt.genSalt(10, (err, salt) => {
-              bcrypt.hash(password, salt, (err, hash) => {
-                if (err) throw err;
-                user.password = hash;
-                user
-                  .save()
-                  .then(user => res.send())
-                  .catch(err => console.log(err));
-              });
+      if (password !== password2) {
+        return res
+          .status(400)
+          .json({ passwordincorrect: "New passwords do not match" });
+      } 
+      // highlight-start
+      User.findOne({ _id: userId }).then(user => {
+          if (userId === user.id) {
+            bcrypt.compare(oldPassword, user.password).then(isMatch => {
+              if (isMatch) {
+                // User matched
+                bcrypt.genSalt(10, (err, salt) => {
+                  bcrypt.hash(password, salt, (err, hash) => {
+                    if (err) throw err;
+                    user.password = hash;
+                    user
+                      .save()
+                      .then(user => res.send())
+                      .catch(err => console.log(err));
+                  });
+                });
+              } else {
+                return res
+                  .status(400)
+                  .json({ passwordincorrect: "Password incorrect" });
+              }
             });
-          } else {
-            return res
-              .status(400)
-              .json({ passwordincorrect: "Password incorrect" });
           }
-        });
+        })
+        // highlight-end
+        .catch(() => {
+          res.status(404).json("Invalid user")
+        })
       }
     })
-    // highlight-end
-    .catch(() => {
-    res.status(404).json("Invalid user")
-  })
 });
 
 //get user email
-router.get("/get-email", async (req, res) => {
-  const { id } = req.query;
-  
-  let user = await User.findOne({ id }).exec();
-  if (user === null) {
-    return res.status(404).json("That user does not exist");
-  }
+router.get("/get-email", checkToken, async (req, res) => {
+  jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, async (err, authorizedData) => {
+    if (err) {
+        //If error send Forbidden (403)
+        console.log('ERROR: Could not connect to the protected route');
+        res.sendStatus(403);
+    } else {
+      const { id } = req.query;
+      
+      let user = await User.findOne({ id }).exec();
+      if (user === null) {
+        return res.status(404).json("That user does not exist");
+      }
 
-  return res.send(user.email);
+      return res.send(user.email);
+    }
+  })
 });
 
 module.exports = router;

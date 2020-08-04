@@ -42,7 +42,9 @@ const InviteUser = (props) => {
                 props.openInviteGuestsWindow()
             } else {
                 invitationLink = 'You\'ve reached your account\'s guest capacity!'
-                props.openInviteGuestsAlert()
+                // props.openInviteGuestsAlert()
+
+                props.openInviteGuestsWindow()
             }
 
             props.setInvitationLink(invitationLink)

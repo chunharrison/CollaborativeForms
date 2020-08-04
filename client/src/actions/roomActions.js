@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { 
     SET_USER_NAME,
     SET_GUEST_ID,
@@ -11,7 +13,12 @@ import {
     SET_INVITATION_LINK,
     OPEN_INVITE_GUESTS_ALERT,
     CLOSE_INVITE_GUESTS_ALERT,
-    SET_ROOM_HOST_ID
+    OPEN_ROOM_SETTINGS_WINDOW,
+    CLOSE_ROOM_SETTINGS_WINDOW,
+    SET_ROOM_HOST_ID,
+
+    SET_MAX_NUM_GUESTS,
+    SET_DOWNLOAD_OPTION
 } from './types'
 
 
@@ -99,9 +106,86 @@ export const setInvitationLink = link => dispatch => {
     })
 }
 
+export const openRoomSettingsWindow = () => dispatch => {
+    dispatch({
+        type: OPEN_ROOM_SETTINGS_WINDOW,
+        payload: true
+    })
+}
+
+export const closeRoomSettingsWindow = () => dispatch => {
+    dispatch({
+        type: CLOSE_ROOM_SETTINGS_WINDOW,
+        payload: false
+    })
+}
+
+export const setMaxNumGuests = options => dispatch => {
+    axios.post('/api/room/set-num-max-guests', options)
+        .then(res => {
+            dispatch({
+                type: SET_MAX_NUM_GUESTS,
+                payload: res.numMaxGuests
+            })
+        })
+}
+
 export const setRoomHostID = hostID => dispatch => {
     dispatch({
         type: SET_ROOM_HOST_ID,
         payload: hostID
+    })
+}
+
+export const getRoomCapacity = roomCode => dispatch => {
+    const options = {
+        params: {
+            roomCode: roomCode
+        },
+        headers: {
+            'Access-Control-Allow-Credentials': true,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': '*',
+        },
+    };
+
+    axios.get('/api/room/get-num-max-guests', options)
+        .then(res => {
+            dispatch({
+                type: SET_MAX_NUM_GUESTS,
+                payload: res.data.numMaxGuests
+            })
+        }
+    )
+}
+
+export const getDownloadOption = roomCode => dispatch => {
+    const options = {
+        params: {
+            roomCode: roomCode
+        },
+        headers: {
+            'Access-Control-Allow-Credentials': true,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': '*',
+        },
+    };
+
+    axios.get('/api/room/get-download-option', options)
+        .then(res => {
+            dispatch({
+                type: SET_DOWNLOAD_OPTION,
+                payload: res.data.downloadOption
+            })
+        }
+    )
+}
+
+export const updateDownloadOption = newDownloadOption => dispatch => {
+    dispatch({
+        type: SET_DOWNLOAD_OPTION,
+        payload: newDownloadOption
     })
 }

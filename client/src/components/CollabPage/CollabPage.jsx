@@ -22,6 +22,8 @@ import InviteUserPopup from './InviteUser/InviteUserPopup'
 import UsersList from './UsersList/UsersList'
 import CommentsPanel from '../CommentsPanel/CommentsPanel'
 import PageBrowser from './PageBrowser/PageBrowser';
+import RoomSettings from './RoomSettings/RoomSettings'
+import RoomSettingsWindow from './RoomSettings/RoomSettingsWindow'
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -52,7 +54,11 @@ import {
     updateCurrentGuestObject,
     setHostName,
     setGuestID,
-    setRoomHostID
+    setRoomHostID,
+
+    getRoomCapacity,
+    getDownloadOption,
+    updateDownloadOption
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -67,7 +73,6 @@ import { setCurrentZoom,
 } from '../../actions/toolActions'
 
 // images
-import settingsImg from './settings.png';
 import pagesImg from './pages.png';
 import commentImg from './comment.png';
 
@@ -81,6 +86,7 @@ class CollabPage extends React.Component {
 
         this.state = {
             guestIdOccupied: false,
+            roomFull: false,
 
             //User info
             username:'',
@@ -141,43 +147,6 @@ class CollabPage extends React.Component {
     ############################################ Document ##############################################
     ################################################################################################# */
 
-    getGuests() {
-        const options = {
-          params: {
-              roomCode: this.state.roomCode
-          },
-          headers: {
-              'Access-Control-Allow-Credentials': true,
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET',
-              'Access-Control-Allow-Headers': '*',
-          },
-        };
-  
-        axios.get('/api/guests/get-guests', options).then(res => {
-          return res.guests
-        })
-      }
-
-    addGuest() {
-        const options = {
-            params: {
-                roomCode: this.state.roomCode,
-                guestName: this.state.username,
-                guestID: this.state.guestID
-            },
-            headers: {
-                'Access-Control-Allow-Credentials': true,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET',
-                'Access-Control-Allow-Headers': '*',
-            },
-        }
-
-        axios.post('/api/guests/add-guest', options)
-        
-    };
-
     setStateHostID() {
         const options = {
             params: {
@@ -191,43 +160,54 @@ class CollabPage extends React.Component {
             },
         }
 
-        axios.get('/api/room/get-host-id', options).then(res => {
-            this.setState({
-                hostID: res.data.hostID
-            }, () => {
-                this.props.setRoomHostID(res.data.hostID)
+        axios.get('/api/room/get-host-id', options)
+            .then(res => {
+                console.log(res)
+                this.setState({
+                    hostID: res.data.hostID
+                }, () => {
+                    this.props.setRoomHostID(res.data.hostID)
 
-                // TODO: harrison
-                // had to do this because getting of hostID was sync
-                // find a better way to do this synchronously 
+                    // TODO: harrison
+                    // had to do this because getting of hostID was sync
+                    // find a better way to do this synchronously 
 
-                // GUESTS
-                if (this.state.guestID !== 'undefined' && this.props.auth.user.id !== this.state.hostID) {
-                    const options = {
-                        params: {
-                            roomCode: this.state.roomCode,
-                            guestID: this.state.guestID
-                        },
-                        headers: {
-                            'Access-Control-Allow-Credentials': true,
-                            'Access-Control-Allow-Origin': '*',
-                            'Access-Control-Allow-Methods': 'GET',
-                            'Access-Control-Allow-Headers': '*',
-                        },
-                    };
-                
-                    axios.get('/api/guests/get-id-occupied', options).then(res => {
-                        this.setState({guestIdOccupied: res.data.occupied})
-                    })
-        
-                    this.props.setGuestID(this.state.guestID)
-                }
-                this.setStateGuestList()
+                    // GUESTS
+                    if (this.state.guestID !== 'undefined' && this.props.auth.user.id !== this.state.hostID) {
+                        const options = {
+                            params: {
+                                roomCode: this.state.roomCode,
+                                // guestID: this.state.guestID
+                            },
+                            headers: {
+                                'Access-Control-Allow-Credentials': true,
+                                'Access-Control-Allow-Origin': '*',
+                                'Access-Control-Allow-Methods': 'GET',
+                                'Access-Control-Allow-Headers': '*',
+                            },
+                        };
+                    
+                        axios.get('/api/guests/get-id-occupied', options).then(res => {
+                            // TODO: harrison
+                            // fix when more than 1 person joins using the same guestid
+                            // this.setState({guestIdOccupied: res.data.occupied})
+                        })
 
-                // SOCKET
-                this.setSocket(this.state.username, this.state.roomCode, this.state.guestID);
+                        axios.get('api/room/get-room-capacity-status', options)
+                            .then(res => {
+                                this.setState({roomFull: res.data.roomFull})
+                            })
+            
+                        this.props.setGuestID(this.state.guestID)
+                    }
+
+                    // SOCKET
+                    this.setSocket(this.state.username, this.state.roomCode, this.state.guestID);
+                })
             })
-        })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
     setStateHostName() {
@@ -268,7 +248,6 @@ class CollabPage extends React.Component {
         axios.get('/api/room/get-guest-list', options).then(res => {
 
             let currentGuestList = [...Object.values(res.data.guestList)]
-            if (this.props.auth.user.id !== this.state.hostID) currentGuestList.push(this.state.username)
             this.setState({
                 guestList: currentGuestList
             }, () => {
@@ -905,6 +884,11 @@ class CollabPage extends React.Component {
             this.props.updateCurrentGuestObject(data.currentGuests)
         })
 
+        socket.on('updateDownloadOption', newDownloadOption => {
+            console.log('updateDownloadOption')
+            this.props.updateDownloadOption(newDownloadOption)
+        })
+
         socket.on("invalidRoomCode", () => this.invalidRoomCodeProc())
 
         // Signatures
@@ -915,9 +899,11 @@ class CollabPage extends React.Component {
         socket.on("highlightOut", (pageData) => this.receiveHighlight(pageData));
         socket.on("commentOut", (pageData) => this.receiveComment(pageData));
         socket.on('commentDeleteOut', (pageData) => this.props.deleteHighlight({key: pageData.pageNum, id:pageData.id}));
+        
 
         // set socket.io to state
         this.setState({ socket: socket });
+        // this.setStateGuestList()
     }
 
     /* #################################################################################################
@@ -963,6 +949,10 @@ class CollabPage extends React.Component {
             // HOST
             this.setStateHostName()
             this.setStateHostID() 
+
+            // OPTIONS
+            this.props.getDownloadOption(roomCode)
+            this.props.getRoomCapacity(roomCode)
         });
 
         this.props.setCanvasContainerRef(this.canvasContainerRef)
@@ -1057,9 +1047,10 @@ class CollabPage extends React.Component {
         return (
             <div>
                 {
-                    this.state.guestIdOccupied
+                    // this.state.guestIdOccupied
+                    this.state.roomFull 
                 ?
-                    <div>This Guest ID is already being used by someone else.</div>
+                    <div>Current Room Is Full</div>
                 :
             <div className='collab-page' onMouseMove={this.mouseMove}>
 
@@ -1090,9 +1081,7 @@ class CollabPage extends React.Component {
                             <img src={usersImg}/>
                         </div> */}
                         <DownloadDoc demoPageDownload={this.props.demoPage}/>
-                        <div className='tool'>
-                            <img src={settingsImg}/>
-                        </div>
+                        <RoomSettings />
                     </div>
                 </div>
                 {/* /HEADER */}
@@ -1137,6 +1126,7 @@ class CollabPage extends React.Component {
                     : null
                 }
                 <InviteUserPopup/>
+                <RoomSettingsWindow/>
 
                 {holding && <img src={signatureURL} alt='signature-placeholder' id="signature-placeholder"></img>}
                 <div onScroll={this.getScrollPercent}></div>
@@ -1209,6 +1199,11 @@ export default connect(mapStateToProps, {
     setHostName,
     setGuestID,
     setRoomHostID,
+
+    // options
+    getRoomCapacity,
+    getDownloadOption,
+    updateDownloadOption,
 
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,

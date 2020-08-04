@@ -26,6 +26,23 @@ const emails = require("./routes/api/emails")
 const demo = require("./routes/api/demo")
 
 
+// API JEW AUTHENTICATION
+const jwt = require("jsonwebtoken");
+const checkToken = (req, res, next) => { //Check to make sure header is not undefined, if so, return Forbidden (403)
+    const header = req.headers['authorization'];
+  
+    if(typeof header !== 'undefined') {
+        const bearer = header.split(' ');
+        const token = bearer[1];
+  
+        req.token = token;
+        next();
+    } else {
+        //If header is undefined return Forbidden (403)
+        res.sendStatus(403)
+    }
+  }
+
 // Bodyparser middleware
 app.use(
     bodyParser.urlencoded({
@@ -72,31 +89,47 @@ app.use(cors({
 
 // GET URL
 app.get('/api/generate-get-url', (req, res) => {
-    // Both Key and ContentType are defined in the client side.
-    // Key refers to the remote name of the file.
-    const { Key } = req.query;
-    generateGetUrl(Key)
-        .then(getURL => {      
-        res.send(getURL);
-        })
-        .catch(err => {
-        res.send(err);
-        });
+    // jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+    //     if (err) {
+    //         //If error send Forbidden (403)
+    //         console.log('ERROR: Could not connect to the protected route');
+    //         res.sendStatus(403);
+    //     } else {
+            // Both Key and ContentType are defined in the client side.
+            // Key refers to the remote name of the file.
+            const { Key } = req.query;
+            generateGetUrl(Key)
+                .then(getURL => {      
+                res.send(getURL);
+                })
+                .catch(err => {
+                res.send(err);
+                });
+    //     }
+    // })
 });
   
 // PUT URL
-app.get('/api/generate-put-url', (req,res)=>{
-    // Both Key and ContentType are defined in the client side.
-    // Key refers to the remote name of the file.
-    // ContentType refers to the MIME content type, in this case image/jpeg
-    res.header("Access-Control-Allow-Credentials", true);
-    const { Key, ContentType } =  req.query;
-    generatePutUrl(Key, ContentType).then(putURL => {
-        res.send({putURL});
+app.get('/api/generate-put-url', checkToken, (req,res)=>{
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            // Both Key and ContentType are defined in the client side.
+            // Key refers to the remote name of the file.
+            // ContentType refers to the MIME content type, in this case image/jpeg
+            res.header("Access-Control-Allow-Credentials", true);
+            const { Key, ContentType } =  req.query;
+            generatePutUrl(Key, ContentType).then(putURL => {
+                res.send({putURL});
+            })
+            .catch(err => {
+                res.send(err);
+            });
+        }
     })
-    .catch(err => {
-        res.send(err);
-    });
 });
 
 app.get('/api/get-spaces-left', (req, res) => {
@@ -113,72 +146,104 @@ app.get('/api/get-spaces-left', (req, res) => {
     })
 })
 
-app.post('/api/create-room', (req,res)=>{
-    // Both Key and ContentType are defined in the client side.
-    // Key refers to the remote name of the file.
-    // ContentType refers to the MIME content type, in this case image/jpeg
-    res.header("Access-Control-Allow-Credentials", true);
-    // initial room
-    // data
-    let roomData = {
-        roomCode: req.body.roomCode,
-        fileName: req.body.fileName,
-        signatures: {},
-        highlights: {}, 
-        host: {id: req.body.userId, name: req.body.userName},
-        guests: {},
-        numMaxGuests: 3, 
-        pilotModeActivated: false,
-    }
+app.post('/api/create-room', checkToken, (req,res)=>{
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            // Both Key and ContentType are defined in the client side.
+            // Key refers to the remote name of the file.
+            // ContentType refers to the MIME content type, in this case image/jpeg
+            res.header("Access-Control-Allow-Credentials", true);
+            // initial room
+            // data
+            let roomData = {
+                roomCode: req.body.roomCode,
+                fileName: req.body.fileName,
+                signatures: {},
+                highlights: {}, 
+                host: {id: req.body.userId, name: req.body.userName},
+                guests: {},
+                numMaxGuests: 3, 
+                downloadOption: 'Both',
+                pilotModeActivated: false,
+            }
 
-    req.body.objects.forEach((object) => {
-        let currentPageSignatures = get(roomData.signatures, object[1].toString(), null)
-        let objectList = []
-        if (currentPageSignatures !== null) {
-            // decryption
-            let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
-            objectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            req.body.objects.forEach((object) => {
+                let currentPageSignatures = get(roomData.signatures, object[1].toString(), null)
+                let objectList = []
+                if (currentPageSignatures !== null) {
+                    // decryption
+                    let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+                    objectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                }
+                objectList.push(object[0]);
+                // encrypt the list again before updating the database
+                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(objectList), process.env.ENCRYPT_KEY).toString();
+                // update the database
+                roomData.signatures[object[1].toString()] = encrypted;
+            })
+
+            db.collection("rooms").insertOne(roomData, function(err, response) {
+                if(err) throw err;
+                res.send()
+            })
         }
-        objectList.push(object[0]);
-        // encrypt the list again before updating the database
-        let encrypted = CryptoJS.AES.encrypt(JSON.stringify(objectList), process.env.ENCRYPT_KEY).toString();
-        // update the database
-        roomData.signatures[object[1].toString()] = encrypted;
-    })
-
-    db.collection("rooms").insertOne(roomData, function(err, response) {
-        if(err) throw err;
-        res.send()
-    })
-
-});
-
-app.get('/api/get-owners-documents', (req,res)=>{
-    db.collection("rooms").find({'host.id': req.query.owner}).sort({_id: -1})
-    .project({roomCode:1, fileName:1, _id:0})
-    .toArray(function (err, result) {
-        res.send(result);
     })
 });
 
-app.delete('/api/delete-document', function(req, res) {
-    db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
-        if (err) throw err;
-        deleteDocument(`${req.body.roomCode}.pdf`);
-        deleteDocument(`${req.body.roomCode}.jpeg`);
-        console.log("1 document deleted");
-        res.send();
-    });
+app.get('/api/get-owners-documents', checkToken, (req,res)=>{
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            db.collection("rooms").find({'host.id': req.query.owner}).sort({_id: -1})
+            .project({roomCode:1, fileName:1, _id:0})
+            .toArray(function (err, result) {
+                res.send(result);
+            })
+        }
+    })
 });
 
-app.put('/api/edit-document-name', function(req, res) {
-    db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
-        if (err) throw err;
-        deleteDocument(`${req.body.roomCode}.pdf`);
-        deleteDocument(`${req.body.roomCode}.jpeg`);
-        console.log("1 document deleted");
-        res.send();
-    });
+app.delete('/api/delete-document', checkToken, function(req, res) {
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
+                if (err) throw err;
+                deleteDocument(`${req.body.roomCode}.pdf`);
+                deleteDocument(`${req.body.roomCode}.jpeg`);
+                console.log("1 document deleted");
+                res.send();
+            });
+        }
+    })
+});
+
+app.put('/api/edit-document-name', checkToken, function(req, res) {
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            db.collection("rooms").deleteOne({roomCode: req.body.roomCode}, function(err, obj) {
+                if (err) throw err;
+                deleteDocument(`${req.body.roomCode}.pdf`);
+                deleteDocument(`${req.body.roomCode}.jpeg`);
+                console.log("1 document deleted");
+                res.send();
+            });
+        }
+    })
 });
 
 //Bind socket.io socket to http server
@@ -425,7 +490,10 @@ io.on('connection', (socket)=>{
             socket.to(roomCode).emit("pilotModeStopped")
         })
 
-
+        socket.on("setDownloadOption", (newDownloadOption) => {
+            db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {downloadOption: newDownloadOption}})
+            socket.to(roomCode).emit("updateDownloadOption", newDownloadOption)
+        })
 
 
         socket.on("reconnect", () => {
