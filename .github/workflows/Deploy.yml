@@ -19,9 +19,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/cosign.pro/
-            git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
-            rsync -av --delete ~/CollaborativeForms/node-server ~/backend
-            cd ~/backend
+            sudo git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
+            rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
+            cd /var/www/cosign.pro/backend
             touch .env
             echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
             echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> .env
@@ -37,12 +37,12 @@ jobs:
             npm install # install dependencies 
             pm2 start app.js # start as a background service.
             cd ..
-            cd ~/CollaborativeForms/client
+            cd /var/www/cosign.pro/CollaborativeForms/client
             npm install
             touch .env.production
             echo REACT_APP_BACKEND_ADDRESS=${{ secrets.REACT_APP_BACKEND_ADDRESS }} >> .env
             npm run build
             cd ..
             cd ..
-            rsync -av --delete ~/CollaborativeForms/client ~/html
+            rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client /var/www/cosign.pro/html
             pm2 reload server
