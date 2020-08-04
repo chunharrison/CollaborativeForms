@@ -20,7 +20,7 @@ jobs:
           script: |
             cd /var/www/cosign.pro/
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S git pull
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete-excluded --exclude '*' /var/www/cosign.pro/CollaborativeForms/node-server/* /var/www/cosign.pro/backend
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
             touch .env
             echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
@@ -43,5 +43,5 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm run build
             cd ..
             cd ..
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete-excluded --exclude '*' /var/www/cosign.pro/CollaborativeForms/client/* /var/www/cosign.pro/html
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/ /var/www/cosign.pro/html
             pm2 reload server
