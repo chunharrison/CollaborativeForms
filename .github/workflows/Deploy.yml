@@ -35,11 +35,8 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> /var/www/cosign.pro/backend/.env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> /var/www/cosign.pro/backend/.env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
-            cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm run build
-            cd ..
-            cd ..
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/ /var/www/cosign.pro/html
             pm2 reload server
