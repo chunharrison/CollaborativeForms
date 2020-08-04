@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            cd /var/www/cosign.pro/CollaborationForms/
+            cd /var/www/cosign.pro/CollaborationForms
             git pull origin production
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend 
