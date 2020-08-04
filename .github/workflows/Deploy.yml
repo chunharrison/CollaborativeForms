@@ -34,9 +34,9 @@ jobs:
             echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
-            sudo npm install
+            sudo npm install --unsafe-perm
             cd /var/www/cosign.pro/CollaborativeForms/client
-            sudo npm install
+            sudo npm install --unsafe-perm
             sudo npm run build --prefix /var/www/cosign.pro/CollaborativeForms/client/
-            sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/ /var/www/cosign.pro/html
+            sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/build/ /var/www/cosign.pro/html
             pm2 reload server
