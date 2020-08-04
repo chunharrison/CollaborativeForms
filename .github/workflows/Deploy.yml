@@ -23,6 +23,7 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend 
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S touch /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> /var/www/cosign.pro/backend/.env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
             cd /var/www/cosign.pro/CollaborativeForms/client
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
