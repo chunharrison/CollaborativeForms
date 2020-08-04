@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/cosign.pro/
-            sudo git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
             rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
             touch .env
