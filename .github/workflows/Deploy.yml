@@ -20,15 +20,14 @@ jobs:
           script: |
             cd /var/www/cosign.pro/
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
-            rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
             npm install # install dependencies 
-            pm2 start app.js # start as a background service.
             cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
             npm install
             npm run build
             cd ..
             cd ..
-            rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client /var/www/cosign.pro/html
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client /var/www/cosign.pro/html
             pm2 reload server
