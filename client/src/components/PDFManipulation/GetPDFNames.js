@@ -1,7 +1,7 @@
 const { PDFName } = require('pdf-lib');
 
 //get list of objects called PDFName from pdf --> this is used as identification for each object
-function getObjectNames(pdfDoc, numPages) {
+export function getObjectNames(pdfDoc, numPages) {
     let nameList = [];
 
     //page.node is a container for all everything on the page, extgstate is a group of objects on the pdf that shapes reside under
@@ -24,7 +24,7 @@ function getObjectNames(pdfDoc, numPages) {
 
 //we look at the pdfname objects on the page before and after objects are added to it. this is how we differentiate our objects from previously added ones 
 //this way when we upload the file we know what to remove and add as fabric objects
-function getNewObjectNames(prevList, currentList) {
+export function getNewObjectNames(prevList, currentList) {
     let newObjectNames = [];
     currentList.forEach(name => {
         if (!prevList.includes(name)) {
@@ -34,5 +34,3 @@ function getNewObjectNames(prevList, currentList) {
 
     return newObjectNames;
 }
-
-module.exports = { getObjectNames, getNewObjectNames };

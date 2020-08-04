@@ -58,7 +58,7 @@ const removePageObjects = (page, objectNames) => {
 };
 
 //remove objects from pdf
-async function removeFromPDF(selectedFile, objectNames) {
+export async function removeFromPDF(selectedFile, objectNames) {
     // Blob -> ArrayBuffer
     const PDFArrayBuffer = await selectedFile.arrayBuffer();
     const pdfDoc = await PDFDocument.load(
@@ -81,5 +81,3 @@ async function removeFromPDF(selectedFile, objectNames) {
 
     return pdfBlob;
 }
-
-module.exports = { removeFromPDF };
