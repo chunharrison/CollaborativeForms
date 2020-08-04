@@ -22,6 +22,7 @@ jobs:
             sudo git pull
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend 
+            sudo -i
             sudo touch /var/www/cosign.pro/backend/.env
             sudo echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> /var/www/cosign.pro/backend/.env
             sudo echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> /var/www/cosign.pro/backend/.env
@@ -34,6 +35,7 @@ jobs:
             sudo echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> /var/www/cosign.pro/backend/.env
             sudo echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> /var/www/cosign.pro/backend/.env
             sudo echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> /var/www/cosign.pro/backend/.env
+            exit
             sudo npm install
             cd /var/www/cosign.pro/CollaborativeForms/client
             sudo npm install
