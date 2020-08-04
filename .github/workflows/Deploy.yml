@@ -22,11 +22,11 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
-            npm install # install dependencies 
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install # install dependencies 
             cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
-            npm install
-            npm run build
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm run build
             cd ..
             cd ..
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client /var/www/cosign.pro/html
