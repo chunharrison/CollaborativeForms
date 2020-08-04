@@ -40,3 +40,4 @@ jobs:
             sudo npm run build --prefix /var/www/cosign.pro/CollaborativeForms/client/
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/build/ /var/www/cosign.pro/html
             pm2 reload server
+            sudo systemctl reload nginx
