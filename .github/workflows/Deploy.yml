@@ -19,13 +19,27 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
             cd /var/www/cosign.pro/
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S git pull production
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
+            touch .env
+            echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
+            echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> .env
+            echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} >> .env
+            echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} >> .env
+            echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} >> .env
+            echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} >> .env
+            echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+            echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} >> .env
+            echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> .env
+            echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> .env
+            echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> .env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install # install dependencies 
             cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
+            touch .env.production
+            echo REACT_APP_BACKEND_ADDRESS=${{ secrets.REACT_APP_BACKEND_ADDRESS }} >> .env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm run build
             cd ..
             cd ..
