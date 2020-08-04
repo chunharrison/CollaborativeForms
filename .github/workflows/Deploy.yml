@@ -23,17 +23,17 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S touch /var/www/cosign.pro/backend/.env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> .env
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> .env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo NODE_ENV=${{ secrets.NODE_ENV }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> /var/www/cosign.pro/backend/.env
+            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> /var/www/cosign.pro/backend/.env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
             cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
