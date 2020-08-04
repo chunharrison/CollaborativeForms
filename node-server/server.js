@@ -120,9 +120,9 @@ app.get('/api/generate-put-url', checkToken, (req,res)=>{
             // Both Key and ContentType are defined in the client side.
             // Key refers to the remote name of the file.
             // ContentType refers to the MIME content type, in this case image/jpeg
-            res.header("Access-Control-Allow-Credentials", true);
             const { Key, ContentType } =  req.query;
-            generatePutUrl(Key, ContentType).then(putURL => {
+            generatePutUrl(Key, ContentType)
+            .then(putURL => {
                 res.send({putURL});
             })
             .catch(err => {

@@ -113,6 +113,11 @@ const CreateDocument = props => {
             },
             headers: {
                 'Content-Type': contentType,
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+                'Authorization': localStorage.getItem("jwtToken")
             },
         };
         let res = await axios.get(generatePutUrl, options)
@@ -144,6 +149,11 @@ const CreateDocument = props => {
             },
             headers: {
                 'Content-Type': "image/jpeg",
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+                'Authorization': localStorage.getItem("jwtToken")
             },
         };
 
