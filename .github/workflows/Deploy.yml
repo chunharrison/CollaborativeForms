@@ -22,7 +22,7 @@ jobs:
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S git pull
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend
-            touch ./.env
+            touch /var/www/cosign.pro/backend/.env
             echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
             echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> .env
             echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} >> .env
