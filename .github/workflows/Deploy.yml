@@ -38,8 +38,6 @@ jobs:
             cd ..
             cd /var/www/cosign.pro/CollaborativeForms/client
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm install
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S touch .env.production
-            echo ${{ secrets.SSH_PASSWORD }} | sudo -S echo REACT_APP_BACKEND_ADDRESS=${{ secrets.REACT_APP_BACKEND_ADDRESS }} >> .env
             echo ${{ secrets.SSH_PASSWORD }} | sudo -S npm run build
             cd ..
             cd ..
