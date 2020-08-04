@@ -24,7 +24,7 @@ const checkToken = (req, res, next) => {
   }
 
 router.post('/send-message', (req, res) => {
-
+    console.log('mailer');
     // validation 
     const { errors, isValid } = validateMessageInput(req.body)
     if (!isValid) {
