@@ -28,7 +28,7 @@ jobs:
             echo "ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}" | sudo tee -a /var/www/cosign.pro/backend/.env
             echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} | sudo tee -a /var/www/cosign.pro/backend/.env
-            echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo "MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }}" | sudo tee -a /var/www/cosign.pro/backend/.env
             echo NODE_ENV=${{ secrets.NODE_ENV }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} | sudo tee -a /var/www/cosign.pro/backend/.env
