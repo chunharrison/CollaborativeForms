@@ -23,17 +23,17 @@ jobs:
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/node-server/ /var/www/cosign.pro/backend
             cd /var/www/cosign.pro/backend 
             sudo touch /var/www/cosign.pro/backend/.env
-            sudo echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo NODE_ENV=${{ secrets.NODE_ENV }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} | sudo tee /var/www/cosign.pro/backend/.env
-            sudo echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} | sudo tee /var/www/cosign.pro/backend/.env
+            echo `BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `MAILER_LOGIN=${{ secrets.MAILER_LOGIN }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `NODE_ENV=${{ secrets.NODE_ENV }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }}` | sudo tee /var/www/cosign.pro/backend/.env
+            echo `S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }}` | sudo tee /var/www/cosign.pro/backend/.env
             sudo npm install
             cd /var/www/cosign.pro/CollaborativeForms/client
             sudo npm install
