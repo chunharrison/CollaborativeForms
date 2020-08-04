@@ -1,0 +1,52 @@
+@font-face {
+    font-family: karla-regular;
+    src: url('Karla-Regular.ttf');
+}
+
+@font-face {
+    font-family: roboto-light;
+    src: url('Roboto-Light.ttf');
+}
+
+@font-face {
+    font-family: rubik-light;
+    src: url('Rubik-Light.ttf');
+}
+
+
+.help-container {
+    display:flex;
+    flex-direction:column;
+    margin-left:8vw;
+    margin-top:5em;
+    height:85%;
+    width:80%;
+    overflow:hidden;
+}
+
+.account-header {
+    font-family: karla-regular;
+    font-size:40px;
+    margin-bottom: 1em;
+    border-radius: 10px;
+    color:rgb(78, 78, 78);
+}
+
+.help-subheader {
+    font-family: karla-regular;
+    font-size:25px;  
+    margin-bottom: 3em;
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in 0s both;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

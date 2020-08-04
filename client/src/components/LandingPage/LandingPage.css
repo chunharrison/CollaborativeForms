@@ -3,6 +3,36 @@
     src: url('Roboto-Light.woff');
 }
 
+@font-face {
+    font-family: roboto-bold;
+    src: url('Roboto-Bold.ttf');
+}
+
+@font-face {
+    font-family: karla-regular;
+    src: url('Karla-Regular.ttf');
+}
+
+@font-face {
+    font-family: karla-bold;
+    src: url('Karla-Bold.ttf');
+}
+
+@font-face {
+    font-family: rubik-light;
+    src: url('Rubik-Light.ttf');
+}
+
+@font-face {
+    font-family: rubik-regular;
+    src: url('Rubik-Regular.ttf');
+}
+
+@font-face {
+    font-family: rubik-medium;
+    src: url('Rubik-Medium.ttf');
+}
+
 body {
     background-color: white;
 }
@@ -12,6 +42,28 @@ body {
     height:100%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
+}
+
+.nav2 {
+    position:absolute;
+    padding-top: 1em;
+    padding-left: 7em;
+    font-size: 20px;
+    color: white;
+    font-family: roboto-light;
+    cursor:pointer;
+}
+
+.nav:hover {
+    text-shadow: 0px 0px #ffffff;
+}
+
+.bgjRaZ {
+    background: #E66069 !important;
+}
+
+.hqBKFk {
+    background: #E66069 !important;
 }
 
 .username {
@@ -160,21 +212,6 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.custom-file-upload {
-    border-left: 1px solid rgba(63, 63, 63, 0.3);
-    display: block;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
-    color: white;
-    font-family:roboto-light;
-    cursor: pointer;
-    border-radius: 0 5px 5px 0;
-    padding-right: 12px;
-    padding-left: 12px;
-    text-align: center;
-    line-height: 235%;
-}
-
 .create-room-button {
     border: none;
     padding: 0.5em 1.5em 0.5em 1.5em;
@@ -277,4 +314,826 @@ canvas {
 .alert-outline-createroomname, .alert-outline-joinroomcode, .alert-outline-joinroomname, .alert-outline-createroomfile {
     box-shadow: 0 0 10px rgb(228, 38, 38);
     border-radius: 5px;
+}
+
+.grid-container {
+    position:relative;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.nav {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: white;
+    justify-content: space-between;
+    grid-column-start: 1;
+    grid-column-end: 9;
+}
+
+.nav-logo {
+    font-family: 'myriad-pro';
+    font-size:3.5vw;
+    color: black;
+    padding:0.7em;
+    padding-top:0.5em;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.nav-button {
+    font-family: roboto-light;
+    font-size: 1.3vw;
+    color: rgb(90, 90, 90);
+    padding-left:0.5em;
+    padding-right:0.5em;
+    cursor:pointer;
+}
+
+.nav-button:hover {
+    color:black;
+}
+
+.nav-register-button {
+    font-family: roboto-light;
+    font-size: 1.3vw;
+    color: white;
+    padding-left:2.5em;
+    padding-right:2.5em;
+    padding-top:1em;
+    padding-bottom: 1em;
+    margin-left:2em;
+    margin-right: 2em;
+    background-color: #e66069;
+    border-radius:40px;
+    cursor:pointer;
+}
+
+.nav-register-button:hover {
+    background-color: #e66f77;
+}
+
+.welcome {
+    position:relative;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    grid-column-start: 2;
+    grid-column-end: 8;
+}
+
+.header-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 6vw;
+    grid-column-start: 2;
+    grid-column-end: 7;
+}
+
+.header-container-2 {
+    position: relative;
+    left:-2.5vw;
+    grid-column-start: 2;
+    grid-column-end: 7;
+    display: flex;
+    justify-content: center;
+    margin-top  :-2em;
+}
+
+.header-real, .header-time, .header-pdf, .header-signing, .header-and, .header-collaboration {
+    font-family: rubik-regular;
+    font-size: 4vw;
+    color: #e66069;
+    padding:0.1em;
+}
+
+.header-real {
+    background-color: #fff4ce;
+}
+
+.red-cursor {
+    position: relative;
+    top: 0.5vw;
+    left: -2.5vw;
+    height:25%;
+}
+
+.header-signing {
+    color: #ef8861;
+}
+
+.header-collaboration {
+    color: #ef8861;
+}
+
+.signing-underline {
+    position: relative;
+}
+
+.underline {
+    position: absolute;
+    top:4vw;
+    width:100%;
+    z-index:-1;
+}
+
+.type-indicator {
+    height:4.5vw;
+    opacity:1;
+
+}
+
+.blink {
+    opacity: 0;
+}
+
+.pattern {
+    position: absolute;
+    right: -4vw;
+    bottom: 20vw;
+    width:14vw;
+}
+
+.rectangle {
+    position: absolute;
+    right: 1vw;
+    bottom: 0vw;
+    width:12vw;
+}
+
+.circle-edit {
+    position:absolute;
+    left: 1vw;
+    bottom: 2vw;
+    width:9vw;
+}
+
+.triangle {
+    position:absolute;
+    left: -8vw;
+    top: 3vw;
+    width:20vw;
+}
+
+.description {
+    font-family: karla-regular;
+    font-size: 1.5vw;
+    text-align:center;
+    margin:1em;
+}
+
+.welcome-button-container {
+    display:flex;
+    align-items: center;
+}
+
+.welcome-demo-button {
+    font-family: roboto-light;
+    font-size: 1vw;
+    color: white;
+    padding-left:3.5vw;
+    padding-right:3.5vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    margin-top:1.5em;
+    margin-left:1em;
+    margin-right: 1em;
+    background-color: #e66069;
+    border-radius:40px;
+}
+
+.welcome-trial-button {
+    font-family: roboto-light;
+    font-size: 1vw;
+    color: black;
+    padding-left:3.5vw;
+    padding-right:3.5vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    margin-left:1em;
+    margin-right: 1em;
+    background-color: transparent;
+    border: 1px solid #e66069;
+    border-radius:40px;
+}
+
+.learn-more {
+    font-family: roboto-light;
+    font-size: 1.3vw;
+    margin-top: 8em;
+    margin-bottom: 0.5em;
+}
+
+.down-arrow {
+    width: 1.2vw;
+}
+
+.feature {
+    height: 40vw;
+    grid-column-start: 1;
+    grid-column-end: 9;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.feature-image {
+    position:relative;
+    width: 35vw;
+    box-shadow: 10px 10px 0 #666666;
+    margin-left:4vw;
+    margin-right:4vw;
+}
+
+.feature-video {
+    position:relative;
+    width:100%;
+    height:100%;
+}
+
+.video-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transition: opacity 400ms ease 0ms;
+}
+
+.fade-in-left {
+    position:relative;
+    animation: fadeInLeft 0.3s ease-out .2s both;
+}
+
+@keyframes fadeInLeft {
+    0% {
+        opacity: 0;
+        left: -40px;
+    }
+    100% {
+        opacity: 1;
+        left: 0px;
+    }
+}
+
+.fade-in-right {
+    position:relative;
+    animation: fadeInRight 0.3s ease-out .2s both;
+}
+
+@keyframes fadeInRight {
+    0% {
+        opacity: 0;
+        right: -40px;
+    }
+    100% {
+        opacity: 1;
+        right: 0px;
+    }
+}
+
+.fade-in-bottom {
+    position:relative;
+    animation: fadeInBottom 0.5s ease-out 0.2s both;
+}
+
+@keyframes fadeInBottom {
+    0% {
+        opacity: 0;
+        bottom: -40px;
+    }
+    100% {
+        opacity: 1;
+        bottom: 0px;
+    }
+}
+
+.fade-in-bottom-slow {
+    position:relative;
+    animation: fadeInBottom 0.5s ease-out 0.6s both;
+}
+
+@keyframes fadeInBottom {
+    0% {
+        opacity: 0;
+        bottom: -40px;
+    }
+    100% {
+        opacity: 1;
+        bottom: 0px;
+    }
+}
+
+.feature-text {
+    width: 32%;
+    margin-left:4vw;
+    margin-right:4vw;
+    padding-bottom:8vw;
+}
+
+.feature-header {
+    margin-top:1em;
+    margin-bottom:1em;
+    font-family: rubik-medium;
+    font-size: 2vw;
+    font-weight: 600;
+}
+
+.feature-description {
+    font-family: karla-regular;
+    font-size: 1.3vw;
+    line-height:130%;
+    
+}
+
+.feature-description span{
+    color: #d84848;
+    font-weight: 600;
+    
+}
+
+.try-demo {
+    overflow:hidden;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    grid-column-start: 1;
+    grid-column-end: 9;
+    position:relative;
+    width:100%;
+    height:20vw;
+    background-color: #ddb2b2;
+}
+
+.rectangle-one {
+    position:absolute;
+    bottom:-10%;
+    left: 10vw;
+    width:15vw;
+}
+
+.rectangle-two {
+    position:absolute;
+    bottom:10%;
+    left: 50vw;
+    width:8vw;
+}
+
+.rectangle-three {
+    position:absolute;
+    bottom:50%;
+    left: 80vw;
+    width:5vw;
+}
+
+
+.try-demo-header {
+    color: white;
+    font-family: roboto-light;
+    font-size: 2.5vw;
+    z-index:2;
+    padding:0.5em;
+}
+
+.try-demo-description {
+    color: rgb(240, 240, 240);
+    font-family: roboto-light;
+    font-size: 1.3vw;
+    width:40%;
+    text-align: center;
+    z-index:2;
+    padding:0.5em;
+}
+
+.try-demo-button {
+    font-family: roboto-light;
+    font-size: 1vw;
+    color: black;
+    padding-left:3.5vw;
+    padding-right:3.5vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    margin:1em;
+    background-color: white;
+    border-radius:40px;
+    z-index: 2;
+}
+
+.join-us {
+    grid-column-start: 1;
+    grid-column-end: 9;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: center;
+    width:100%;
+    background: rgb(239,136,97);
+    background: linear-gradient(225deg, rgba(239,136,97,1) 0%, rgba(230,96,105,1) 100%);
+}
+
+.join-us-header {
+    color: white;
+    font-family: karla-bold;
+    font-size: 3vw;
+    z-index:2;
+    margin-top:1em;
+    margin-bottom: 0.5em;
+}
+
+.join-us-description {
+    color: rgba(255, 255, 255, 0.692);
+    font-family: rubik-light;
+    font-size: 1.6vw;
+    width:40%;
+    text-align: center;
+    z-index:2;
+}
+
+.pricing {
+    width: 70vw;
+    background: rgb(176,99,70);
+    background: linear-gradient(225deg, rgba(176,99,70,1) 0%, rgba(173,68,75,1) 100%);
+    border-radius: 3vw;
+    margin:4em;
+}
+
+.choose-plan-header {
+    font-family: rubik-light;
+    font-size: 2.2vw;
+    color: white;
+    margin-left:1.5em;
+    margin-top:1.5em;
+    margin-bottom:1.5vw;
+}
+
+.pricing-card-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom:2vw;
+}
+
+.pricing-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content:center;
+}
+
+.pricing-card-small {
+    position:relative;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgb(236,203,123);
+    background: linear-gradient(225deg, rgba(236,203,123,1) 0%, rgba(173,68,108,1) 100%);
+    width:18vw;
+    height:20vw;
+    margin:1em;
+    border-radius: 2vw;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+}
+
+.pricing-card-button-small {
+    position:absolute;
+    bottom: -1.5vw;
+    text-align:center;
+    font-family: rubik-light;
+    font-size: 0.9vw;
+    color: #e76668;
+    width:12vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    background-color: white;
+    border-radius:40px;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+}
+
+.pricing-card-large {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    position:relative;
+    background: rgb(236,163,123);
+    background: linear-gradient(225deg, rgba(236,163,123,1) 0%, rgba(173,68,157,1) 100%);
+    width:19vw;
+    height:22vw;
+    margin:1vw;
+    border-radius: 2vw;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+}
+
+.pricing-card-button-large {
+    position:absolute;
+    bottom: -1.5vw;
+    text-align:center;
+    font-family: rubik-light;
+    font-size: 1vw;
+    color: #e76668;
+    width:14vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    background-color: white;
+    border-radius:40px;
+    box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+}
+
+.pricing-card-tier {
+    font-family: rubik-light;
+    font-size: 2vw;
+    color: white;
+    margin-top:1em;
+    margin-bottom:0.2em;
+}
+
+.pricing-card-underline {
+    width: 2.3vw;
+    height:0.25vw;
+    border-radius: 40px;;
+    background-color: rgba(255, 255, 255, 0.671);
+}
+
+.pricing-card-price-container {
+    display:flex;
+    justify-content:center;
+    margin-top:1vw;
+    margin-bottom:1vw;
+}
+
+.pricing-card-price-currency {
+    font-family: roboto-bold;
+    font-size: 1.3vw;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.pricing-card-price-value {
+    font-family: roboto-bold;
+    font-size:5.5vw;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.pricing-card-price-recurrence {
+    font-family: roboto-bold;
+    font-size:1.3vw;
+    color: rgba(255, 255, 255, 0.3);
+    align-self: flex-end;
+    margin-bottom:1.4vw;
+    margin-left:0.5vw;
+}
+
+.pricing-card-perk {
+    display: flex;
+    justify-content: start;
+    margin:0.7vw;
+}
+
+.pricing-card-perk-tick {
+    height: 0.7vw;
+}
+
+.pricing-card-perk-description {
+    font-family: roboto-light;
+    font-size: 1vw;
+    margin-left:0.5em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.pricing-card-tier-small {
+    font-family: rubik-light;
+    font-size: 1.8vw;
+    color: white;
+    margin-top:1em;
+    margin-bottom:0.2em;
+}
+
+.pricing-card-underline-small {
+    width: 2.1vw;
+    height:0.23vw;
+    border-radius: 40px;;
+    background-color: rgba(255, 255, 255, 0.671);
+}
+
+.pricing-card-price-currency-small {
+    font-family: roboto-bold;
+    font-size: 1.2vw;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.pricing-card-price-value-small {
+    font-family: roboto-bold;
+    font-size:5vw;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.pricing-card-price-recurrence-small {
+    font-family: roboto-bold;
+    font-size:1.2vw;
+    color: rgba(255, 255, 255, 0.3);
+    align-self: flex-end;
+    margin-bottom:1.2vw;
+    margin-left:0.5vw;
+}
+
+.pricing-card-perk-tick-small {
+    height: 0.7vw;
+}
+
+.pricing-card-perk-description-small {
+    font-family: roboto-light;
+    font-size: 0.9vw;
+    margin-left:0.4em;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.faq {
+    height:600px;
+    width: 70%;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-top:4em;
+    margin-bottom:4em;
+    border-radius: 1vw;
+}
+
+@media only screen and (max-width: 800px) {
+    .nav-button {
+        font-size: 2.3vw;
+    }
+    
+    .nav-register-button {
+        font-size: 2.3vw;
+        padding-left:2em;
+        padding-right:2em;
+        padding-top:0.66em;
+        padding-bottom: 0.66em;
+        margin-left:1em;
+        margin-right: 1em;
+    }
+
+    .header-real, .header-time, .header-pdf, .header-signing, .header-and, .header-collaboration {
+        font-size: 6vw;
+    }
+
+    .underline {
+        position: absolute;
+        top:6vw;
+        width:100%;
+        z-index:-1;
+    }
+
+    .description {
+        font-size: 2.5vw;
+    }
+
+    .triangle {
+        position:absolute;
+        left: -10vw;
+        top: 14vw;
+        width:20vw;
+    }    
+
+    .welcome-demo-button {
+        font-size: 2vw;
+    }
+
+    .learn-more {
+        font-size: 2vw;
+    }
+
+    .feature {
+        flex-direction: column;
+        height:600px;
+    }
+
+    .feature-image {
+        width: 55vw;
+    }
+
+    .feature-video {
+        width: 55vw;
+    }
+
+    .feature-text {
+        width: 50%;
+        padding-bottom:4vw;
+    }
+
+    .feature-header {
+        font-size: 4vw;
+    }
+
+    .feature-description {
+        font-size: 2vw;
+    }
+
+    .try-demo {
+        height: 35vw;
+    }
+
+    .try-demo-header {
+        font-size: 3.5vw;
+    }
+    
+    .try-demo-description {
+        font-size: 2vw;
+    }
+    
+    .try-demo-button {
+        font-size: 2vw;
+    }
+
+    .choose-plan-header {
+    font-size:3vw;
+    }
+
+    .join-us-header {
+        font-size: 4.5vw;
+    }
+    
+    .join-us-description {
+        font-size: 2.5vw;
+    }
+
+    .pricing-card-container {
+        flex-direction: column;
+    }
+
+    .pricing-card-small {
+        width:40vw;
+        height:45vw;
+    }
+
+    .pricing-card-large {
+        width: 40vw;
+        height: 45vw;
+    }
+    .pricing-card-button-small {
+        font-size:2vw;
+        width:15vw;
+        padding-top:1.5vw;
+        padding-bottom: 1.5vw;
+    }
+
+    .pricing-card-button-large {
+        font-size:2vw;
+        width:15vw;
+        padding-top:1.5vw;
+        padding-bottom: 1.5vw;
+    }
+
+    .pricing-card-tier {
+        font-size: 4vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline {
+        width: 4vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-tier-small {
+        font-size: 4vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline-small {
+        width: 4vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-price-currency, .pricing-card-price-currency-small {
+        font-size: 2.6vw;
+    }
+    
+    .pricing-card-price-value, .pricing-card-price-value-small {
+        font-size:8.5vw;
+    }
+    
+    .pricing-card-price-recurrence, .pricing-card-price-recurrence-small {
+        font-size:2.6vw;
+    }
+
+    .pricing-card-perk-tick, .pricing-card-perk-tick-small {
+        height: 1.4vw;
+    }
+    
+    .pricing-card-perk {
+        margin:2vw;
+    }
+
+    .pricing-card-perk-description, .pricing-card-perk-description-small {
+        font-size: 2vw;
+    }
 }

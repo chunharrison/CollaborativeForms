@@ -1,0 +1,48 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Deploy CI
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-activation@v0.1.2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd /var/www/cosign.pro/
+            git clone -b production https://github.com/harrisonwjs/CollaborativeForms.git
+            rsync -av --delete ~/CollaborativeForms/node-server ~/backend
+            cd ~/backend
+            touch .env
+            echo BUG_REPORT_EMAIL_ADDRESS=${{ secrets.BUG_REPORT_EMAIL_ADDRESS }} >> .env
+            echo CONTACT_EMAIL_ADDRESS=${{ secrets.CONTACT_EMAIL_ADDRESS }} >> .env
+            echo ENCRYPT_KEY=${{ secrets.ENCRYPT_KEY }} >> .env
+            echo JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }} >> .env
+            echo MAILER_LOGIN=${{ secrets.MAILER_LOGIN }} >> .env
+            echo MAILER_PASSWORD=${{ secrets.MAILER_PASSWORD }} >> .env
+            echo NODE_ENV=${{ secrets.NODE_ENV }} >> .env
+            echo S3_BUCKET_ACCESS_KEY=${{ secrets.S3_BUCKET_ACCESS_KEY }} >> .env
+            echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} >> .env
+            echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} >> .env
+            echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} >> .env
+            npm install # install dependencies 
+            pm2 start app.js # start as a background service.
+            cd ..
+            cd ~/CollaborativeForms/client
+            npm install
+            touch .env.production
+            echo REACT_APP_BACKEND_ADDRESS=${{ secrets.REACT_APP_BACKEND_ADDRESS }} >> .env
+            npm run build
+            cd ..
+            cd ..
+            rsync -av --delete ~/CollaborativeForms/client ~/html
+            pm2 reload server

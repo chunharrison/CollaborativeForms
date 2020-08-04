@@ -1,0 +1,212 @@
+@font-face {
+    font-family: karla-regular;
+    src: url('Karla-Regular.ttf');
+}
+
+@font-face {
+    font-family: roboto-light;
+    src: url('Roboto-Light.ttf');
+}
+
+@font-face {
+    font-family: rubik-light;
+    src: url('Rubik-Light.ttf');
+}
+
+
+.account-container {
+    display:flex;
+    flex-direction:column;
+    margin-left:8vw;
+    margin-top:5em;
+    height:85%;
+    width:80%;
+    overflow:hidden;
+}
+
+.account-header {
+    font-family: karla-regular;
+    font-size:40px;
+    margin-bottom: 1em;
+    border-radius: 10px;
+    color:rgb(78, 78, 78);
+}
+
+.account-subheader {
+    font-family: karla-regular;
+    font-size:25px;  
+}
+
+.account-username-container, .account-email-container, .account-password-container {
+    margin-bottom:3em;
+    margin-top:3em;
+    padding-bottom:1em;
+    display: flex;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: height .3s ease;
+}
+
+.account-username-container p, .account-email-container p, .account-password-container p {
+    font-size:20px;
+    font-family:roboto-light;
+    width:25%;
+}
+
+.account-information-text {
+    color:rgb(145, 145, 145);
+    align-self: center;
+    justify-self: center;
+}
+
+.account-placeholder-container {
+    display:flex;
+    justify-content: space-between;
+    height:45px;
+    transition: height .8s ease;
+}
+
+.account-expanded {
+    height:250px;
+    transition: height .8s ease;
+}
+
+.account-password-placeholder {
+    height:35px;
+    background-color: rgba(0, 0, 0, 0.05);
+    align-self: center;
+    justify-self: center;
+    width:200px !important;
+    border-radius: 5px;
+    background: #f1f1f1;
+    box-shadow: inset 5px 5px 10px #c1c1c1, 
+            inset -5px -5px 10px #ffffff;
+}
+
+.account-button-container {
+    align-self: center;
+}
+
+.account-edit-button {
+    padding-left:1em;
+    padding-right:1em;
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+    color:#ff6767;
+    border: 1px solid #ff6767;
+    width:120px !important;
+    text-align: center;
+    border-radius:40px;
+    cursor:pointer;
+    margin-left:1em;
+    user-select: none; 
+}
+
+.account-submit-button {
+    align-self: center;
+    justify-self: center;
+    padding-left:1em;
+    padding-right:1em;
+    padding-top:0.5em;
+    padding-bottom:0.5em;
+    background-color:#ff6767;
+    color:white;
+    width:120px !important;
+    text-align: center;
+    border-radius:40px;
+    cursor:pointer;
+    margin-left:1em;
+    margin-top:1em;
+    user-select: none; 
+}
+
+.account-edit-button:hover {
+    border: 1px solid #ff2020;
+    color:#ff2020;
+}
+
+.account-input-container {
+    transition: height .3s ease;
+}
+
+.account-input {
+    background-color: transparent;
+	border: none;
+	border: 1px solid rgba(0, 0, 0, 0.281);
+	outline:none;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding:0.8em;
+    width: 80%;
+    
+}
+
+.account-plan {
+    position:relative;
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in 0s both;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@media only screen and (max-width: 1020px) {
+    .account-container {
+        justify-content:center;
+        overflow-y: auto;
+        margin-top:1em;
+        margin-bottom:1em;
+        height:95%;
+
+    }
+    .account-username-container, .account-email-container, .account-password-container {
+        flex-direction:column;
+    }
+
+    .account-password-container {
+        padding-bottom:5em;
+    }
+
+    .account-password-placeholder {
+        align-self: flex-start !important;
+        padding:1em;
+    }
+    .account-information-text {
+        align-self: flex-start !important;
+        margin-bottom:1em;
+    }
+
+    .account-placeholder-container {
+        justify-content: flex-start !important;
+        align-items:flex-start !important;
+        flex-direction:column;
+
+    }
+    .account-placeholder-container {
+        width: 350px;
+
+    }
+    .account-input-container {
+        width: 350px;
+    }
+
+    .account-button-container {
+        align-self: flex-start !important;
+margin-top:1em;
+        display:flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items:center;
+    }
+
+    .account-edit-button, .account-submit-button {
+        margin:0.3em !important;
+    }
+}

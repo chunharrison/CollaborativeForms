@@ -1,0 +1,33 @@
+.submit-button-fade-in {
+    animation: fadeInBottom 0.2s ease-out 0s both;
+}
+
+@keyframes fadeInBottom {
+    0% {
+        opacity: 0;
+        bottom: -40px;
+    }
+    100% {
+        opacity: 1;
+        bottom: 0px;
+    }
+}
+
+.submit-button-fade-out {
+    animation: fadeOutBottom 0.2s ease-out 0s both;
+}
+
+@keyframes fadeOutBottom {
+    0% {
+        opacity: 1;
+        bottom: 0px;
+    }
+    100% {
+        opacity: 0;
+        bottom: 40px;
+    }
+}
+
+.submit-button-message {
+    position:relative;
+}
