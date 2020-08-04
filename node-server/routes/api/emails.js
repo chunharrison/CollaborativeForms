@@ -51,7 +51,7 @@ router.post('/send-message', (req, res) => {
                     <p>from: ${email}</p>
                 </div>`
     };
-
+    console.log('mailer 2')
     smtpTransport.sendMail(mailOptions,
         (error, response) => {
             if (error) {
