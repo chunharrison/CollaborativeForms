@@ -4,8 +4,8 @@
 }
 
 @font-face {
-    font-family: karla-regular;
-    src: url('Karla-Regular.ttf');
+    font-family: rubik-medium;
+    src: url('Rubik-Medium.ttf');
 }
 
 .contact-us-background {
@@ -58,7 +58,7 @@
 }
 
 .send-message-header {
-    font-family:karla-regular;
+    font-family:rubik-medium;
 	font-size:40px;
 	margin-bottom:1em;
 }
