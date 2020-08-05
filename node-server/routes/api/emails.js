@@ -24,7 +24,7 @@ const checkToken = (req, res, next) => {
   }
 
 router.post('/send-message', (req, res) => {
-    console.log('mailer');
+    
     // validation 
     const { errors, isValid } = validateMessageInput(req.body)
     if (!isValid) {
@@ -51,7 +51,7 @@ router.post('/send-message', (req, res) => {
                     <p>from: ${email}</p>
                 </div>`
     };
-    console.log('mailer 2')
+    
     smtpTransport.sendMail(mailOptions,
         (error, response) => {
             if (error) {
