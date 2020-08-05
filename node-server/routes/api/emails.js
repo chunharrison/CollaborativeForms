@@ -24,14 +24,14 @@ const checkToken = (req, res, next) => {
   }
 
 router.post('/send-message', (req, res) => {
-
     // validation 
     const { errors, isValid } = validateMessageInput(req.body)
     if (!isValid) {
         return res.status(400).json(errors);
     }
-
-    const {email, subject, message} = req.body
+    const email = req.body.emailMessage;
+    const subject = req.body.subjectMessage;
+    const message = req.body.messageMessage;
 
     var smtpTransport = nodemailer.createTransport({
         service: 'Gmail',
