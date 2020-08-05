@@ -680,6 +680,7 @@ class CollabPage extends React.Component {
 
         // released
         this.setState({ holding: false });
+        this.props.setToolMode('select');
     }
 
     // handles key strokes

@@ -302,7 +302,15 @@ class LandingPage extends React.Component {
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
-                                        <p className='pricing-card-perk-description-small'>host 1 document at a time</p>
+                                        <p className='pricing-card-perk-description-small'>Host 1 document at a time</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick-small' src={tick} />
+                                        <p className='pricing-card-perk-description-small'>3 person per room limit</p>
+                                    </div>
+                                    <div className='pricing-card-perk'>
+                                        <img className='pricing-card-perk-tick-small' src={tick} />
+                                        <p className='pricing-card-perk-description-small'>Free for 7 days</p>
                                     </div>
                                     <p className='pricing-card-button-small'>
                                         Choose
@@ -321,15 +329,11 @@ class LandingPage extends React.Component {
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick' src={tick} />
-                                        <p className='pricing-card-perk-description'>host 3 documents at a time</p>
+                                        <p className='pricing-card-perk-description'>Host 5 documents at a time</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick' src={tick} />
-                                        <p className='pricing-card-perk-description'>get a lil lick from our 2 CEOs</p>
-                                    </div>
-                                    <div className='pricing-card-perk'>
-                                        <img className='pricing-card-perk-tick' src={plus} />
-                                        <p className='pricing-card-perk-description'>all jester features</p>
+                                        <p className='pricing-card-perk-description'>5 person per room limit</p>
                                     </div>
                                     <p className='pricing-card-button-large'>
                                         Choose
@@ -347,11 +351,11 @@ class LandingPage extends React.Component {
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
-                                        <p className='pricing-card-perk-description-small'>host unlimited documents at a time</p>
+                                        <p className='pricing-card-perk-description-small'>Host 10 documents at a time</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={plus} />
-                                        <p className='pricing-card-perk-description-small'>all previous features</p>
+                                        <p className='pricing-card-perk-description-small'>10 person per room limit</p>
                                     </div>
                                     <p className='pricing-card-button-small'>
                                         Choose
