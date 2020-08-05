@@ -29,13 +29,14 @@ const GuestJoin = (props) => {
     }   
 
     return (
-        <form onSubmit={(e) => onSubmit(e)}>
+        <form onSubmit={(e) => onSubmit(e)} className="forgot-password-container fade-in">
+            <p className='forgot-password-header' >Enter Name</p>
             <input
                 onChange={e => setUserName(e.target.value)}
                 value={userName}
                 type="text"
                 placeholder="Name"
-                className="login-register-input"/>
+                className='forgot-password-input'/>
             <button
               type="submit"
               className="signin-button login-register-button"

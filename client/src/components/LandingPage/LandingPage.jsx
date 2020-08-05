@@ -213,6 +213,7 @@ class LandingPage extends React.Component {
                                 autoPlay
                                 playsInline
                                 muted
+                                loop
                                 src={createSignatureVid}
                                 onLoadedData={() => this.setState({video1IsLoaded: true})}
                                 style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
@@ -242,6 +243,7 @@ class LandingPage extends React.Component {
                                 autoPlay
                                 playsInline
                                 muted
+                                loop
                                 src={pilotModeVid}
                                 onLoadedData={() => this.setState({video1IsLoaded: true})}
                                 style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
@@ -263,6 +265,7 @@ class LandingPage extends React.Component {
                                 autoPlay
                                 playsInline
                                 muted
+                                loop
                                 src={createShapesVid}
                                 onLoadedData={() => this.setState({video3IsLoaded: true})}
                                 style={{ opacity: this.state.video3IsLoaded ? 1 : 0 }}
@@ -290,7 +293,7 @@ class LandingPage extends React.Component {
                         <div className='pricing-card-container'>
                             <InView as="div" className='pricing-card' onChange={this.fadeInBottom}>
                                 <div className='pricing-card-small'>
-                                    <p className='pricing-card-tier-small'>Jester</p>
+                                    <p className='pricing-card-tier-small'>Free</p>
                                     <div className='pricing-card-underline-small'></div>
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency-small'>$</p>
@@ -309,7 +312,7 @@ class LandingPage extends React.Component {
                             </InView>
                             <InView as="div" className='pricing-card' onChange={this.fadeInBottomSlow}>
                                 <div className='pricing-card-large'>
-                                    <p className='pricing-card-tier'>Peasant</p>
+                                    <p className='pricing-card-tier'>Basic</p>
                                     <div className='pricing-card-underline'></div>
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency'>$</p>
@@ -335,7 +338,7 @@ class LandingPage extends React.Component {
                             </InView>
                             <InView as="div" className='pricing-card' onChange={this.fadeInBottom}>
                                 <div className='pricing-card-small'>
-                                    <p className='pricing-card-tier-small'>Lancelot</p>
+                                    <p className='pricing-card-tier-small'>Pro</p>
                                     <div className='pricing-card-underline-small'></div>
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency-small'>$</p>
