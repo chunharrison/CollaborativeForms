@@ -31,8 +31,10 @@ router.post('/send-message', (req, res) => {
         return res.status(400).json(errors);
     }
 
-    const {email, subject, message} = req.body
-
+    const email = req.body.emailMessage;
+    const subject = req.body.subjectMessage;
+    const message = req.body.messageMessage;
+    
     var smtpTransport = nodemailer.createTransport({
         service: 'Gmail',
         port: 465,
