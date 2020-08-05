@@ -35,7 +35,8 @@ const InviteUser = (props) => {
         axios.get('/api/guests/check-space-availability', options).then(res => {
             let invitationLink = ''
             if (!res.data.full) {
-                invitationLink = `http://localhost:3000/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
+                console.log(process.env)
+                invitationLink = `${process.env.REACT_APP_FRONTEND_ADDRESS}/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
                 if (props.isDemoPage) {
                     invitationLink += '&type=demo'
                 }

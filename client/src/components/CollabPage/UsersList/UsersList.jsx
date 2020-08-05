@@ -14,6 +14,17 @@ import Dropdown from 'react-bootstrap/Dropdown';
 
 import usersImg from './users.png'
 
+const DropDownButtonImage = React.forwardRef(({ children, onClick }, ref) => (
+  <div ref={ref}
+    onClick={(e) => {
+      e.preventDefault();
+      onClick(e);
+    }} 
+    className="tool">
+    <img src={usersImg}/>
+  </div>
+))
+
 const UsersList = (props) => {
     const avatarImages = [
       'ade.jpg',
@@ -45,9 +56,9 @@ const UsersList = (props) => {
 
     return (
         <Dropdown alignRight>
-          <Dropdown.Toggle>
-            Users
-          </Dropdown.Toggle>
+            <Dropdown.Toggle 
+              as={DropDownButtonImage} 
+              key="users-list-dropdown-toggle"></Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Header>Host</Dropdown.Header>
                 <Dropdown.Item>

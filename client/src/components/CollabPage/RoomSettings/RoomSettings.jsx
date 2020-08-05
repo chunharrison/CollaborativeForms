@@ -16,9 +16,18 @@ const RoomSettings = (props) => {
     }   
 
     return (
-        <div className='tool' onClick={() => handleSettingsClick()}>
-            <img src={settingsImg}/>
+        <div>
+            {
+                props.auth.user.id === props.room.hostID
+                ?
+                <div className='tool' onClick={() => handleSettingsClick()}>
+                    <img src={settingsImg}/>
+                </div>
+                :
+                null
+            }
         </div>
+        
     )
 }
 
