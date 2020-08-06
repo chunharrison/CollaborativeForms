@@ -5,7 +5,7 @@ import {
 } from "./types"
 
 export const sendMessage = (emailData) => dispatch => {
-    axios.post('/api/emails/send-message', emailData)
+    axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/send-message`, emailData)
         .then(res => {
             return res;
         })
@@ -25,7 +25,7 @@ export const sendErrors = (err) => dispatch => {
 }
 
 export const bugReport = (emailData) => dispatch => {
-    axios.post('/api/emails/bug-report', emailData)
+    axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/bug-report`, emailData)
     .catch(err => {
         dispatch({
             type: GET_ERRORS,

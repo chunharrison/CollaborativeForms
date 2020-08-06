@@ -33,7 +33,7 @@ const PilotMode = (props) => {
                 roomCode: props.room.roomCode,
                 status: true,
             }
-        axios.post('/api/room/set-pilot-mode-status', params)
+        axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/set-pilot-mode-status`, params)
     }
 
     function deactivatePM() {
@@ -41,7 +41,7 @@ const PilotMode = (props) => {
                 roomCode: props.room.roomCode,
                 status: false,
             }
-        axios.post('/api/room/set-pilot-mode-status', params)
+        axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/set-pilot-mode-status`, params)
     }
 
     useEffect(() => {

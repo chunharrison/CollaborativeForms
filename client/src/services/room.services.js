@@ -16,16 +16,16 @@ const postHeaders = {
 
 class RoomService {
     sendMessage(email, subject, message) {
-        return axios.post('/api/emails/send-message', {email: email, subject: subject, message: message});
+        return axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/send-message`, {email: email, subject: subject, message: message});
     }
 
     bugReport(email, subject, message) {
-        return axios.post('/api/emails/bug-report', {email: email, subject: subject, message: message})
+        return axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/bug-report`, {email: email, subject: subject, message: message})
     }
 
     getGuests() {
         const options = {}
-        axios.get('/api/guests/get-guests', options).then(res => {
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/get-guests`, options).then(res => {
             return res.guests
         })
     }

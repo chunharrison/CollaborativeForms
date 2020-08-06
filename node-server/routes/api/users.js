@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+var cors = require('cors');
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
 const validateLoginInput = require("../../validation/login");
@@ -13,6 +13,12 @@ const validatePasswordInput = require("../../validation/password");
 const User = require("../../models/User");
 
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('./modules/email');
+
+router.use(cors({
+  credentials: true,
+  origin: 'http://localhost:3000',
+  "Access-Control-Allow-Origin": "http://localhost:3000",
+}))
 
 //Check to make sure header is not undefined, if so, return Forbidden (403)
 const checkToken = (req, res, next) => {

@@ -125,7 +125,7 @@ class LandingPage extends React.Component {
         } else {
             const demoRoomCode = nanoid()
             
-            axios.post(`/api/demo/create-demo-room`, {
+            axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/demo/create-demo-room`, {
                 roomCode: demoRoomCode, 
                 userId: this.props.auth.user.id, 
                 userName: this.props.auth.user.name, 

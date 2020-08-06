@@ -23,7 +23,7 @@ const SendMessage = (props) => {
             messageMessage: message
         }
 
-        axios.post('/api/emails/send-message', emailData)
+        axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/send-message`, emailData)
         .then(res => {
             setSubmitState('Sent!');
             setTimeout(function(){ setSubmitState('Submit'); }, 1000);

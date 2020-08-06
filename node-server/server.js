@@ -25,7 +25,6 @@ const room = require("./routes/api/room")
 const emails = require("./routes/api/emails")
 const demo = require("./routes/api/demo")
 
-
 // API JEW AUTHENTICATION
 const jwt = require("jsonwebtoken");
 const checkToken = (req, res, next) => { //Check to make sure header is not undefined, if so, return Forbidden (403)

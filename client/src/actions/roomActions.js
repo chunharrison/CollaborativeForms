@@ -121,7 +121,7 @@ export const closeRoomSettingsWindow = () => dispatch => {
 }
 
 export const setMaxNumGuests = options => dispatch => {
-    axios.post('/api/room/set-num-max-guests', options)
+    axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/set-num-max-guests`, options)
         .then(res => {
             dispatch({
                 type: SET_MAX_NUM_GUESTS,
@@ -150,7 +150,7 @@ export const getRoomCapacity = roomCode => dispatch => {
         },
     };
 
-    axios.get('/api/room/get-num-max-guests', options)
+    axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-num-max-guests`, options)
         .then(res => {
             dispatch({
                 type: SET_MAX_NUM_GUESTS,
@@ -173,7 +173,7 @@ export const getDownloadOption = roomCode => dispatch => {
         },
     };
 
-    axios.get('/api/room/get-download-option', options)
+    axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-download-option`, options)
         .then(res => {
             dispatch({
                 type: SET_DOWNLOAD_OPTION,

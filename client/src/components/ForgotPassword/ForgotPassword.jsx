@@ -21,7 +21,7 @@ const ForgotPassword = (props) => {
                 'Access-Control-Allow-Headers': '*',
             },
         }     
-        axios.get('/api/users/forgot-password', options).then(res => {
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/forgot-password`, options).then(res => {
             setSent(true);
             setMessage('Email with instructions has been sent to the address entered above')
         }).catch(function (error) {
