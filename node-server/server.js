@@ -272,7 +272,6 @@ io.on('connection', (socket)=>{
 
                 // update the guestlist
                 if (!isHost) {
-
                     result.guests[guestID] = username
                     socket.to(roomCode).emit('updateGuestList', {currentGuests: result.guests})
                     db.collection("rooms").updateOne({ roomCode: roomCode }, {$set: { guests: result.guests }});
@@ -282,6 +281,8 @@ io.on('connection', (socket)=>{
                     console.log('pilotModeUserConnected')
                     socket.emit('pilotModeUserConnected')
                 }
+
+                socket.emit('updateGuestList', {currentGuests: result.guests})
             } 
             
             // could not find the database under the given roomCode

@@ -1050,7 +1050,19 @@ class CollabPage extends React.Component {
                     // this.state.guestIdOccupied
                     this.state.roomFull 
                 ?
-                    <div>Current Room Is Full</div>
+                <div className="invalid-room-code">
+                    <div className="error-code-div">
+                        <h1 className="error-code">
+                            404
+                            <br/><br/><br/>
+                        </h1>
+                    </div>
+                    <div className="warning-message-div">
+                        <h1 className="warning-message">
+                            Current Room Is Full
+                        </h1>
+                    </div>
+                </div>
                 :
             <div className='collab-page' onMouseMove={this.mouseMove}>
 

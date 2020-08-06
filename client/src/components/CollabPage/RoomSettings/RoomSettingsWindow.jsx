@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { 
     closeRoomSettingsWindow,
     setMaxNumGuests,
+    updateDownloadOption
 } from '../../../actions/roomActions'
 
 
@@ -36,6 +37,7 @@ const RoomSettingsWindow = (props) => {
         e.preventDefault()
         console.log('handleDownloadOptionChangeClick', props.room.roomCode, newDownloadOption)
         props.room.userSocket.emit('setDownloadOption', newDownloadOption)
+        props.updateDownloadOption(newDownloadOption)
     }
 
     const capacityOptions = [
@@ -76,9 +78,13 @@ const RoomSettingsWindow = (props) => {
         props.closeRoomSettingsWindow()
     }
 
+    function onWindowHide() {
+        props.closeRoomSettingsWindow()
+    }
+
     return (
         <div>
-            <Modal className='settings-modal-dialog' show={props.room.showRoomSettingsWindow} dialogClassName="modal-90w">
+            <Modal className='settings-modal-dialog' show={props.room.showRoomSettingsWindow} dialogClassName="modal-90w" onHide={() => onWindowHide()}>
                 <Modal.Header className='settings-modal-header'>
                     <Modal.Title>Room Settings</Modal.Title>
                 </Modal.Header>
@@ -139,4 +145,5 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
     closeRoomSettingsWindow,
     setMaxNumGuests,
+    updateDownloadOption
 })(RoomSettingsWindow)
