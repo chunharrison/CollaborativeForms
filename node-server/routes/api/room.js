@@ -1,7 +1,13 @@
 const express = require("express");
 const router = express.Router();
-
+var cors = require('cors');
 const jwt = require('jsonwebtoken');
+
+router.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+}))
 
 var db;
 var url = "mongodb://localhost:27017";

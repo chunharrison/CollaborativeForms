@@ -77,12 +77,12 @@ class SignInOrUp extends Component {
                         <div className="overlay">
                             <div className="overlay-panel overlay-left">
                                 <h1>Welcome Back!</h1>
-                                <p className="panel-description">LMAO EZ</p>
+                                <p className="panel-description">Sign in to your account</p>
                                 <button className="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
                             </div>
                             <div className="overlay-panel overlay-right">
                                 <h1>Hello, Friend!</h1>
-                                <p className="panel-description">LMAO EZ</p>
+                                <p className="panel-description">Create an account</p>
                                 <button className="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
                             </div>
                         </div>

@@ -39,6 +39,7 @@ jobs:
             sudo npm install --unsafe-perm
             sudo touch /var/www/cosign.pro/CollaborativeForms/client/.env.production
             echo REACT_APP_BACKEND_ADDRESS=https://cosign.pro | sudo tee -a /var/www/cosign.pro/CollaborativeForms/client/.env.production
+            echo REACT_APP_FRONTEND_ADDRESS=https://cosign.pro | sudo tee -a /var/www/cosign.pro/CollaborativeForms/client/.env.production
             sudo npm run build --prefix /var/www/cosign.pro/CollaborativeForms/client/
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/build/ /var/www/cosign.pro/html
             pm2 reload server

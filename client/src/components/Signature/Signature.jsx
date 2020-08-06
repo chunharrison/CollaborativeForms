@@ -2,6 +2,9 @@ import React, {useRef, useState} from "react";
 import SignaturePad from 'react-signature-canvas';
 import signatureImg from './signature.png'
 
+import { connect } from 'react-redux';
+import { setToolMode, setPrevToolMode } from '../../actions/toolActions';
+
 const Signature = props => {
   const sigCanvas = useRef({});
   const clear = () => sigCanvas.current.clear();
@@ -10,6 +13,8 @@ const Signature = props => {
 
   function toggleSignature(e) {
     setPopup(!popup);
+    props.setToolMode('signature');
+    props.setPrevToolMode('select');
   }
 
   return (
@@ -38,4 +43,11 @@ const Signature = props => {
   );
 }
 
-export default Signature;
+const mapStateToProps = state => ({
+  toolMode: state.tool.toolMode,
+})
+
+export default connect(mapStateToProps, {
+  setToolMode,
+  setPrevToolMode,
+})(Signature);

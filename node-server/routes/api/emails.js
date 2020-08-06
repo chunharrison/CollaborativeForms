@@ -1,11 +1,17 @@
 const express = require("express");
 const router = express.Router();
-
+var cors = require('cors');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
 const validateMessageInput = require("../../validation/messageValidation")
 const validateBugReportInput = require("../../validation/bugReportValidation")
+
+router.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+    "Access-Control-Allow-Origin": "http://localhost:3000",
+}))
 
 //Check to make sure header is not undefined, if so, return Forbidden (403)
 const checkToken = (req, res, next) => {

@@ -231,6 +231,10 @@
     animation: fadeIn 0.3s ease-out 0s both;
 }
 
+.popup-fade-in {
+    animation: fadeIn 0.3s ease-out 0s both;
+}
+
 @keyframes fadeIn {
     0% {
         opacity: 0;

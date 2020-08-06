@@ -160,7 +160,7 @@ class CollabPage extends React.Component {
             },
         }
 
-        axios.get('/api/room/get-host-id', options)
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-host-id`, options)
             .then(res => {
                 console.log(res)
                 this.setState({
@@ -187,13 +187,13 @@ class CollabPage extends React.Component {
                             },
                         };
                     
-                        axios.get('/api/guests/get-id-occupied', options).then(res => {
+                        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/get-id-occupied`, options).then(res => {
                             // TODO: harrison
                             // fix when more than 1 person joins using the same guestid
                             // this.setState({guestIdOccupied: res.data.occupied})
                         })
 
-                        axios.get('api/room/get-room-capacity-status', options)
+                        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-room-capacity-status`, options)
                             .then(res => {
                                 this.setState({roomFull: res.data.roomFull})
                             })
@@ -223,7 +223,7 @@ class CollabPage extends React.Component {
             },
         }
 
-        axios.get('/api/room/get-host-name', options).then(res => {
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-host-name`, options).then(res => {
             this.setState({
                 hostName: res.data.hostName
             }, () => {
@@ -245,7 +245,7 @@ class CollabPage extends React.Component {
             },
         }
 
-        axios.get('/api/room/get-guest-list', options).then(res => {
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-guest-list`, options).then(res => {
 
             let currentGuestList = [...Object.values(res.data.guestList)]
             this.setState({
@@ -680,6 +680,7 @@ class CollabPage extends React.Component {
 
         // released
         this.setState({ holding: false });
+        this.props.setToolMode('select');
     }
 
     // handles key strokes

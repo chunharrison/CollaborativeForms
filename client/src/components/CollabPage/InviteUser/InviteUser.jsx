@@ -32,7 +32,7 @@ const InviteUser = (props) => {
             },
         };
 
-        axios.get('/api/guests/check-space-availability', options).then(res => {
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/check-space-availability`, options).then(res => {
             let invitationLink = ''
             if (!res.data.full) {
                 console.log(process.env)

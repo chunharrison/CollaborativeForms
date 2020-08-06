@@ -10,7 +10,7 @@ import {
 
 // Register User
 export const registerUser = (userData, history) => dispatch => {
-    axios.post("/api/users/register", userData)
+    axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/register`, userData)
         .then(res => {
             const container = document.getElementById('sign-in-out-form-container');
             container.classList.remove("right-panel-active")
@@ -25,7 +25,7 @@ export const registerUser = (userData, history) => dispatch => {
 
 // Login - get user token
 export const loginUser = userData => dispatch => {
-    axios.post("/api/users/login", userData)
+    axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/login`, userData)
       .then(res => {
         // Save to localStorage
 
