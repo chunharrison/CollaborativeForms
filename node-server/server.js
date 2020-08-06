@@ -201,7 +201,7 @@ app.get('/api/get-owners-documents', checkToken, (req,res)=>{
             console.log('ERROR: Could not connect to the protected route');
             res.sendStatus(403);
         } else {
-            db.collection("rooms").find({'host.id': req.query.owner}).sort({_id: -1})
+            db.collection("rooms").find({'host.id': req.query.owner, 'demo': {$exists: false}}).sort({_id: -1})
             .project({roomCode:1, fileName:1, _id:0})
             .toArray(function (err, result) {
                 res.send(result);
