@@ -1,20 +1,21 @@
-import React, {useState} from 'react'
+import React from 'react'
 
+// Redux
 import { connect } from 'react-redux' 
-// import { nanoid } from 'nanoid'
-
 import { 
     setInvitationLink,
     openInviteGuestsWindow,
     openInviteGuestsAlert 
 } from '../../../actions/roomActions'
 
-// Components
-// import Button from 'react-bootstrap/Button'; // open source
+// Services
+import RoomService from '../../../services/room.services'
+
+// Libraries
 import axios from 'axios';
 import { nanoid } from 'nanoid'
 
-// IMAGE
+// Images
 import linkImg from './link.png'
 
 const InviteUser = (props) => {
@@ -35,8 +36,9 @@ const InviteUser = (props) => {
         axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/guests/check-space-availability`, options).then(res => {
             let invitationLink = ''
             if (!res.data.full) {
-                console.log(process.env)
-                invitationLink = `${process.env.REACT_APP_FRONTEND_ADDRESS}/join-room?roomCode=${props.roomCode}&guestID=${nanoid()}`
+                const invitationCode = nanoid()
+                RoomService.setRoomInvitationCode(props.roomCode, invitationCode)
+                invitationLink = `${process.env.REACT_APP_FRONTEND_ADDRESS}/join-room?roomCode=${props.roomCode}&invitationCode=${invitationCode}`
                 if (props.isDemoPage) {
                     invitationLink += '&type=demo'
                 }

@@ -33,21 +33,6 @@ router.get('/check-space-availability', (req, res) => {
     })
 })
 
-router.get('/get-guests', (req, res) => {
-    res.header("Access-Control-Allow-Credentials", true);
-    const { roomCode } =  req.query;
-    
-    // find
-    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
-        if (err) throw err;
-        
-        // send
-        if (result !== null) {
-            res.send(result.guests)
-        }
-    })
-})
-
 router.get('/get-id-occupied', (req, res) => {
     res.header("Access-Control-Allow-Credentials", true);
 
@@ -64,5 +49,18 @@ router.get('/get-id-occupied', (req, res) => {
     })
 })
 
+router.get('/validate-invitation-code', (req, res) => {
+    const {roomCode, invitationCode} = req.query
+
+    db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
+        if (err) throw err;
+
+        if (result !== null) {
+            res.send({validCode: result.invitationCode === invitationCode})
+        } else {
+            res.send({validCode: 'invalidRoomCode'})
+        }
+    })
+})
 
 module.exports = router;
