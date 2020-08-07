@@ -168,6 +168,7 @@ app.post('/api/create-room', checkToken, (req,res)=>{
                 numMaxGuests: 3, 
                 downloadOption: 'Both',
                 pilotModeActivated: false,
+                invitationCode: ''
             }
 
             req.body.objects.forEach((object) => {

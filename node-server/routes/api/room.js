@@ -159,5 +159,11 @@ router.get('/get-room-capacity-status', (req, res) => {
     })
 })
 
+router.post('/set-room-invitation-code', checkToken, (req, res) => {
+    const {roomCode, invitationCode} = req.body
+
+    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {invitationCode: invitationCode}})
+})
+
 
 module.exports = router;
