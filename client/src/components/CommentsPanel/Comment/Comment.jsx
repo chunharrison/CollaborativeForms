@@ -41,11 +41,11 @@ const Comment = (props) => {
 
 
     return (
-        <div className='comment-card' id={`panel-${props.id}`} data-page-number={props.pageNum} style={{'height': `${input !== true ? '200px' : ''}`}}>
+        <div className='comment-card' id={`panel-${props.id}`} data-page-number={props.pageNum} style={{'height': `${input !== true ? 'auto' : ''}`}}>
             <div className='panel-text-comment-container'>
                 <p className='document-text' onClick={(e) => scrollToHighlight(e)}>{props.text}</p>
                 {input ? <p className='comment-text' onClick={(e) => toggleInput(false)}>{props.comment === '' ? 'Add comment...' : props.comment}</p> :
-                <div className='panel-comment-input-container' style={{'position': 'absolute'}}>
+                <div className='panel-comment-input-container'>
                     <textarea className='panel-comment-input' type="text" onChange={(e) => setContent(e.target.value)}/>
                     <button className='panel-comment-submit-button' onClick={(e) => handleComment(e)}>
                         <img src={submitImg}/>

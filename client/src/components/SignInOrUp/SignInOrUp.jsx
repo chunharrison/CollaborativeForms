@@ -6,6 +6,8 @@ import ForgotPassword from '../ForgotPassword/ForgotPassword'
 // redux 
 import { connect } from 'react-redux'
 
+import MediaQuery from 'react-responsive';
+
 import './css/SignInOrUp.css'
 
 class SignInOrUp extends Component {
@@ -18,6 +20,8 @@ class SignInOrUp extends Component {
         }
 
         this.setForgot = this.setForgot.bind(this);
+        this.scrollToLogin = this.scrollToLogin.bind(this);
+        this.scrollToRegister = this.scrollToRegister.bind(this);
 
     }
 
@@ -39,6 +43,16 @@ class SignInOrUp extends Component {
         container.classList.remove("right-panel-active")
     }
 
+    scrollToLogin(e) {
+        let element = document.getElementById(`register`);
+        element.scrollIntoView();
+    }
+
+    scrollToRegister(e) {
+        let element = document.getElementById(`login`);
+        element.scrollIntoView();
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.auth.isAuthenticated) {
           this.props.history.push("/account-portal"); // push user to {page} when they login
@@ -53,7 +67,9 @@ class SignInOrUp extends Component {
 
         if (localStorage.getItem('signup') === 'true') {
             const container = document.getElementById('sign-in-out-form-container');
-            container.classList.add("right-panel-active")
+            if (container !== null) {
+                container.classList.add("right-panel-active")
+            }
             localStorage.removeItem('signup')
         }
       }
@@ -61,37 +77,46 @@ class SignInOrUp extends Component {
     render() {
         return (
             <div className='sign-in-out-background'>
-                <div className='sign-in-out-abstract1'>
+                <MediaQuery minDeviceWidth={451}>
+                    <div className='sign-in-out-abstract1'>
 
-                </div>
-                <div className='sign-in-out-abstract2'>
+                    </div>
+                    <div className='sign-in-out-abstract2'>
 
-                </div>
-                {!this.state.forgot ? 
-                <div id="sign-in-out-form-container" className={`sign-in-out-form-container`}>
-                    <Register/>
-                    <Login
-                    setForgot={this.setForgot}
-                    />
-                    <div className="overlay-container">
-                        <div className="overlay">
-                            <div className="overlay-panel overlay-left">
-                                <h1>Welcome Back!</h1>
-                                <p className="panel-description">Sign in to your account</p>
-                                <button className="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
-                            </div>
-                            <div className="overlay-panel overlay-right">
-                                <h1>Hello, Friend!</h1>
-                                <p className="panel-description">Create an account</p>
-                                <button className="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
+                    </div>
+                    {!this.state.forgot ? 
+                    <div id="sign-in-out-form-container" className={`sign-in-out-form-container`}>
+                        <Register/>
+                        <Login
+                        setForgot={this.setForgot}
+                        />
+                        <div className="overlay-container">
+                            <div className="overlay">
+                                <div className="overlay-panel overlay-left">
+                                    <h1>Welcome Back!</h1>
+                                    <p className="panel-description">Sign in to your account</p>
+                                    <button className="ghost login-register-button" id="signIn" onClick={e => this.onSignInPanelClick(e)}>Sign In</button>
+                                </div>
+                                <div className="overlay-panel overlay-right">
+                                    <h1>Hello, Friend!</h1>
+                                    <p className="panel-description">Create an account</p>
+                                    <button className="ghost login-register-button" id="signUp" onClick={e => this.onSignUpPanelClick(e)}>Sign Up</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                :
-                <ForgotPassword/>
-                }
-                
+                    :
+                    <ForgotPassword/>
+                    }
+                </MediaQuery>
+                <MediaQuery maxDeviceWidth={450}>
+                    <Register/>
+                    <button className='login-scroll' onClick={() => this.scrollToRegister()}>Login</button>
+                    <Login
+                    setForgot={this.setForgot}
+                    />
+                    <button className='login-scroll' onClick={() => this.scrollToLogin()}>Register</button>
+                </MediaQuery>
             </div>
         )
     }

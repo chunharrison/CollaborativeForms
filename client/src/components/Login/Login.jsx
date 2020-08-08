@@ -43,7 +43,7 @@ class Login extends Component {
   return (
         <div className="signin-form-container">
 
-          <form noValidate onSubmit={this.onSubmit} className="signin-form">
+          <form noValidate onSubmit={this.onSubmit} className="signin-form" id='login'>
 
             <h1 className="signin-header">Sign into your account</h1>
 

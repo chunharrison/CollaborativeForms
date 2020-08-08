@@ -251,3 +251,35 @@
         opacity: 1;
     }
 }
+
+@media only screen and (max-width: 450px) {
+	.sign-in-out-background {
+		overflow-y: scroll;
+		text-align:center;
+	}
+	.signin-form-container {
+		position:relative;
+		opacity: 1;
+		width:100%;
+		height:100%;
+	}
+
+	.register-form-container {
+		position:relative;
+		opacity: 1;
+		width:100%;
+		height:100%;
+	}
+
+	.login-register-input-container {
+		width: 70%;
+	}
+
+	.login-scroll {
+		position: relative;
+		top: -100px;
+		z-index: 2;
+		border: none;
+		background-color: transparent;
+	}
+}

@@ -51,7 +51,7 @@ const HelpPage = (props) => {
     return (
         <div className={`help-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
             <p className='help-subheader'>
-                Send us your question
+                Help
             </p>
             <div className="contact-us-form-container">
                 <form className='contact-us-form' noValidate>
