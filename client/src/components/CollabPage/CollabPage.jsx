@@ -1046,7 +1046,7 @@ class CollabPage extends React.Component {
 
 
         return (
-            <div>
+            <div className="collab-page-container">
                 {
                     // this.state.guestIdOccupied
                     this.state.roomFull 

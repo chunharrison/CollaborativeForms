@@ -21,6 +21,10 @@ body {
     height:100vh;
 }
 
+.collab-page-container {
+    height: 100%;
+}
+
 .header, .footer {
     position:relative;
     display:flex;
