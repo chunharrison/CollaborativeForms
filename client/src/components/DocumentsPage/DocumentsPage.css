@@ -497,11 +497,23 @@
 }
 
 @media only screen and (max-width: 800px) {
+    .documents-background {
+        width:100vw;
+    }
+
+    .documents-page {
+        flex-direction: column-reverse;
+        justify-content: center;
+        align-items: center;
+    }
     .documents-nav {
-        width: 100px;
-        justify-content:center;
+        width: 80%;
+        justify-content:space-around;
         align-items:center;
-        height:40%;
+        flex-direction:row;
+        height:10%;
+        margin-left:0;
+        margin-bottom:1em;
     }
 
     .documents-nav-name {
@@ -528,4 +540,30 @@
         display:none;
     }
 
+    .documents-container {
+        margin-left:auto;
+        margin-right:auto;
+
+    }
+
+    .documents-text-expand {
+        display:flex;
+        align-items:center;
+        justify-content: center;
+        margin-bottom:1em;
+
+    }
+
+    .documents-shared-files {
+        justify-content:center;
+    }
+
+    .help-container {
+        margin:auto !important;
+        justify-content: center;
+    }
+
+    .contact-us-form {
+        align-items:center !important;
+    }
 }

@@ -21,6 +21,10 @@ body {
     height:100vh;
 }
 
+.collab-page-container {
+    height: 100%;
+}
+
 .header, .footer {
     position:relative;
     display:flex;
@@ -553,21 +557,28 @@ body {
 }
 
 .comments-panel {
-    position:absolute;
-    left: 0px;
     width: 300px;
 }
 
 .comment-card {
     display:flex;
     justify-content: space-between;
-    min-height:100px;
+    height:auto;
     width:100%;
     border-bottom:1px solid rgba(0, 0, 0, 0.11);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.panel-text-comment-container {
+    width:80%;
+}
+
+.panel-comment-input-container {
+    width:283px;
+}
+
 .document-text {
+    word-wrap:break-word;
     font-size: 18px;
     padding:0.5em;
     cursor:pointer;

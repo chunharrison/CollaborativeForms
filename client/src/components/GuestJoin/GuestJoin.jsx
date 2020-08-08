@@ -10,6 +10,9 @@ import {nanoid} from 'nanoid';
 // Services
 import GuestService from '../../services/guest.services'
 
+// CSS
+import './GuestJoin.css'
+
 const GuestJoin = (props) => {
     let pageElements = <div>hi</div>
     const uniqueGuestID = nanoid()
@@ -55,7 +58,7 @@ const GuestJoin = (props) => {
         }
     }   
 
-    return (<div>
+    return (<div className='guest-join-container'>
         {
             validInvitationCode === true
             ?
@@ -74,19 +77,19 @@ const GuestJoin = (props) => {
                 </button>
             </form>
             :
-            <div className="invalid-room-code">
-                <div className="error-code-div">
-                    <h1 className="error-code">
-                        404
-                        <br/><br/><br/>
-                    </h1>
+                <div className="invalid-room-code">
+                    <div className="error-code-div">
+                        <h1 className="error-code">
+                            404
+                            <br/><br/><br/>
+                        </h1>
+                    </div>
+                    <div className="warning-message-div">
+                        <h1 className="warning-message">
+                            {errorMessage}
+                        </h1>
+                    </div>
                 </div>
-                <div className="warning-message-div">
-                    <h1 className="warning-message">
-                        {errorMessage}
-                    </h1>
-                </div>
-            </div>
         }
     </div>)
 }
