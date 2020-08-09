@@ -999,6 +999,8 @@ class CollabPage extends React.Component {
     componentWillUnmount() {
         document.removeEventListener("keydown", this.handleKeyDown, false);
         document.removeEventListener("keyup", this.handleKeyUp, false);
+
+        socket.close()
     }
 
 
