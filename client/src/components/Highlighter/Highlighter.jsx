@@ -21,7 +21,7 @@ const Highlighter = (props) => {
                     Object.keys(highlights).map((key) => 
                         <div id={key}>
                             {highlights[key][0].map((dimensions, index2) =>
-                                <div className='highlight-box' key={`highlight-${props.pageNum}-${index}-${index2}`} style={{'top': `${dimensions.m_y}px`, 'left': `${dimensions.m_x}px`, 'width': `${dimensions.m_width}px`, 'height': `${dimensions.m_height}px`}} onClick={handleHighlight}></div>
+                                <div className='highlight-box' key={`highlight-${props.pageNum}-${index}-${index2}`} style={{'top': `${dimensions.m_y * props.currentZoom}px`, 'left': `${dimensions.m_x * props.currentZoom}px`, 'width': `${dimensions.m_width * props.currentZoom}px`, 'height': `${dimensions.m_height * props.currentZoom}px`}} onClick={handleHighlight}></div>
                             )}
                         </div>
                     )
@@ -32,6 +32,7 @@ const Highlighter = (props) => {
 
 const mapStateToProps = state => ({
     highlightDict: state.tool.highlightDict,
+    currentZoom: state.tool.currentZoom,
 })
 
 export default connect(mapStateToProps, {

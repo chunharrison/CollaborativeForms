@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 // import PropTypes from "prop-types";
 
+import { useMediaQuery } from 'react-responsive'
+
 //components
 import InfiniteDocumentScroll from './InfiniteDocumentScroll/InfiniteDocumentScroll';
 
@@ -13,7 +15,7 @@ import './DocumentsPage.css';
 
 const DocumentsPage = props => {
 
-    const [infiniteMode, setInfiniteMode] = useState(false);
+    const [infiniteMode, setInfiniteMode] = useState(useMediaQuery({ query: '(max-device-width: 450px)' }));
 
     function handleExpandOnClick() {
         setInfiniteMode(!infiniteMode)
@@ -22,7 +24,7 @@ const DocumentsPage = props => {
     return (
                 <div className='documents-container'>
                     <div className={`documents-shared fade-in-bottom ${infiniteMode ? 'expanded' : ''}`}>
-                        <div classname='documents-text-expand'>
+                        <div className='documents-text-expand'>
                             <p className='documents-shared-text'>Shared Documents</p>
                             <div className='documents-expand-container' onClick={handleExpandOnClick}>
                                 <div className={`documents-expand-vertical ${infiniteMode ? 'rotate-in' : 'rotate-out'}`}></div>

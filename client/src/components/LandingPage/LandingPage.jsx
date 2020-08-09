@@ -4,6 +4,7 @@ import React from "react";
 import { InView } from 'react-intersection-observer'
 import { nanoid } from 'nanoid'
 import axios from 'axios'
+import MediaQuery from 'react-responsive';
 
 //images
 import redCursor from './cursor.png';
@@ -36,6 +37,8 @@ import { logoutUser } from "../../actions/authActions";
 // file 
 import demoFile from './sample.pdf'
 
+import burgerImg from './burger.png';
+
 // css
 import './LandingPage.css';
 
@@ -47,6 +50,7 @@ class LandingPage extends React.Component {
             video1IsLoaded: false,
             video2IsLoaded: false,
             video3IsLoaded: false,
+            toggleBurger:false,
         }
 
         this.fadeInLeft = this.fadeInLeft.bind(this);
@@ -145,15 +149,41 @@ class LandingPage extends React.Component {
 
         return (
             <div className='grid-container'>
-                <div className='nav'>
-                    <div className='nav-left'>
-                        <p className='nav-logo'>cosign</p>
-                        <p className='nav-button'>Product</p>
-                        <p className='nav-button'>Pricing</p>
-                        <p className='nav-button' onClick={() => {this.props.history.push("/contact-us")}}>Contact us</p>
-                        <p className='nav-button' onClick={e => {this.handleDemoClick(e)}}>Demo</p>
+                <MediaQuery minDeviceWidth={451}>
+                    <div className='nav'>
+                        <div className='nav-left'>
+                            <p className='nav-logo'>cosign</p>
+                            <p className='nav-button'>Product</p>
+                            <p className='nav-button'>Pricing</p>
+                            <p className='nav-button' onClick={() => {this.props.history.push("/contact-us")}}>Contact us</p>
+                            <p className='nav-button' onClick={e => {this.handleDemoClick(e)}}>Demo</p>
+                        </div>
+                        <div className='nav-right'>
+                            {
+                                this.props.auth.isAuthenticated
+                                ?
+                                    <p className='nav-button' onClick={e => this.handleLogOutClick(e)}>Log out</p>
+                                :
+                                    <p className='nav-button' onClick={e => this.handleLogInClick(e)}>Log in</p>
+                            }
+                            {
+                                this.props.auth.isAuthenticated
+                                ?
+                                    <p className='nav-register-button' onClick={e => this.handleAccountPortalClick(e)}>Account Portal</p>
+                                :
+                                    <p className='nav-register-button' onClick={e => this.handleSignUpClick(e)}>Sign up</p>
+                            }
+                        </div>
                     </div>
-                    <div className='nav-right'>
+                </MediaQuery>
+                <MediaQuery maxDeviceWidth={450}>
+                    <div className='mobile-nav'>
+                        <button className='nav-burger' onClick={() => this.setState({toggleBurger: !this.state.toggleBurger})}>
+                            <img src={burgerImg} alt=""/>
+                        </button>
+                        {this.state.toggleBurger ?
+
+                        <div>
                         {
                             this.props.auth.isAuthenticated
                             ?
@@ -164,12 +194,14 @@ class LandingPage extends React.Component {
                         {
                             this.props.auth.isAuthenticated
                             ?
-                                <p className='nav-register-button' onClick={e => this.handleAccountPortalClick(e)}>Account Portal</p>
+                                <p className='nav-button' onClick={e => this.handleAccountPortalClick(e)}>Account Portal</p>
                             :
-                                <p className='nav-register-button' onClick={e => this.handleSignUpClick(e)}>Sign up</p>
+                                <p className='nav-button' onClick={e => this.handleSignUpClick(e)}>Sign up</p>
                         }
+                        </div>
+                        : null}
                     </div>
-                </div>
+                </MediaQuery>
                 <div className='welcome'>
                     <div className='header-container'>
                         <div className='real-cursor'>
@@ -188,7 +220,7 @@ class LandingPage extends React.Component {
                         <p className='header-collaboration'>collaboration</p>
                         <img src={typeIndicator} className={`type-indicator ${blink}`}/>
                     </div>
-                    <p className='description'>Sign PDF documents real time with clients <br/> and team members alike with our online <br/> collaborative platform</p>
+                    <p className='description'>Sign PDF documents real time with clients and team members alike with our online collaborative platform</p>
                     <img src={pattern} className='pattern'/>
                     <img src={circleEdit} className='circle-edit'/>
                     <img src={triangle} className='triangle'/>

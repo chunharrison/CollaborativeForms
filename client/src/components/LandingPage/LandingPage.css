@@ -44,6 +44,11 @@ body {
     grid-template-columns: repeat(8, 1fr);
 }
 
+.mobile-nav {
+    grid-column-start: 1;
+    grid-column-end: 9;
+}
+
 .nav2 {
     position:absolute;
     padding-top: 1em;
@@ -491,6 +496,7 @@ canvas {
     font-size: 1.5vw;
     text-align:center;
     margin:1em;
+    width:40%;
 }
 
 .welcome-button-container {
@@ -993,6 +999,11 @@ canvas {
 
     .description {
         font-size: 2.5vw;
+        width:100%;
+    }
+
+    .type-indicator {
+        height:6vw;    
     }
 
     .triangle {
@@ -1012,7 +1023,7 @@ canvas {
 
     .feature {
         flex-direction: column;
-        height:600px;
+        height:80vw;
     }
 
     .feature-image {
@@ -1135,5 +1146,202 @@ canvas {
 
     .pricing-card-perk-description, .pricing-card-perk-description-small {
         font-size: 2vw;
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    .mobile-nav {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        
+    }
+
+    .nav-burger {
+        background-color: transparent;
+        border: none;
+        outline: none;
+        margin:1em;
+    }
+
+    .nav-burger img {
+        height:18px;
+    }
+
+    .nav-button {
+        height:40px;
+        text-align: center;
+        font-size: 5vw;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        line-height:40px;
+    }
+
+    .header-real, .header-time, .header-pdf, .header-signing, .header-and, .header-collaboration {
+        font-size: 8vw;
+    }
+
+    .underline {
+        position: absolute;
+        top:8vw;
+        width:100%;
+        z-index:-1;
+    }
+
+    .description {
+        font-size: 4.5vw;
+        margin:0;
+        margin-top:1em;
+    }
+
+    .type-indicator {
+        height:8vw;    
+    }
+
+    .welcome-demo-button {
+        font-size: 4vw;
+        padding-left:1em;
+        padding-right:1em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+
+    }
+
+    .triangle {
+        position:absolute;
+        left: -10vw;
+        top: 50vw;
+        width:20vw;
+    } 
+
+    .learn-more {
+        margin-top:4em;
+        font-size: 4vw;
+    }
+
+    .feature {
+        flex-direction: column;
+        height:160vw;
+    }
+
+    .feature-image {
+        width: 90vw;
+    }
+
+    .feature-video {
+        width: 90vw;
+    }
+
+    .feature-text {
+        width: 80%;
+        padding-bottom:8vw;
+    }
+
+    .feature-header {
+        font-size: 7vw;
+    }
+
+    .feature-description {
+        font-size: 5vw;
+    }
+
+    .try-demo {
+        height: 120vw;
+    }
+
+    .try-demo-header {
+        font-size: 10vw;
+    }
+    
+    .try-demo-description {
+        font-size: 6vw;
+        width:90%;
+    }
+    
+    .try-demo-button {
+        font-size: 6vw;
+        padding: 0.5em 1em 0.5em 1em;
+    }
+
+    .choose-plan-header {
+    font-size:5vw;
+    }
+
+    .join-us-header {
+        font-size: 10vw;
+    }
+    
+    .join-us-description {
+        font-size: 5vw;
+    }
+
+    .pricing-card-container {
+        flex-direction: column;
+    }
+
+    .pricing-card-small {
+        width:60vw;
+        height:70vw;
+    }
+
+    .pricing-card-large {
+        width: 60vw;
+        height: 70vw;
+    }
+    .pricing-card-button-small {
+        font-size:5vw;
+        width:30vw;
+        padding-top:2vw;
+        padding-bottom: 2vw;
+    }
+
+    .pricing-card-button-large {
+        font-size:5vw;
+        width:30vw;
+        padding-top:2vw;
+        padding-bottom: 2vw;
+        }
+
+    .pricing-card-tier {
+        font-size: 8vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline {
+        width: 6vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-tier-small {
+        font-size: 8vw;
+        margin-top:1em;
+        margin-bottom:0.2em;
+    }
+    
+    .pricing-card-underline-small {
+        width: 6vw;
+        height:0.5vw;
+    }
+
+    .pricing-card-price-currency, .pricing-card-price-currency-small {
+        font-size: 5vw;
+    }
+    
+    .pricing-card-price-value, .pricing-card-price-value-small {
+        font-size:15vw;
+    }
+    
+    .pricing-card-price-recurrence, .pricing-card-price-recurrence-small {
+        font-size:5vw;
+    }
+
+    .pricing-card-perk-tick, .pricing-card-perk-tick-small {
+        height: 3vw;
+    }
+    
+    .pricing-card-perk {
+        margin:2vw;
+    }
+
+    .pricing-card-perk-description, .pricing-card-perk-description-small {
+        font-size: 3.5vw;
     }
 }

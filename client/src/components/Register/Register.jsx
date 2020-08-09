@@ -47,7 +47,7 @@ class Register extends Component {
 
     return (
             <div className="register-form-container">
-                <form noValidate onSubmit={this.onSubmit} className="register-form">
+                <form noValidate onSubmit={this.onSubmit} id='register' className="register-form">
 
                     <h1 className="register-header">Create your account</h1>
                     
