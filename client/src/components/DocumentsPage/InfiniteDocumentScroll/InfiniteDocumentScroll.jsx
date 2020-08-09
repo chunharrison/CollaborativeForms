@@ -4,7 +4,6 @@ import React, {useState, useEffect, useRef} from 'react';
 import DocumentCard from '../DocumentCard/DocumentCard'
 import CreateDocument from '../CreateDocument/CreateDocument';
 
-
 //Libraries
 import { connect } from 'react-redux';
 import axios from 'axios';
@@ -20,6 +19,10 @@ const InfiniteDocumentScroll = props => {
 
     useEffect(() => {
         window.addEventListener('resize', resizeNotify, false);
+        
+        console.log(documentNumber)
+        console.log(renderedCount)
+        
         return () => {
             window.removeEventListener('resize', resizeNotify, false);
           };
@@ -28,6 +31,10 @@ const InfiniteDocumentScroll = props => {
     useEffect(() => {
         if (!props.infiniteMode) {
             setRenderedCount(documentNumber.length < Math.floor(ref.current.clientWidth / 254) - 1 ? documentNumber.length : Math.floor(ref.current.clientWidth / 254) - 1);
+        } else if (props.infiniteMode) {
+            if (documentNumber.length > renderedCount && renderedCount === 0) {
+                setRenderedCount(1);
+            }
         }
     }, [props.infiniteMode, documentNumber]);
 

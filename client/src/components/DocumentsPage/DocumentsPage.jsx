@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 // import PropTypes from "prop-types";
 
+import { useMediaQuery } from 'react-responsive'
+
 //components
 import InfiniteDocumentScroll from './InfiniteDocumentScroll/InfiniteDocumentScroll';
 
@@ -13,7 +15,7 @@ import './DocumentsPage.css';
 
 const DocumentsPage = props => {
 
-    const [infiniteMode, setInfiniteMode] = useState(false);
+    const [infiniteMode, setInfiniteMode] = useState(useMediaQuery({ query: '(max-device-width: 450px)' }));
 
     function handleExpandOnClick() {
         setInfiniteMode(!infiniteMode)
