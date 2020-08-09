@@ -71,15 +71,13 @@
 }
 
 .account-password-placeholder {
-    height:35px;
-    background-color: rgba(0, 0, 0, 0.05);
-    align-self: center;
-    justify-self: center;
+    background-color: transparent;
+    border: none;
     width:200px !important;
-    border-radius: 5px;
-    background: #f1f1f1;
-    box-shadow: inset 5px 5px 10px #c1c1c1, 
-            inset -5px -5px 10px #ffffff;
+	border: 1px solid rgba(0, 0, 0, 0.281);
+	outline:none;
+    padding:0.8em;
+    align-self: center;
 }
 
 .account-button-container {
@@ -87,13 +85,13 @@
 }
 
 .account-edit-button {
-    padding-left:1em;
-    padding-right:1em;
-    padding-top:0.5em;
-    padding-bottom:0.5em;
+    padding-left:0.5em;
+    padding-right:0.5em;
+    padding-top:0.3em;
+    padding-bottom:0.3em;
     color:#ff6767;
     border: 1px solid #ff6767;
-    width:120px !important;
+    width:100px !important;
     text-align: center;
     border-radius:40px;
     cursor:pointer;
@@ -104,13 +102,13 @@
 .account-submit-button {
     align-self: center;
     justify-self: center;
-    padding-left:1em;
-    padding-right:1em;
-    padding-top:0.5em;
-    padding-bottom:0.5em;
+    padding-left:0.5em;
+    padding-right:0.5em;
+    padding-top:0.3em;
+    padding-bottom:0.3em;
     background-color:#ff6767;
     color:white;
-    width:120px !important;
+    width:100px !important;
     text-align: center;
     border-radius:40px;
     cursor:pointer;
@@ -161,9 +159,10 @@
     .account-container {
         justify-content:center;
         overflow-y: auto;
-        margin-top:1em;
-        margin-bottom:1em;
-        height:95%;
+        margin-top:0em;
+        margin-bottom:0em;
+        padding-right:2em;
+        height:100%;
 
     }
     .account-username-container, .account-email-container, .account-password-container {
@@ -199,7 +198,7 @@
 
     .account-button-container {
         align-self: flex-start !important;
-margin-top:1em;
+        margin-top:1em;
         display:flex;
         flex-direction: row;
         justify-content: center;
