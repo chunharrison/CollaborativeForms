@@ -75,6 +75,7 @@ import { setCurrentZoom,
 // images
 import pagesImg from './pages.png';
 import commentImg from './comment.png';
+import accountImg from './account.png'
 
 //CSS
 import './CollabPage.css';
@@ -920,7 +921,17 @@ class CollabPage extends React.Component {
         })
     }
 
+    onLogoClick(e) {
+        e.preventDefault()
+        
+        this.props.history.push("/")
+    }
 
+    onAccountPortalClick(e) {
+        e.preventDefault()
+        
+        this.props.history.push("/account-portal")
+    }
     
     /* #################################################################################################
     ##################################### The Component Lifecycle ######################################
@@ -1095,6 +1106,7 @@ class CollabPage extends React.Component {
                         </div> */}
                         <DownloadDoc demoPageDownload={this.props.demoPage}/>
                         <RoomSettings />
+                        <div className="tool" onClick={e => this.onAccountPortalClick(e)}><img src={accountImg}/></div>
                     </div>
                 </div>
                 {/* /HEADER */}
@@ -1119,7 +1131,7 @@ class CollabPage extends React.Component {
                         : 
                     downloadLoader}
                     <div className='side-bar-container'>
-                        <p className='cosign-float'>cosign</p>
+                        <p className='cosign-float' onClick={e => this.onLogoClick(e)}>cosign</p>
                         <div className='side-bar-tools'>
                             <Signature setURL={this.setSignatureURL} />
                             <ToggleShape/>

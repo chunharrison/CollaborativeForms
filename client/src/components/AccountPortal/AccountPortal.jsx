@@ -19,6 +19,12 @@ const AccountPortal = props => {
 
     const [activeButton, setActiveButton] = useState('documents');
 
+    function onLogoClick(e) {
+        e.preventDefault()
+
+        props.history.push("/")
+    }
+
     return (
         <div className='documents-page'>
             <div className='documents-nav'>
@@ -40,7 +46,7 @@ const AccountPortal = props => {
                         <img className='documents-nav-button-img' src={questionImg}/>
                         <p className='documents-nav-button'>HELP</p>
                     </div>
-                    <p className='account-portal-logo'>cosign</p>
+                    <p className='account-portal-logo' onClick={e => onLogoClick(e)}>cosign</p>
             </div>
             <div className='documents-background'>
                 {activeButton === 'account' ? <AccountPage/> : null}
