@@ -1000,7 +1000,7 @@ class CollabPage extends React.Component {
         document.removeEventListener("keydown", this.handleKeyDown, false);
         document.removeEventListener("keyup", this.handleKeyUp, false);
 
-        socket.close()
+        if (this.props.userSocket) this.props.userSocket.close()
     }
 
 
