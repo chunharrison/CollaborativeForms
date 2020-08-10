@@ -398,7 +398,7 @@ class CollabPage extends React.Component {
             } else if (self.props.toolMode === 'text') {
                 self.setState({ toSend: true }, () => {
                     fabricCanvas.add(new fabric.IText('Insert Text', {
-                        fontFamily: 'roboto',
+                        fontFamily: 'Helvetica',
                         fontSize: self.props.textFontSize,
                         fill: self.props.textColor,
                         opacity: self.props.textOpacity / 100,

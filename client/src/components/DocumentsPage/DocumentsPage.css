@@ -148,7 +148,7 @@
 
 .documents-text-expand {
     display:flex;
-    justify-content:flex-start;
+    justify-content:center;
 }
 
 .documents-line-expand {
@@ -544,8 +544,7 @@
     .documents-container {
         margin-left:auto;
         margin-right:auto;
-        margin-top:1em;
-        height:100%;
+
     }
 
     .documents-text-expand {
@@ -556,10 +555,6 @@
 
     }
 
-    .documents-shared-files {
-        justify-content:center;
-    }
-
     .help-container {
         margin:auto !important;
         justify-content: center;
@@ -568,8 +563,10 @@
     .contact-us-form {
         align-items:center !important;
     }
+}
 
-    .expanded {
-        height:96%;
+@media only screen and (max-width: 450px) {
+    .documents-shared-files {
+        justify-content:center;
     }
 }
