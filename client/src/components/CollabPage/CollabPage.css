@@ -930,3 +930,7 @@ body {
     background: rgb(202, 60, 60);
     /* border-color: rgb(202, 60, 60);; */
 }
+
+.select-mode .react-pdf__Page__textContent span {
+    pointer-events:none !important;
+}
