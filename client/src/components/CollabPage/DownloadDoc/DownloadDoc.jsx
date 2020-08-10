@@ -68,9 +68,9 @@
                     // (0, 0) refers to the bottom left corner 
                     currPage.drawImage(pngImage, {
                         x: (object.left),
-                        y: (841 - object.top - object.height),
-                        width: object.width,
-                        height: (object.height)
+                        y: (pageHeight - object.top - object.height),
+                        width: object.width  * object.scaleX,
+                        height: object.height * object.scaleY,
                     })
                 } else if ( type === 'rect') {
                     //embed rectangle
@@ -79,8 +79,8 @@
                     currPage.drawRectangle({
                         x: object.left,
                         y: pageHeight - object.top - object.height,
-                        width: object.width,
-                        height:object.height,
+                        width: object.width  * object.scaleX,
+                        height:object.height * object.scaleY,
                         borderColor: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
                         borderOpacity: object.opacity,
                         color: rgb(parseInt(matchFill[1]) / 256, parseInt(matchFill[2]) / 256, parseInt(matchFill[3]) / 256),
@@ -93,8 +93,9 @@
                     //embed path
                     let matchStroke = object.stroke.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawSvgPath(object.path.join(' ').replace(/([A-Za-z ])\,/g, '$1 '), {
-                        x: 0 + (object.left - object.get('originalX').originalX),
-                        y: pageHeight - (object.top - object.get('originalY').originalY),
+                        x: 0 + (object.left - object.get('originalX').originalX) + (object.get('originalX').originalX - object.get('originalX').originalX * object.scaleX),
+                        y: pageHeight - (object.top - object.get('originalY').originalY) - (object.get('originalY').originalY - object.get('originalY').originalY * object.scaleX),
+                        scale: object.scaleX,
                         borderLineCap: 1,
                         borderWidth: object.strokeWidth,
                         borderColor: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
@@ -103,12 +104,14 @@
                     propertyList.push(`,path,${pageNum},${object.left},${object.top},${object.width},${object.height},${matchStroke[1]}.${matchStroke[2]}.${matchStroke[3]},${object.strokeWidth},` + 
                         `${object.opacity},!${object.path}`) 
                 } else if (type === 'i-text') {
+                    console.log(object.height)
+                    
                     //embed text
                     let matchStroke = object.fill.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawText(object.text, {
                         x: object.left,
-                        y: pageHeight - object.top - object.height,
-                        size: parseInt(object.fontSize),
+                        y: pageHeight - object.top - object.height * object.scaleX + (object.height * object.scaleX - object.fontSize * object.scaleX) + object.lineHeight * object.scaleX,
+                        size: parseInt(object.fontSize  * object.scaleX),
                         color: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
                         opacity: object.opacity,
                     })
@@ -135,6 +138,7 @@
                     fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (objects) {
                         // loop through the array and add all the signatures to the page
                         objects.forEach(async function (object) {
+                            console.log(object)
                             insertObject(pages[pageNum - 1], object, object.get('type'), pageNum);
                         })
                     })
