@@ -31,6 +31,9 @@ const Comment = (props) => {
 
     function scrollToHighlight(e) {
         let element = document.getElementById(`${e.target.parentNode.parentNode.id.substring(6)}`);
+        if (element === null) {
+            element = document.getElementById(`container-${e.target.parentNode.parentNode.getAttribute('data-page-number')}`)
+        }
         element.scrollIntoView();
         element.childNodes.forEach((child) => {
             child.classList.add('highlight-box-red');

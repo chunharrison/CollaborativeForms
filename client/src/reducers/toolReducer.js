@@ -21,6 +21,7 @@ import { SET_CURRENT_ZOOM,
     ADD_HIGHLIGHT,
     ADD_COMMENT,
     ADD_PAGE_HIGHLIGHT,
+    ADD_ALL_HIGHLIGHT,
     DELETE_HIGHLIGHT,
     SET_PANEL_MODE } from '../actions/types'
 
@@ -188,6 +189,13 @@ export default function(state = initialState, action) {
                     }
                 }
             }
+
+        case ADD_ALL_HIGHLIGHT:
+            return {
+                ...state,
+                highlightDict: action.payload
+            }
+            
         case ADD_PAGE_HIGHLIGHT:
             return {
                 ...state,
