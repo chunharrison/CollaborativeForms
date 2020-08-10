@@ -68,6 +68,7 @@ import { setCurrentZoom,
     addHighlight,
     addComment,
     addPageHighlight,
+    addAllHighlight,
     setPanelMode,
     deleteHighlight,
 } from '../../actions/toolActions'
@@ -163,7 +164,6 @@ class CollabPage extends React.Component {
 
         axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-host-id`, options)
             .then(res => {
-                console.log(res)
                 this.setState({
                     hostID: res.data.hostID
                 }, () => {
@@ -207,7 +207,6 @@ class CollabPage extends React.Component {
                 })
             })
             .catch(err => {
-                console.log(err)
             })
     }
 
@@ -274,7 +273,7 @@ class CollabPage extends React.Component {
         let fabricCanvas = new fabric.Canvas(pageNum.toString(), { 
             width: Math.floor(width), 
             height: Math.floor(height), 
-            selection: false 
+            selection: false,
         });
         document.getElementById(pageNum.toString()).fabric = fabricCanvas;
 
@@ -323,6 +322,13 @@ class CollabPage extends React.Component {
         //triggers when mouse is clicked down
         fabricCanvas.on('mouse:down', function (o) {
             var pointer = fabricCanvas.getPointer(o.e);
+            let objects = fabricCanvas.getObjects(); //return Array<objects>
+            objects.forEach(object=>{
+                //list the attributes for each object
+                if (object.get('type') === 'i-text' && fabricCanvas.getActiveObjects().length === 0) {
+                    object.exitEditing();
+                }
+            });
             //add rectangle if highlither tool is used
             if (self.props.toolMode === 'shape') {
                 self.setState({
@@ -397,19 +403,24 @@ class CollabPage extends React.Component {
                 self.props.userSocket.emit('editIn', pageData)
             } else if (self.props.toolMode === 'text') {
                 self.setState({ toSend: true }, () => {
-                    fabricCanvas.add(new fabric.IText('Insert Text', {
+                    let newText = new fabric.IText('', {
                         fontFamily: 'Helvetica',
                         fontSize: self.props.textFontSize,
                         fill: self.props.textColor,
                         opacity: self.props.textOpacity / 100,
                         left: pointer.x,
                         top: pointer.y,
-                        id: nanoid()
-                    }));
+                        id: nanoid(),
+                    })
+                    fabricCanvas.add(newText);
+                    fabricCanvas.setActiveObject(newText);
                     fabricCanvas.renderAll();
+                    newText.enterEditing();
+                    newText.hiddenTextarea.focus();
+
                 })
 
-                self.setState({ mode: 'select' });
+                self.props.setToolMode('select');
             }
 
             if (e.target) {
@@ -458,7 +469,8 @@ class CollabPage extends React.Component {
         });
 
         fabricCanvas.on('object:added', function (e) {
-            const newSignatureObject = e.target
+            const newSignatureObject = e.target;
+            newSignatureObject.lockUniScaling = true;
             if (!e.target.get('owner')) {
                 let obj={owner: self.state.username};
                 newSignatureObject.set('owner',obj);
@@ -616,7 +628,8 @@ class CollabPage extends React.Component {
     }
 
     receiveHighlight(pageData) {
-        this.props.addHighlight({key: pageData.pageNum, id: pageData.id, values: pageData.values[pageData.id][0], text: pageData.text}) 
+            this.props.addHighlight({key: pageData.pageNum, id: pageData.id, values: pageData.values[pageData.id][0], text: pageData.text}) 
+        
     }
 
     receiveComment(pageData) {
@@ -866,7 +879,6 @@ class CollabPage extends React.Component {
         //      the document file, existing signature object and the list of people in the room
         socket.on('join', () => {
             const isHost = this.props.auth.user.id === this.state.hostID
-            console.log("isHost = ", isHost)
             socket.emit('join', { username, roomCode, guestID, isHost });
         });
 
@@ -887,7 +899,6 @@ class CollabPage extends React.Component {
         })
 
         socket.on('updateDownloadOption', newDownloadOption => {
-            console.log('updateDownloadOption')
             this.props.updateDownloadOption(newDownloadOption)
         })
 
@@ -898,6 +909,7 @@ class CollabPage extends React.Component {
         socket.on("editOut", (pageData) => this.receiveEdit(pageData));
         socket.on("deleteOut", (pageData) => this.receiveDelete(pageData));
         //highlights & comments
+        socket.on('updateHighlights', (highlightDict) => this.props.addAllHighlight(highlightDict))
         socket.on("highlightOut", (pageData) => this.receiveHighlight(pageData));
         socket.on("commentOut", (pageData) => this.receiveComment(pageData));
         socket.on('commentDeleteOut', (pageData) => this.props.deleteHighlight({key: pageData.pageNum, id:pageData.id}));
@@ -1245,6 +1257,7 @@ export default connect(mapStateToProps, {
     addHighlight,
     addComment,
     addPageHighlight,
+    addAllHighlight,
     setPanelMode,
     deleteHighlight,
 })(CollabPage)

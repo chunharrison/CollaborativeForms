@@ -282,7 +282,8 @@ io.on('connection', (socket)=>{
                     socket.emit('pilotModeUserConnected')
                 }
 
-                socket.emit('updateGuestList', {currentGuests: result.guests})
+                socket.emit('updateGuestList', {currentGuests: result.guests});
+                socket.emit('updateHighlights', result.highlights);
             } 
             
             // could not find the database under the given roomCode
@@ -434,7 +435,7 @@ io.on('connection', (socket)=>{
                 let highlight = pageData.highlight;
                 highlights[pageData.pageNum] = {...highlights[pageData.pageNum], [pageData.id]: highlight};
                 db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
-                    socket.to(roomCode).emit('highlightOut', {pageNum: pageData.pageNum, id: pageData.id, values: highlights[pageData.pageNum]})
+                    socket.to(roomCode).emit('highlightOut', {pageNum: pageData.pageNum, id: pageData.id, values: highlights[pageData.pageNum], text: pageData.highlight[1]})
                 })        
             })
         })

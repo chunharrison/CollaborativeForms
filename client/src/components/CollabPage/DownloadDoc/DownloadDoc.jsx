@@ -18,8 +18,6 @@
     import './DownloadDoc.css'
 
     const DownloadDoc = (props) => {
-        console.log(props.downloadOption)
-
         //ORDER: 
         //rect: 'rect',page,x,y,width,height,color,opacity,bordercolor,borderwidth,borderopacity
         //path: 'path',page,x,y,width,height,bordercolor,borderwidth,borderopacity,path
@@ -30,7 +28,6 @@
 
             // Blob -> ArrayBuffer
             // const PDFArrayBuffer = await props.currentDoc.arrayBuffer();
-            console.log(props.currentDoc)
             download(props.currentDoc, "original_document.pdf", "application/pdf")
         }
 
@@ -104,7 +101,6 @@
                     propertyList.push(`,path,${pageNum},${object.left},${object.top},${object.width},${object.height},${matchStroke[1]}.${matchStroke[2]}.${matchStroke[3]},${object.strokeWidth},` + 
                         `${object.opacity},!${object.path}`) 
                 } else if (type === 'i-text') {
-                    console.log(object.height)
                     
                     //embed text
                     let matchStroke = object.fill.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
@@ -138,7 +134,6 @@
                     fabric.util.enlivenObjects(currentPageSignaturesJSONList, function (objects) {
                         // loop through the array and add all the signatures to the page
                         objects.forEach(async function (object) {
-                            console.log(object)
                             insertObject(pages[pageNum - 1], object, object.get('type'), pageNum);
                         })
                     })

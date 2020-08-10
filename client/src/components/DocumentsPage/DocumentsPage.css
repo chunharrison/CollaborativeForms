@@ -148,7 +148,6 @@
 
 .documents-text-expand {
     display:flex;
-    justify-content:center;
 }
 
 .documents-line-expand {
@@ -547,14 +546,6 @@
 
     }
 
-    .documents-text-expand {
-        display:flex;
-        align-items:center;
-        justify-content: center;
-        margin-bottom:1em;
-
-    }
-
     .help-container {
         margin:auto !important;
         justify-content: center;
@@ -568,5 +559,13 @@
 @media only screen and (max-width: 450px) {
     .documents-shared-files {
         justify-content:center;
+    }
+
+    .documents-text-expand {
+        display:flex;
+        align-items:flex-start;
+        justify-content: center;
+        margin-bottom:1em;
+
     }
 }

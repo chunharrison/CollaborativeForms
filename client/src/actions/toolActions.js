@@ -21,6 +21,7 @@ import { SET_CURRENT_ZOOM,
     ADD_HIGHLIGHT,
     ADD_COMMENT,
     ADD_PAGE_HIGHLIGHT,
+    ADD_ALL_HIGHLIGHT,
     DELETE_HIGHLIGHT,
     SET_PANEL_MODE, } from './types'
 
@@ -185,6 +186,13 @@ export const addComment = entry => dispatch => {
                 values: entry.values,
                 text: entry.text,
                 comment: entry.comment}
+    })
+}
+
+export const addAllHighlight = highlightDict => dispatch => {
+    dispatch({
+        type: ADD_ALL_HIGHLIGHT,
+        payload: highlightDict
     })
 }
 

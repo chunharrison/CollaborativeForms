@@ -114,7 +114,7 @@ const LoadPage = (props) => {
                                 pageNumber={props.pageNum}
                                 // renderTextLayer={false}
                                 renderAnnotationLayer={false}
-                                className={`lowest-canvas pdf-${props.pageNum}`}
+                                className={`lowest-canvas pdf-${props.pageNum} ${props.toolMode === 'highlighter' ? '' : 'select-mode'}`}
                             />
 
                             {/* FABRIC CANVAS */}
@@ -150,6 +150,7 @@ const mapStateToProps = state => ({
     // tools
     currentZoom: state.tool.currentZoom,
     pagesZooms: state.tool.pagesZooms,
+    toolMode: state.tool.toolMode,
 })
 
 export default connect(mapStateToProps, {
