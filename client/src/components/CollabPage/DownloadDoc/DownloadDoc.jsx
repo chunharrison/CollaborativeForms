@@ -65,7 +65,7 @@
                     // (0, 0) refers to the bottom left corner 
                     currPage.drawImage(pngImage, {
                         x: (object.left),
-                        y: (pageHeight - object.top - object.height),
+                        y: (pageHeight - object.top - object.height * object.scaleY),
                         width: object.width  * object.scaleX,
                         height: object.height * object.scaleY,
                     })
@@ -75,7 +75,7 @@
                     let matchStroke = object.stroke.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawRectangle({
                         x: object.left,
-                        y: pageHeight - object.top - object.height,
+                        y: pageHeight - object.top - object.height * object.scaleY,
                         width: object.width  * object.scaleX,
                         height:object.height * object.scaleY,
                         borderColor: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
@@ -100,12 +100,11 @@
                     })  
                     propertyList.push(`,path,${pageNum},${object.left},${object.top},${object.width},${object.height},${matchStroke[1]}.${matchStroke[2]}.${matchStroke[3]},${object.strokeWidth},` + 
                         `${object.opacity},!${object.path}`) 
-                } else if (type === 'i-text') {
-                    
+                } else if (type === 'i-text') {               
                     //embed text
                     let matchStroke = object.fill.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/);
                     currPage.drawText(object.text, {
-                        x: object.left,
+                        x: object.left - (object.width * object.scaleX - object.getBoundingRect().width) / 2,
                         y: pageHeight - object.top - object.height * object.scaleX + (object.height * object.scaleX - object.fontSize * object.scaleX) + object.lineHeight * object.scaleX,
                         size: parseInt(object.fontSize  * object.scaleX),
                         color: rgb(parseInt(matchStroke[1]) / 256, parseInt(matchStroke[2]) / 256, parseInt(matchStroke[3]) / 256),
