@@ -397,6 +397,7 @@ io.on('connection', (socket)=>{
         })
 
         socket.on('deleteIn', (pageData) => {
+            console.log('delete coming in')
             const {pageNum, removedSignatureObjectJSON} = pageData
 
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {

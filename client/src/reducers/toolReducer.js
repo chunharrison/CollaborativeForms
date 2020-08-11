@@ -23,7 +23,8 @@ import { SET_CURRENT_ZOOM,
     ADD_PAGE_HIGHLIGHT,
     ADD_ALL_HIGHLIGHT,
     DELETE_HIGHLIGHT,
-    SET_PANEL_MODE } from '../actions/types'
+    SET_PANEL_MODE,
+    SET_HOTBAR_OBJECT } from '../actions/types'
 
 import { omit } from 'lodash';
 
@@ -65,6 +66,9 @@ const initialState = {
 
     //highlighter
     highlightDict: {},
+
+    //hotbar
+    hotbarObject: null,
 }
 
 export default function(state = initialState, action) {
@@ -218,7 +222,13 @@ export default function(state = initialState, action) {
                 panelMode: action.payload
             }
     
-            
+        case SET_HOTBAR_OBJECT:
+            return {
+                ...state,
+                hotbarObject: action.payload
+            }
+
+
         default:
             return state;
     }

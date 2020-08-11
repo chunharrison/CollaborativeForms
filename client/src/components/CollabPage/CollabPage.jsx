@@ -24,6 +24,8 @@ import CommentsPanel from '../CommentsPanel/CommentsPanel'
 import PageBrowser from './PageBrowser/PageBrowser';
 import RoomSettings from './RoomSettings/RoomSettings'
 import RoomSettingsWindow from './RoomSettings/RoomSettingsWindow'
+import ObjectHotbar from './ObjectHotbar/ObjectHotbar'
+
 // react-bootstrap
 import Alert from 'react-bootstrap/Alert';
 
@@ -71,6 +73,7 @@ import { setCurrentZoom,
     addAllHighlight,
     setPanelMode,
     deleteHighlight,
+    setHotbarObject
 } from '../../actions/toolActions'
 
 // images
@@ -106,6 +109,7 @@ class CollabPage extends React.Component {
             drawTrueCanvasId: [],
             lastCanvas: 1,
             selectedArea: null,
+            currentCanvas: null,
 
             // Server
             endpoint: `${process.env.REACT_APP_BACKEND_ADDRESS}`,
@@ -125,6 +129,7 @@ class CollabPage extends React.Component {
         this.addImage = this.addImage.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleKeyUp = this.handleKeyUp.bind(this);
+        this.deleteObject = this.deleteObject.bind(this);
 
         // Backend
         this.setSocket = this.setSocket.bind(this);
@@ -329,6 +334,11 @@ class CollabPage extends React.Component {
                     object.exitEditing();
                 }
             });
+            if (self.props.toolMode === 'select') {
+                self.setState({currentCanvas: fabricCanvas}, () => {
+                    self.props.setHotbarObject(null);
+                })
+            }
             //add rectangle if highlither tool is used
             if (self.props.toolMode === 'shape') {
                 self.setState({
@@ -387,6 +397,12 @@ class CollabPage extends React.Component {
 
         //triggers when left mouse button is released
         fabricCanvas.on('mouse:up', function (e) {
+            if (self.props.toolMode === 'select') {
+                self.setState({currentCanvas: fabricCanvas}, () => {
+                    self.props.setHotbarObject(e.target);
+                })
+            }
+
             var pointer = fabricCanvas.getPointer(e.e);
             self.setState({ isDown: false });
 
@@ -697,25 +713,22 @@ class CollabPage extends React.Component {
         this.props.setToolMode('select');
     }
 
+    deleteObject(object) {
+        if (this.state.currentCanvas !== null) {
+            this.setState({ toSend: true }, () => {
+                this.state.currentCanvas.remove(object);
+            });
+            this.props.setHotbarObject(null);
+
+        }
+    }
+
     // handles key strokes
     handleKeyDown(e) {
         //delete objects
         if (e.keyCode === 46 && e.target.type !== 'textarea') {
             this.setState({ holding: false });
-            for (let pageNum = 0; pageNum < this.props.numPages; pageNum++) {
-                let currentPageCanvas = document.getElementById(pageNum.toString());
-                if (typeof currentPageCanvas === 'object' && currentPageCanvas !== null) {
-                    let currentPageFabricCanvas = currentPageCanvas.fabric;
-                    var activeObject = currentPageFabricCanvas.getActiveObjects()
-                    if (activeObject.length > 0) {
-                        this.setState({ toSend: true }, () => {
-                            currentPageFabricCanvas.discardActiveObject();
-                            currentPageFabricCanvas.remove(...activeObject);
-                            currentPageFabricCanvas.renderAll();
-                        });
-                    }
-                }
-            }
+            this.deleteObject(this.props.hotbarObject)
             //trigger pan tool
         } else if(e.keyCode === 32 && e.target.type !== 'textarea'){
             e.preventDefault();
@@ -1154,6 +1167,10 @@ class CollabPage extends React.Component {
                             <ToggleHighlighter/>
                         </div>  
                     </div>
+                    <ObjectHotbar
+                    currentCanvas={this.state.currentCanvas}
+                    deleteObject={this.deleteObject}
+                    />
                 </div>
 
                 {
@@ -1229,6 +1246,7 @@ const mapStateToProps = state => ({
     textFontSize: state.tool.textFontSize,
     panelToggle: state.tool.panelToggle,
     panelMode: state.tool.panelMode,
+    hotbarObject: state.tool.hotbarObject
 })
 
 
@@ -1260,4 +1278,5 @@ export default connect(mapStateToProps, {
     addAllHighlight,
     setPanelMode,
     deleteHighlight,
+    setHotbarObject
 })(CollabPage)
