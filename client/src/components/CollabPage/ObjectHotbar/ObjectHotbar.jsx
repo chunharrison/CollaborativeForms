@@ -14,8 +14,8 @@ const ObjectHotbar = (props) => {
 
     useEffect(() => {
         if (props.hotbarObject !== null) { 
-            setObjectX((props.hotbarObject.left * props.currentZoom + props.hotbarObject.width * props.currentZoom / 2 - 20) + props.currentCanvas._offset.left);
-            setObjectY((props.hotbarObject.top * props.currentZoom + props.hotbarObject.height * props.currentZoom / 2 + 50 * props.currentZoom) + props.currentCanvas._offset.top);
+            setObjectX((props.hotbarObject.left * props.currentZoom + props.hotbarObject.width * props.hotbarObject.scaleX * props.currentZoom / 2 - 20) + props.currentCanvas._offset.left);
+            setObjectY((props.hotbarObject.top * props.currentZoom + props.hotbarObject.height * props.hotbarObject.scaleY * props.currentZoom ) + props.currentCanvas._offset.top);
         } else {
             setObjectX(null);
             setObjectY(null);
