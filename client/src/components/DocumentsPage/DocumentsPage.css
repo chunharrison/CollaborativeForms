@@ -120,12 +120,12 @@
 }
 
 .documents-container {
-    margin-left:8vw;
+    margin-left:4vw;
     margin-top:5em;
     display:flex;
     flex-direction:column;
     height:85%;
-    width:80%;
+    width:100%;
     overflow:hidden;
 }
 
@@ -428,6 +428,8 @@
     margin-right:auto;
     width:190px;
     margin-top:2em;
+    text-overflow:ellipsis;
+    overflow:hidden;
 }
 
 .account-modal-dialog {
