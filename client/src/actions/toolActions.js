@@ -23,7 +23,8 @@ import { SET_CURRENT_ZOOM,
     ADD_PAGE_HIGHLIGHT,
     ADD_ALL_HIGHLIGHT,
     DELETE_HIGHLIGHT,
-    SET_PANEL_MODE, } from './types'
+    SET_PANEL_MODE,
+    SET_HOTBAR_OBJECT, } from './types'
 
 export const setCurrentZoom = newZoom => dispatch => {
     dispatch({
@@ -216,5 +217,12 @@ export const setPanelMode = mode => dispatch => {
     dispatch({
         type: SET_PANEL_MODE,
         payload: mode
+    })
+}
+
+export const setHotbarObject = object => dispatch => {
+    dispatch({
+        type: SET_HOTBAR_OBJECT,
+        payload: object
     })
 }

@@ -1,0 +1,26 @@
+.hotbar {
+    position:absolute;
+    z-index: 9999;
+    background-color: white;
+    border-radius: 3px;
+    box-shadow: 0px 1px 10px 1px rgba(0, 0, 0, 0.2);
+}
+
+.hotbar-delete {
+    border:none;
+    padding:0;
+    background-color: transparent;
+    height:41px;
+    width:41px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hotbar-delete:hover {
+    background-color:rgb(209, 209, 209);
+}
+
+.hotbar-delete img {
+    height:22px;
+}
