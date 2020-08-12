@@ -113,6 +113,9 @@
 }
 
 .documents-background {
+    display:flex;
+    justify-content:center;
+    align-items: flex-start;
     height:100%;
     width: 80vw;
     justify-self:flex-end;

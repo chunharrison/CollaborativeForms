@@ -53,7 +53,7 @@ const HelpPage = (props) => {
             <p className='help-subheader'>
                 Help
             </p>
-            <div className="contact-us-form-container">
+            <div className="help-form-container">
                 <form className='contact-us-form' noValidate>
                     <div className="contact-us-input-container">
                         <input
@@ -77,7 +77,7 @@ const HelpPage = (props) => {
                             error={props.errors.messageMessage}
                             placeholder="Message"
                             id="send-message-message"
-                            className={classnames("contact-us-textarea", {
+                            className={classnames("help-textarea", {
                                 invalid: props.errors.messageMessage
                             })}
                         />
