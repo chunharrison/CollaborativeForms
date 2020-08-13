@@ -49,19 +49,35 @@ class Register extends Component {
             };
         // this.props.registerUser(newUser, this.props.history); 
         const key = nanoid()
+
+        // Save the entry to the database
         UserService.createEmailVerificationEntry(key, newUser)
             .then(res => {
-                console.log('createEmailVerificationEntry DONE')
+                // console.log('createEmailVerificationEntry DONE')
+
+                // Send the verification email
                 EmailService.sendVerificationEmail(key, this.state.email, process.env.REACT_APP_FRONTEND_ADDRESS)
                     .then(res => {
-                        console.log('sendVerificationEmail DONE')
+                        // console.log('sendVerificationEmail DONE')
+                        
+                        // move the panel to the right
                         const container = document.getElementById('sign-in-out-form-container');
                         if (container) container.classList.remove("right-panel-active")
                     })
+
+                // clear error messages
+                const clearErrors = {
+                    nameRegister: '',
+                    emailRegister: '',
+                    passwordRegister: '',
+                    password2Register: ''
+                }
+                this.props.setError(clearErrors)
             })
             .catch(err => {
-                console.log('createEmailVerificationEntry FAILED')
-                // this.props.setError(err.response.data)
+                // console.log('createEmailVerificationEntry FAILED')
+                // console.log(err.response)
+                this.props.setError(err.response.data)
             })
     };
 
@@ -78,59 +94,59 @@ class Register extends Component {
                         <input
                             onChange={this.onChange}
                             value={this.state.name}
-                            error={errors.name}
+                            error={errors.nameRegister}
                             id="name"
                             type="text"
                             placeholder="Name"
                             className={classnames("login-register-input", {
-                                invalid: errors.name
+                                invalid: errors.nameRegister
                             })}
                         />
-                        <span className="red-text">{errors.name}</span>
+                        <span className="red-text">{errors.nameRegister}</span>
                     </div>
 
                     <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.email}
-                            error={errors.email}
+                            error={errors.emailRegister}
                             id="email"
                             type="email"
                             placeholder="Email"
                             className={classnames("login-register-input", {
-                                invalid: errors.email
+                                invalid: errors.emailRegister
                             })}
                         />
-                        <span className="red-text">{errors.email}</span>
+                        <span className="red-text">{errors.emailRegister}</span>
                     </div>
 
                     <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password}
-                            error={errors.password}
+                            error={errors.passwordRegister}
                             id="password"
                             type="password"
                             placeholder="Password"
                             className={classnames("login-register-input", {
-                                invalid: errors.password
+                                invalid: errors.passwordRegister
                             })}
                         />
-                        <span className="red-text">{errors.password}</span>
+                        <span className="red-text">{errors.passwordRegister}</span>
                     </div>
                     <div className="login-register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password2}
-                            error={errors.password2}
+                            error={errors.password2Register}
                             id="password2"
                             type="password"
                             placeholder="Confirm Password"
                             className={classnames("login-register-input", {
-                                invalid: errors.password2
+                                invalid: errors.password2Register
                             })}
                         />
-                    <span className="red-text">{errors.password2}</span>
+                    <span className="red-text">{errors.password2Register}</span>
                     </div>
                     <button
                         type="submit"
