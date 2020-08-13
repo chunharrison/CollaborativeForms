@@ -8,6 +8,7 @@ import PrivateRoute from './private-route/PrivateRoute';
 import GuestJoin from './GuestJoin/GuestJoin';
 import CommentsPanel from './CommentsPanel/CommentsPanel';
 import ContactUs from './ContactUs/ContactUs'
+import VerifyEmail from './VerifyEmail/VerifyEmail'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import { Provider } from "react-redux";
@@ -63,6 +64,7 @@ function App() {
           <Route path='/reset' component={ResetPassword}/>
           <Route path='/demo' component={DemoPage}/>
           <Route path='/contact-us' component={ContactUs}/>
+          <Route path='/verify' component={VerifyEmail}/>
 
           {/* ERROR PAGES */}
           <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
