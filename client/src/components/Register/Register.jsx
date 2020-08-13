@@ -3,8 +3,16 @@ import { Link, withRouter } from "react-router-dom";
 // import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { registerUser } from "../../actions/authActions";
+import { setError }from "../../actions/errorActions"
 import classnames from "classnames";
 
+import { nanoid } from 'nanoid'
+
+// 
+import UserService from '../../services/user.services'
+import EmailService from '../../services/email.services'
+
+// CSS 
 import './css/Register.css'
 
 class Register extends Component {
@@ -39,7 +47,22 @@ class Register extends Component {
                 password: this.state.password,
                 password2: this.state.password2
             };
-        this.props.registerUser(newUser, this.props.history); 
+        // this.props.registerUser(newUser, this.props.history); 
+        const key = nanoid()
+        UserService.createEmailVerificationEntry(key, newUser)
+            .then(res => {
+                console.log('createEmailVerificationEntry DONE')
+                EmailService.sendVerificationEmail(key, this.state.email, process.env.REACT_APP_FRONTEND_ADDRESS)
+                    .then(res => {
+                        console.log('sendVerificationEmail DONE')
+                        const container = document.getElementById('sign-in-out-form-container');
+                        if (container) container.classList.remove("right-panel-active")
+                    })
+            })
+            .catch(err => {
+                console.log('createEmailVerificationEntry FAILED')
+                // this.props.setError(err.response.data)
+            })
     };
 
     render() {
@@ -134,5 +157,6 @@ const mapStateToProps = state => ({
 
 export default connect(
     mapStateToProps,
-    { registerUser }
+    { registerUser,
+        setError }
 )(withRouter(Register));
