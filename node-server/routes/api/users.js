@@ -53,7 +53,7 @@ const usePasswordHashToMakeToken = ({
 }
 
 router.post("/create-email-verification-entry", (req, res) => {
-  console.log('create-email-verification-entry')
+  // console.log('create-email-verification-entry')
   // Form validation
   const { errors, isValid } = validateRegisterInput(req.body.userData);
   // Check validation
