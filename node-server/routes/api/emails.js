@@ -29,6 +29,36 @@ const checkToken = (req, res, next) => {
     }
   }
 
+router.post('/send-verification-email', (req, res) => {
+    var smtpTransport = nodemailer.createTransport({
+        service: 'Gmail',
+        port: 465,
+        auth: {
+            user: process.env.MAILER_LOGIN,
+            pass: process.env.MAILER_PASSWORD
+        }
+    });
+
+    var mailOptions = {
+        from: process.env.MAILER_LOGIN,
+        to: req.body.email,
+        subject: 'Cosign: Account Verification',
+        html: `<div> 
+                ${req.body.frontendAddress}/verify/${req.body.key}
+                </div>`
+    };
+
+    smtpTransport.sendMail(mailOptions,
+        (error, response) => {
+            if (error) {
+                res.send(error)
+            } else {
+                res.send('Success')
+            }
+                smtpTransport.close();
+        });
+})
+
 router.post('/send-message', (req, res) => {
     // validation 
     const { errors, isValid } = validateMessageInput(req.body)

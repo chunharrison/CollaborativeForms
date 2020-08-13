@@ -17,7 +17,6 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
 const passport = require("passport");
-const nanoid = require("nanoid")
 
 const users = require("./routes/api/users");
 const guests = require("./routes/api/guests")
@@ -50,11 +49,11 @@ app.use(
 );
 app.use(bodyParser.json());
 // DB Config
-const userdb = require("./config/keys").mongoURI;
+const roomsdb = require("./config/keys").mongoURI;
 // Connect to MongoDB
 mongoose
   .connect(
-    userdb,
+    roomsdb,
     { useNewUrlParser: true }
   )
   .then(() => console.log("MongoDB successfully connected"))

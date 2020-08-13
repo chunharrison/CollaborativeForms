@@ -25,6 +25,18 @@ const GuestJoin = (props) => {
     const [roomSet, setRoomSet] = useState(false)
 
     useEffect(() => {
+        // check to see if the guest is already a user or not
+        if (this.props.auth.isAuthenticated) {
+            // then send them to the collab page
+            const isDemoPage = '' + queryString.parse(props.location.search).type
+            if (isDemoPage === 'demo') {
+                props.history.push(`/demo?username=${props.auth.user.name}&roomCode=${roomCode}&guestID=${uniqueGuestID}`)
+            } else {
+                props.history.push(`/collab?username=${props.auth.user.name}&roomCode=${roomCode}&guestID=${uniqueGuestID}`)
+            }
+        }
+
+        // get values from query parameters
         if (guestID === '') setGuestID(uniqueGuestID)
         if (roomCode === '') setRoomCode('' + queryString.parse(props.location.search).roomCode)
         if (invitationCode === '') setInvitationCode('' + queryString.parse(props.location.search).invitationCode)
@@ -96,7 +108,8 @@ const GuestJoin = (props) => {
 
 const mapStateToProps = state => ({
     roomCode: state.room.roomCode,
-    errors: state.errors
+    errors: state.errors,
+    auth: state.auth
 });
 
 export default connect(mapStateToProps)(GuestJoin)

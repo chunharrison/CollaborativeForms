@@ -11,6 +11,7 @@ const validatePasswordInput = require("../../validation/password");
 
 // Load User model
 const User = require("../../models/User");
+const EmailVeriftication = require("../../models/EmailVerification")
 
 const { transporter, getPasswordResetURL, resetPasswordTemplate } = require('./modules/email');
 
@@ -51,38 +52,113 @@ const usePasswordHashToMakeToken = ({
   return token;
 }
 
-// @route POST api/users/register
-// @desc Register user
-// @access Public
-router.post("/register", (req, res) => {
+router.post("/create-email-verification-entry", (req, res) => {
+  // console.log('create-email-verification-entry')
   // Form validation
-  const { errors, isValid } = validateRegisterInput(req.body);
+  const { errors, isValid } = validateRegisterInput(req.body.userData);
   // Check validation
   if (!isValid) {
     return res.status(400).json(errors);
   }
-  User.findOne({ email: req.body.email }).then(user => {
-    if (user) {
-      return res.status(400).json({ email: "Email already exists" });
-    } else {
-      const newUser = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password
-      });
-      // Hash password before saving in database
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          newUser
-            .save()
-            .then(user => res.json(user))
-            .catch(err => console.log(err));
+
+  User.findOne({ email: req.body.userData.email }).then(user => {
+    EmailVeriftication.findOne({email: req.body.userData.email }).then(verificationEntry => {
+      if (user) {
+        return res.status(400).json({ emailRegister: "Email already exists" });
+      } else if (verificationEntry) {
+        // TODO: harrison 
+        // maybe remove this incase they did not receive the email
+        return res.status(400).json({ emailRegister: "Email is already pending for verification"})
+      } else {
+        const newEmailVerification = new EmailVeriftication({
+          key: req.body.key,
+          name: req.body.userData.name,
+          email: req.body.userData.email,
+          password: req.body.userData.password
         });
-      });
-    }
+        // Hash password before saving in database
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newEmailVerification.password, salt, (err, hash) => {
+            if (err) throw err;
+            newEmailVerification.password = hash;
+            newEmailVerification
+              .save()
+              .then(verificationEntry => res.json(verificationEntry))
+              .catch(err => console.log(err));
+          });
+        });
+      }
+    })
   });
+})
+
+router.post('/verify-email', (req, res) => {
+  const {key} = req.body
+  EmailVeriftication.findOneAndDelete({key: req.body.key})
+    .then(verificationEntry => {
+      if (verificationEntry) {
+        const newUser = new User({
+          name: verificationEntry.name,
+          email: verificationEntry.email,
+          password: verificationEntry.password,
+        });
+        newUser
+            .save()
+            .then(user => res.send('Email Verified'))
+            .catch(err => console.log(err));
+      } 
+    })
+    .catch(err => {
+      res.status(400)
+    })
+})
+
+// @route POST api/users/register
+// @desc Register user
+// @access Public
+router.post("/register", (req, res) => {
+  // // Form validation
+  // const { errors, isValid } = validateRegisterInput(req.body);
+  // // Check validation
+  // if (!isValid) {
+  //   return res.status(400).json(errors);
+  // }
+  // User.findOne({ email: req.body.email }).then(user => {
+  //   if (user) {
+  //     return res.status(400).json({ email: "Email already exists" });
+  //   } else {
+  //     const newUser = new User({
+  //       name: req.body.name,
+  //       email: req.body.email,
+  //       password: req.body.password
+  //     });
+  //     // Hash password before saving in database
+  //     bcrypt.genSalt(10, (err, salt) => {
+  //       bcrypt.hash(newUser.password, salt, (err, hash) => {
+  //         if (err) throw err;
+  //         newUser.password = hash;
+  //         newUser
+  //           .save()
+  //           .then(user => res.json(user))
+  //           .catch(err => console.log(err));
+  //       });
+  //     });
+  //   }
+  // });
+  EmailVeriftication.findOne({ key: req.body.key })
+    .then(userInfo => {
+      if (userInfo) {
+        const newUser = new User({
+          name: userInfo.name,
+          email: userInfo.email,
+          password: userInfo.password
+        });
+        newUser
+          .save()
+          .then(user => res.json(user))
+          .catch(err => console.log(err));
+      }
+    })
 });
 
 // @route POST api/users/login

@@ -17,11 +17,9 @@
 .account-container {
     display:flex;
     flex-direction:column;
-    margin-left:8vw;
-    margin-top:5em;
+    margin-top:3em;
     height:85%;
     width:80%;
-    overflow:hidden;
 }
 
 .account-header {
@@ -34,12 +32,12 @@
 
 .account-subheader {
     font-family: karla-regular;
-    font-size:25px;  
+    font-size:25px; 
+    margin-bottom:1em; 
 }
 
 .account-username-container, .account-email-container, .account-password-container {
     margin-bottom:3em;
-    margin-top:3em;
     padding-bottom:1em;
     display: flex;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
@@ -52,6 +50,12 @@
     width:25%;
 }
 
+.account-password-container {
+    padding-bottom:0;
+    margin-bottom:0;
+    border-bottom:none;
+}
+
 .account-information-text {
     color:rgb(145, 145, 145);
     align-self: center;
@@ -60,8 +64,8 @@
 
 .account-placeholder-container {
     display:flex;
-    justify-content: space-between;
-    height:45px;
+    justify-content: center;
+    align-items: center;
     transition: height .8s ease;
 }
 
@@ -124,6 +128,11 @@
 
 .account-input-container {
     transition: height .3s ease;
+    max-width:300px;
+    display: flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 }
 
 .account-input {
@@ -134,16 +143,27 @@
     margin-top: 1em;
     margin-bottom: 1em;
     padding:0.8em;
-    width: 80%;
+    width: 200px;
     
 }
 
 .account-plan {
+    padding:1em;
     position:relative;
 }
 
 .fade-in {
     animation: fadeIn 1s ease-in 0s both;
+}
+
+.account-profile {
+    display:flex;
+    flex-direction:column;
+    border-radius: 10px;
+    padding:2em;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    background: #f1f1f1;
+    box-shadow: 6px 6px 12px #d4d4d4, -6px -6px 12px #ffffff;
 }
 
 @keyframes fadeIn {
@@ -161,16 +181,12 @@
         overflow-y: auto;
         margin-top:0em;
         margin-bottom:0em;
-        padding-right:2em;
         height:100%;
-
+        width:100%;
     }
+
     .account-username-container, .account-email-container, .account-password-container {
         flex-direction:column;
-    }
-
-    .account-password-container {
-        padding-bottom:5em;
     }
 
     .account-password-placeholder {
@@ -182,23 +198,8 @@
         margin-bottom:1em;
     }
 
-    .account-placeholder-container {
-        justify-content: flex-start !important;
-        align-items:flex-start !important;
-        flex-direction:column;
-
-    }
-    .account-placeholder-container {
-        width: 350px;
-
-    }
-    .account-input-container {
-        width: 350px;
-    }
-
     .account-button-container {
         align-self: flex-start !important;
-        margin-top:1em;
         display:flex;
         flex-direction: row;
         justify-content: center;
@@ -208,4 +209,23 @@
     .account-edit-button, .account-submit-button {
         margin:0.3em !important;
     }
+
+    .account-profile {
+        border: none;
+        border-radius: 10px;
+        padding:1em;
+        margin:1em;
+        margin-top:4em;
+    }
+
+    .account-expanded {
+        height: 300px;
+    }
+
+    .account-placeholder-container {
+        display:flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
 }
