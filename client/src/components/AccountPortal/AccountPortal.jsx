@@ -13,6 +13,7 @@ import HelpPage from '../HelpPage/HelpPage';
 import accountsImg from './accounts.png';
 import documentsImg from './documents.png';
 import questionImg from './question.png';
+import backgroundImg from './account-portal-background.png'
 
 
 const AccountPortal = props => {
@@ -27,6 +28,7 @@ const AccountPortal = props => {
 
     return (
         <div className='documents-page'>
+            
             <div className='documents-nav'>
                     <p className='documents-nav-name'>
                         {props.auth.user.name}

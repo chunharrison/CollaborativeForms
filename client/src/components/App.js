@@ -17,7 +17,9 @@ import store from "../store";
 import jwt_decode from "jwt-decode";
 import setAuthToken from "../utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "../actions/authActions";
-import SignInOrUp from "./SignInOrUp/SignInOrUp";
+import Login from "./Login/Login";
+import Register from "./Register/Register";
+import ForgotPassword from './ForgotPassword/ForgotPassword';
 import ResetPassword from "./ResetPassword/ResetPassword";
 import AccountPortal from "./AccountPortal/AccountPortal";
 
@@ -55,13 +57,15 @@ function App() {
         <Router>
           <Route exact path='/' component={LandingPage}/>
           <Route path='/collab' component={CollabPage}/>
-          <Route exact path='/account' component={SignInOrUp} />
+          <Route exact path='/login' component={Login} />
+          <Route exact path='/register' component={Register} />
           <Switch>
             <PrivateRoute exact path='/account-portal' component={AccountPortal}/>
           </Switch>
           <Route path='/component-testing' component={CommentsPanel}/>
           <Route path='/join-room' component={GuestJoin}/>
           <Route path='/reset' component={ResetPassword}/>
+          <Route path='/forgot' component={ForgotPassword}/>
           <Route path='/demo' component={DemoPage}/>
           <Route path='/contact-us' component={ContactUs}/>
           <Route path='/verify' component={VerifyEmail}/>

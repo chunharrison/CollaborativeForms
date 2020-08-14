@@ -99,7 +99,7 @@ class LandingPage extends React.Component {
     handleLogInClick = e => {
         e.preventDefault()
 
-        this.props.history.push("/account")
+        this.props.history.push("/login")
     }
 
     handleLogOutClick = e => {
@@ -118,7 +118,7 @@ class LandingPage extends React.Component {
         e.preventDefault()
 
         localStorage.setItem('signup', true)
-        this.props.history.push("/account")
+        this.props.history.push("/register")
     }
 
     handleDemoClick = e => {

@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import axios from "axios";
 import { connect } from 'react-redux';
 
+import backgroundImg from './background.png';
+
 const ForgotPassword = (props) => {
 
     const [email, setEmail] = useState('');
     const [sent, setSent] = useState(false);
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
     
     //send get request to server to which email to send reset instructions to
     function resetPassword() {   
+        setLoading(true);
         const options = {
             params: {
                 email: email
@@ -23,8 +27,10 @@ const ForgotPassword = (props) => {
         }     
         axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/forgot-password`, options).then(res => {
             setSent(true);
-            setMessage('Email with instructions has been sent to the address entered above')
+            setMessage('Email with instructions has been sent to the address entered above');
+            setLoading(false);
         }).catch(function (error) {
+            setLoading(false);
             if (error.response) {
                 if (error.response.data.email) {
                     setMessage(error.response.data.email);
@@ -37,15 +43,21 @@ const ForgotPassword = (props) => {
 }
 
     return (
-        <div className="forgot-password-container fade-in">
-            <p className='forgot-password-header'>Forgot Password</p>
-            <input  
-            placeholder='Email...' className='forgot-password-input' onChange={(e) => setEmail(e.target.value)} type="text"/>
-            <button
-              onClick={() => resetPassword()}
-              className="signin-button login-register-button"
-            >Reset Password</button>
-            {!sent ? '' : <p className='forgot-password-message'>{message}</p>}
+        <div className="login-container">
+            <img className='sign-in-out-abstract1' src={backgroundImg}></img>
+            <div className='signin-form'>
+                <p className='login-logo'>cosign</p>
+                <p className='login-header'>Forgot Password</p>
+                <div className='login-input-container'>
+                    <input placeholder='Email' className='login-input' onChange={(e) => setEmail(e.target.value)} type="text"/>
+                </div>
+                <button
+                onClick={() => resetPassword()}
+                className="signin-button login-button">
+                    {loading ? <div className='spinner'></div> : 'Reset Password'}
+                </button>
+                {!sent ? '' : <p className='forgot-password-message'>{message}</p>}
+            </div>
         </div>
     )
 }
