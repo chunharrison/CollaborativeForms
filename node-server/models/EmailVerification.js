@@ -20,8 +20,9 @@ const EmailVerificationSchema = new Schema({
     },
     date: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+        index: {expires: '86400'} // expires after 24 hours
+    } 
 })
 
 module.exports = EmailVerification = mongoose.model("verifications", EmailVerificationSchema)

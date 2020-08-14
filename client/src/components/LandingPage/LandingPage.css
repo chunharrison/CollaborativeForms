@@ -517,6 +517,7 @@ canvas {
     margin-right: 1em;
     background-color: #e66069;
     border-radius:40px;
+    cursor: pointer;
 }
 
 .welcome-trial-button {
@@ -735,6 +736,7 @@ canvas {
     background-color: white;
     border-radius:40px;
     z-index: 2;
+    cursor: pointer;
 }
 
 .join-us {

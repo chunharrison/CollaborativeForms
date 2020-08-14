@@ -53,7 +53,7 @@ const usePasswordHashToMakeToken = ({
 }
 
 router.post("/create-email-verification-entry", (req, res) => {
-  console.log('create-email-verification-entry')
+  // console.log('create-email-verification-entry')
   // Form validation
   const { errors, isValid } = validateRegisterInput(req.body.userData);
   // Check validation
@@ -64,11 +64,11 @@ router.post("/create-email-verification-entry", (req, res) => {
   User.findOne({ email: req.body.userData.email }).then(user => {
     EmailVeriftication.findOne({email: req.body.userData.email }).then(verificationEntry => {
       if (user) {
-        return res.status(400).json({ email: "Email already exists" });
+        return res.status(400).json({ emailRegister: "Email already exists" });
       } else if (verificationEntry) {
         // TODO: harrison 
         // maybe remove this incase they did not receive the email
-        return res.status(400).json({ email: "Email is already pending for verification"})
+        return res.status(400).json({ emailRegister: "Email is already pending for verification"})
       } else {
         const newEmailVerification = new EmailVeriftication({
           key: req.body.key,

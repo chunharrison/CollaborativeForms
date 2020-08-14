@@ -226,7 +226,7 @@ class LandingPage extends React.Component {
                     <img src={triangle} className='triangle'/>
                     <img src={rectangle} className='rectangle'/>
                     <div className='welcome-button-container'>
-                        <p className='welcome-demo-button'>Try our demo</p>
+                        <p className='welcome-demo-button' onClick={e => {this.handleDemoClick(e)}}>Try our demo</p>
                     </div>
                     <p className='learn-more'>Learn More</p>
                     <img src={downArrow} className='down-arrow'/>
@@ -315,7 +315,7 @@ class LandingPage extends React.Component {
                     <img src={rectangleThree} className='rectangle-three'/>
                     <p className='try-demo-header'>Try our free demo</p>
                     <p className='try-demo-description'>We recommend opening multiple windows in order to experience the real time strength of the app</p>
-                    <p className='try-demo-button'>Demo</p>
+                    <p className='try-demo-button' onClick={e => {this.handleDemoClick(e)}}>Demo</p>
                 </div>
                 <div className='join-us'>
                     <p className='join-us-header'>Join us today</p>

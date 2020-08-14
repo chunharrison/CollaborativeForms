@@ -7,6 +7,7 @@ import './VerifyEmail.css'
 const VerifyEmail = (props) => {
     const [callsMade, setCallsMade] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
+    const [successful, setSuccessful] = useState(false)
 
     useState(() => {
         if (!callsMade) {
@@ -16,6 +17,7 @@ const VerifyEmail = (props) => {
                 .then(res => {
                     console.log('success')
                     setStatusMessage('Email Verification Successful! Welcome to Cosign')
+                    setSuccessful(true)
                 })
                 .catch(err => {
                     console.log('fail')
@@ -25,6 +27,12 @@ const VerifyEmail = (props) => {
         }
     })
 
+    function handleLoginButtonClick(e) {
+        e.preventDefault()
+
+        props.history.push('/account')
+    }
+
     return (
         <div>
             {
@@ -32,6 +40,13 @@ const VerifyEmail = (props) => {
                 ?
                 <div className="verify-email-container">
                     {statusMessage}
+                    {
+                        successful
+                        ?
+                        <button className="login-register-button" onClick={e => handleLoginButtonClick(e)}>LOGIN</button>
+                        :
+                        null
+                    }
                 </div>
                 :
                 <div className="loader-wrapper">
