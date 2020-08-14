@@ -1,17 +1,25 @@
-.register-form-container {
-	position: absolute;
-	top: 0;
-	height: 100%;
-	transition: all 0.6s ease-in-out;
+@font-face {
+	font-family: montserrat-medium;
+	src: url('Montserrat-Medium.ttf');
+}
 
-	left: 0;
-	width: 50%;
-	opacity: 0;
-	z-index: 1;
+@font-face {
+	font-family: opensans-regular;
+	src: url('OpenSans-Regular.ttf');
+}
+
+.register-container {
+	position:relative;
+	height:100%;
+	width:100%;
+	display:flex;
+	justify-content:center;
+	align-items:center;
 }
 
 .register-form {
-	background-color: #FFFFFF;
+	position:relative;
+	top:-5%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -20,7 +28,80 @@
 	text-align: center;
 }
 
+.register-logo {
+	font-size:30px;
+	font-family: montserrat-medium;
+	color: rgb(94, 94, 94);
+}
+
 .register-header {
-	font-size: 25px;
-	margin-bottom:30px;
+	font-size: 40px;
+	font-family: opensans-regular;
+	padding:1em;
+}
+
+.register-input-container {
+	display:flex;
+	flex-direction:column;
+	height:80px;
+}
+
+.register-input {
+	background-color: transparent;
+	border-radius: 5px;
+	border: 1px solid #ea9d9d;
+	outline:none;
+	padding-left:1.5em;
+	font-size:18px;
+	font-family: montserrat-medium;
+	width: 430px;
+	height:65px;
+}
+
+.register-button {
+	display:flex;
+	justify-content: center;
+	align-items:center;
+	background-color: transparent;
+	border-radius: 5px;
+	border:none;
+	background: #ea9d9d;
+	outline:none;
+	color:white;
+	font-size:18px;
+	font-family: montserrat-medium;
+	width: 430px;
+	height:65px;
+}
+
+.login-redirect {
+    color: black;
+	font-size: 16px;
+	text-decoration: none;
+	margin-top:2em;
+	margin-bottom:1.5em;
+}
+
+.login-redirect-highlight {
+    color: #3b65df;
+}
+
+.sign-in-out-abstract1 {
+	position:absolute;
+	bottom:0;
+	width:100%;
+}
+
+.spinner {
+	border: 4px solid #ffffff;
+	border-top: 4px solid #34dba3;
+	border-radius: 50%;
+	width: 35px;
+	height: 35px;
+	animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
 }

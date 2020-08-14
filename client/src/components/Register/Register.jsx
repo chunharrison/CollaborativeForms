@@ -6,14 +6,15 @@ import { registerUser } from "../../actions/authActions";
 import { setError }from "../../actions/errorActions"
 import classnames from "classnames";
 
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 
 // 
-import UserService from '../../services/user.services'
-import EmailService from '../../services/email.services'
+import UserService from '../../services/user.services';
+import EmailService from '../../services/email.services';
 
+import backgroundImg from './background.png';
 // CSS 
-import './css/Register.css'
+import './css/Register.css';
 
 class Register extends Component {
     constructor() {
@@ -23,7 +24,8 @@ class Register extends Component {
             email: "",
             password: "",
             password2: "",
-            errors: {}
+            errors: {},
+            loading: false,
         };
     }
 
@@ -41,6 +43,7 @@ class Register extends Component {
 
     onSubmit = e => {
         e.preventDefault();
+        this.setState({loading: true});
         const newUser = {
                 name: this.state.name,
                 email: this.state.email,
@@ -53,9 +56,7 @@ class Register extends Component {
         // Save the entry to the database
         UserService.createEmailVerificationEntry(key, newUser)
             .then(res => {
-                // console.log('createEmailVerificationEntry DONE')
-
-                // Send the verification email
+                this.setState({loading: false});
                 EmailService.sendVerificationEmail(key, this.state.email, process.env.REACT_APP_FRONTEND_ADDRESS)
                     .then(res => {
                         // console.log('sendVerificationEmail DONE')
@@ -75,8 +76,7 @@ class Register extends Component {
                 this.props.setError(clearErrors)
             })
             .catch(err => {
-                // console.log('createEmailVerificationEntry FAILED')
-                // console.log(err.response)
+                this.setState({loading: false});
                 this.props.setError(err.response.data)
             })
     };
@@ -85,12 +85,13 @@ class Register extends Component {
         const { errors } = this.state;
 
     return (
-            <div className="register-form-container">
+            <div className="register-container">
+                <img className='sign-in-out-abstract1' src={backgroundImg}></img>
                 <form noValidate onSubmit={this.onSubmit} id='register' className="register-form">
-
-                    <h1 className="register-header">Create your account</h1>
+                    <p className='register-logo'>cosign</p>
+                    <p className="register-header">Create your account</p>
                     
-                    <div className="login-register-input-container">
+                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.name}
@@ -98,14 +99,14 @@ class Register extends Component {
                             id="name"
                             type="text"
                             placeholder="Name"
-                            className={classnames("login-register-input", {
+                            className={classnames("register-input", {
                                 invalid: errors.nameRegister
                             })}
                         />
                         <span className="red-text">{errors.nameRegister}</span>
                     </div>
 
-                    <div className="login-register-input-container">
+                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.email}
@@ -113,14 +114,14 @@ class Register extends Component {
                             id="email"
                             type="email"
                             placeholder="Email"
-                            className={classnames("login-register-input", {
+                            className={classnames("register-input", {
                                 invalid: errors.emailRegister
                             })}
                         />
                         <span className="red-text">{errors.emailRegister}</span>
                     </div>
 
-                    <div className="login-register-input-container">
+                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password}
@@ -128,13 +129,13 @@ class Register extends Component {
                             id="password"
                             type="password"
                             placeholder="Password"
-                            className={classnames("login-register-input", {
+                            className={classnames("register-input", {
                                 invalid: errors.passwordRegister
                             })}
                         />
                         <span className="red-text">{errors.passwordRegister}</span>
                     </div>
-                    <div className="login-register-input-container">
+                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.password2}
@@ -142,7 +143,7 @@ class Register extends Component {
                             id="password2"
                             type="password"
                             placeholder="Confirm Password"
-                            className={classnames("login-register-input", {
+                            className={classnames("register-input", {
                                 invalid: errors.password2Register
                             })}
                         />
@@ -150,10 +151,11 @@ class Register extends Component {
                     </div>
                     <button
                         type="submit"
-                        className="signup-button login-register-button"
+                        className="signup-button register-button"
                     >
-                        Sign up
+                        {this.state.loading ? <div className='spinner'></div> : 'Sign up'}
                     </button>
+                    <p type='button'className='login-redirect'>Already a member? <span className='login-redirect-highlight' onClick={() => {this.props.history.push("/login")}}>Log in</span></p>
                 </form>
             </div>
         );
