@@ -23,7 +23,7 @@ const SendButton = (props) => {
     }
 
     return (
-        <button className='contact-us-button' onClick={(e) => triggerSubmit(e)}>
+        <button className='account-submit-button' onClick={(e) => triggerSubmit(e)}>
             <span className='submit-button-message' ref={submitLabel}>{buttonMessage}</span>
         </button>
     )

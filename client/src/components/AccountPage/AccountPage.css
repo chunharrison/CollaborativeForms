@@ -17,30 +17,24 @@
 .account-container {
     display:flex;
     flex-direction:column;
-    margin-top:3em;
-    height:85%;
-    width:80%;
-}
-
-.account-header {
-    font-family: karla-regular;
-    font-size:40px;
-    margin-bottom: 1em;
-    border-radius: 10px;
-    color:rgb(78, 78, 78);
+    height:100%;
+    width:100%;
+    padding:2em;
 }
 
 .account-subheader {
     font-family: karla-regular;
     font-size:25px; 
-    margin-bottom:1em; 
+    padding-bottom:2vh;
+    padding-left:1vw;
+    border-bottom: 1px solid rgb(216, 216, 216);
 }
 
 .account-username-container, .account-email-container, .account-password-container {
-    margin-bottom:3em;
-    padding-bottom:1em;
+    margin-top:4vh;
+    margin-bottom:4vh;
+    margin-left:1vw;
     display: flex;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     transition: height .3s ease;
 }
 
@@ -89,66 +83,54 @@
 }
 
 .account-edit-button {
-    padding-left:0.5em;
-    padding-right:0.5em;
-    padding-top:0.3em;
-    padding-bottom:0.3em;
-    color:#ff6767;
-    border: 1px solid #ff6767;
-    width:100px !important;
+    font-size:15px !important;
+    color:#679cff;
     text-align: center;
-    border-radius:40px;
     cursor:pointer;
-    margin-left:1em;
     user-select: none; 
 }
 
 .account-submit-button {
-    align-self: center;
-    justify-self: center;
-    padding-left:0.5em;
-    padding-right:0.5em;
-    padding-top:0.3em;
-    padding-bottom:0.3em;
+    align-self: flex-start;
+    border:none;
+    padding-left:0.8em;
+    padding-right:0.8em;
+    padding-top:0.8em;
+    padding-bottom:0.8em;
     background-color:#ff6767;
     color:white;
-    width:100px !important;
+    width:200px !important;
     text-align: center;
-    border-radius:40px;
+    border-radius:5px;
     cursor:pointer;
-    margin-left:1em;
+    margin-left:1vw;
     margin-top:1em;
     user-select: none; 
 }
 
-.account-edit-button:hover {
-    border: 1px solid #ff2020;
-    color:#ff2020;
-}
-
 .account-input-container {
     transition: height .3s ease;
-    max-width:300px;
     display: flex;
-    flex-direction:column;
-    justify-content:center;
+    justify-content:flex-start;
     align-items:center;
+    margin-top:4vh;
+    margin-left:1vw;
 }
 
 .account-input {
     background-color: transparent;
 	border: none;
-	border: 1px solid rgba(0, 0, 0, 0.281);
-	outline:none;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    border: 1px solid rgba(0, 0, 0, 0.281);
+    border-radius:5px;
+    outline:none;
+    margin-right:2vw;
     padding:0.8em;
-    width: 200px;
+    width: 300px;
     
 }
 
 .account-plan {
-    padding:1em;
+    padding-top:4em;
     position:relative;
 }
 
@@ -174,7 +156,6 @@
 
 @media only screen and (max-width: 1020px) {
     .account-container {
-        justify-content:center;
         overflow-y: auto;
         margin-top:0em;
         margin-bottom:0em;
@@ -201,10 +182,6 @@
         flex-direction: row;
         justify-content: center;
         align-items:center;
-    }
-
-    .account-edit-button, .account-submit-button {
-        margin:0.3em !important;
     }
 
     .account-profile {

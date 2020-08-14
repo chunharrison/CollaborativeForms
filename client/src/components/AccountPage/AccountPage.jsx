@@ -55,31 +55,30 @@ const AccountPage = props => {
                     <p className='account-information-text'>Email</p>
                     <p>{props.auth.user.email}</p>
                 </div>
-                <div className='account-password-container'>
+                <div className={`account-password-container`}>
                     <p className='account-information-text'>Password</p>
                                          
-                    <div className={`account-placeholder-container ${edit ? 'account-expanded' : ''}`}>
-                        {edit === false ?
-                        <p className='account-password-placeholder'></p>
-                        :
-                        <div className={`account-input-container ${edit ? 'account-expanded' : ''}`}>
-                            <input placeholder='Old Password...' className='account-input fade-in' type="password" onChange={(e) => setOldPassword(e.target.value)}
-                            value={oldPassword}/>
-                            <input placeholder='New Password...' className='account-input fade-in' type="password" onChange={(e) => setPassword(e.target.value)}
-                            value={password}/>
-                            <input placeholder='New Password...' className='account-input fade-in' type="password" onChange={(e) => setConfirmedPassword(e.target.value)}
-                            value={confirmedPassword}/>
-                        </div>} 
+                    <div className={`account-placeholder-container`}>
                         <div className='account-button-container'>
-                            <p className='account-edit-button' onClick={() => setEdit(!edit)}>{edit === false ? 'EDIT': 'CANCEL'}</p>
-                            {edit ?                         
-                            <p className='account-submit-button fade-in' onClick={() => submitPassword()}>SUBMIT</p>
-                            : 
-                            null}
+                            <p className='account-edit-button' onClick={() => setEdit(!edit)}>{edit === false ? 'Change': 'Cancel'}</p>
                         </div>   
                     </div>
-                    
                 </div>
+                {edit === false ?
+                null
+                :
+                <div className={`account-input-container`}>
+                    <input placeholder='Old Password' className='account-input fade-in' type="password" onChange={(e) => setOldPassword(e.target.value)}
+                    value={oldPassword}/>
+                    <input placeholder='New Password' className='account-input fade-in' type="password" onChange={(e) => setPassword(e.target.value)}
+                    value={password}/>
+                    <input placeholder='New Password' className='account-input fade-in' type="password" onChange={(e) => setConfirmedPassword(e.target.value)}
+                    value={confirmedPassword}/>
+                </div>} 
+                {edit ?                         
+                <p className='account-submit-button fade-in' onClick={() => submitPassword()}>Save Password</p>
+                : 
+                null}
             </div>
             <div className='account-plan'>
                 <p className='account-subheader'>Your Plan</p>
