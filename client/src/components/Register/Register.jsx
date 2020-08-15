@@ -86,7 +86,6 @@ class Register extends Component {
 
     return (
             <div className="register-container">
-                <img className='sign-in-out-abstract1' src={backgroundImg}></img>
                 <form noValidate onSubmit={this.onSubmit} id='register' className="register-form">
                     <p className='register-logo'>cosign</p>
                     <p className="register-header">Create your account</p>
@@ -157,6 +156,7 @@ class Register extends Component {
                     </button>
                     <p type='button'className='login-redirect'>Already a member? <span className='login-redirect-highlight' onClick={() => {this.props.history.push("/login")}}>Log in</span></p>
                 </form>
+                <img className='register-abstract1' src={backgroundImg}></img>
             </div>
         );
     }
