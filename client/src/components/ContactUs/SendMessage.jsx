@@ -7,6 +7,8 @@ import { sendMessage, sendErrors } from '../../actions/emailActions';
 
 import SendButton from './SendButton';
 
+import backgroundImg from './background.png';
+
 const SendMessage = (props) => {
 
     const [email, setEmail] = useState('');
@@ -49,11 +51,12 @@ const SendMessage = (props) => {
     }
 
     return (
-        <div className={`send-message-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
-            <p className='send-message-header'>
-                Send us a message
-            </p>
+        <div className={`login-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>
             <div className="contact-us-form-container">
+                <p className='contact-us-logo'>cosign</p>
+                <p className='send-message-header'>
+                    Send us a message
+                </p>
                 <form className='contact-us-form' noValidate>
                     <div className="contact-us-input-container">
                         <input
@@ -108,6 +111,8 @@ const SendMessage = (props) => {
                     </SendButton>
                 </form>
             </div> 
+            <img className='login-abstract1' src={backgroundImg}></img>
+
         </div>
     )
 }

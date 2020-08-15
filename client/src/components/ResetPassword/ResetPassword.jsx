@@ -56,7 +56,7 @@ const ResetPassword = (props) => {
             {submitted ? (
                 <div className="reset-password-form-sent-wrapper">
                     <p>Your password has been saved.</p>
-                    <Link to="/account" className="ghost-btn">
+                    <Link to="/login" className="ghost-btn">
                         Sign back in
                     </Link>
                 </div>

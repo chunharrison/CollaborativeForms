@@ -30,7 +30,7 @@ const VerifyEmail = (props) => {
     function handleLoginButtonClick(e) {
         e.preventDefault()
 
-        props.history.push('/account')
+        props.history.push('/login')
     }
 
     return (
