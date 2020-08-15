@@ -44,7 +44,6 @@ const ForgotPassword = (props) => {
 
     return (
         <div className="login-container">
-            <img className='sign-in-out-abstract1' src={backgroundImg}></img>
             <div className='signin-form'>
                 <p className='login-logo'>cosign</p>
                 <p className='login-header'>Forgot Password</p>
@@ -58,6 +57,7 @@ const ForgotPassword = (props) => {
                 </button>
                 {!sent ? '' : <p className='forgot-password-message'>{message}</p>}
             </div>
+            <img className='login-abstract1' src={backgroundImg}></img>
         </div>
     )
 }

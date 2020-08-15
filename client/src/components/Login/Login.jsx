@@ -60,7 +60,6 @@ class Login extends Component {
     const { errors } = this.state;
   return (
     <div className='login-container'>
-      <img className='sign-in-out-abstract1' src={backgroundImg}></img>
         <form noValidate onSubmit={this.onSubmit} className="signin-form" id='login'>
           <p className='login-logo'>cosign</p>
           <p className="login-header">Welcome Back</p>
@@ -107,6 +106,7 @@ class Login extends Component {
           <p type='button' onClick={() => {this.props.history.push("/forgot")}} className="pw-forget">Forgot password?</p>
           <p type='button'className='join-now'>New to Cosign? <span className='join-highlight' onClick={() => {this.props.history.push("/register")}}>Join now</span></p>    
         </form>
+        <img className='login-abstract1' src={backgroundImg}></img>
     </div>
       );
     }
