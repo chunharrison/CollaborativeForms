@@ -3,6 +3,7 @@ import axios from "axios";
 import { connect } from 'react-redux';
 
 import backgroundImg from './background.png';
+import alertImg from './alert.png';
 
 const ForgotPassword = (props) => {
 
@@ -10,10 +11,13 @@ const ForgotPassword = (props) => {
     const [sent, setSent] = useState(false);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null)
     
     //send get request to server to which email to send reset instructions to
     function resetPassword() {   
         setLoading(true);
+        setError(null);
+        setMessage(null);
         const options = {
             params: {
                 email: email
@@ -33,10 +37,10 @@ const ForgotPassword = (props) => {
             setLoading(false);
             if (error.response) {
                 if (error.response.data.email) {
-                    setMessage(error.response.data.email);
+                    setError(error.response.data.email);
 
                 } else {
-                    setMessage(error.response.data);                    
+                    setError(error.response.data);                    
                 }
                 setSent(true)            }
         });
@@ -47,15 +51,19 @@ const ForgotPassword = (props) => {
             <div className='signin-form'>
                 <p className='login-logo'>cosign</p>
                 <p className='login-header'>Forgot Password</p>
-                <div className='login-input-container'>
-                    <input placeholder='Email' className='login-input' onChange={(e) => setEmail(e.target.value)} type="text"/>
+                <input placeholder='Email' className='login-input' onChange={(e) => setEmail(e.target.value)} type="text"/>
+                <div className='alert-module' style={{'display': `${error ? '' : 'none'}`}}>
+                    <img src={alertImg} className='alert-image'/>
+                    <span className="red-text">
+                        {error}
+                    </span>
                 </div>
                 <button
                 onClick={() => resetPassword()}
                 className="signin-button login-button">
                     {loading ? <div className='spinner'></div> : 'Reset Password'}
                 </button>
-                {!sent ? '' : <p className='forgot-password-message'>{message}</p>}
+                {!sent ? '' : <p className='forgot-password-message' style={{'padding-top':'1em'}}>{message}</p>}
             </div>
             <img className='login-abstract1' src={backgroundImg}></img>
         </div>

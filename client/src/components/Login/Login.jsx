@@ -5,6 +5,7 @@ import { loginUser } from "../../actions/authActions";
 import classnames from "classnames";
 
 import backgroundImg from './background.png';
+import alertImg from './alert.png';
 
 import './css/Login.css'
 
@@ -58,12 +59,12 @@ class Login extends Component {
   render() {
 
     const { errors } = this.state;
-  return (
+
+    return (
     <div className='login-container'>
         <form noValidate onSubmit={this.onSubmit} className="signin-form" id='login'>
           <p className='login-logo'>cosign</p>
           <p className="login-header">Welcome Back</p>
-          <div className="login-input-container">
             <input
               onChange={this.onChange}
               value={this.state.email}
@@ -74,13 +75,13 @@ class Login extends Component {
               className={classnames("login-input", {
                 invalid: errors.email || errors.emailnotfound
               })}/>
-            <span className="red-text">
-              {errors.email}
-              {errors.emailnotfound}
-            </span>
-          </div>
-
-          <div className="login-input-container">
+            <div className='alert-module' style={{'display': `${this.props.errors.email ||  this.props.errors.emailnotfound? '' : 'none'}`}}>
+              <img src={alertImg} className='alert-image'/>
+              <span className="red-text">
+                {this.props.errors.email}
+                {this.props.errors.emailnotfound}
+              </span>
+            </div>
             <input
               onChange={this.onChange}
               value={this.state.password}
@@ -92,11 +93,12 @@ class Login extends Component {
                 invalid: errors.password || errors.passwordincorrect
               })}
             />
-            <span className="red-text">
-            {errors.password}
-            {errors.passwordincorrect}
-          </span>
-          </div>
+            <div className='alert-module' style={{'display': `${this.props.errors.password ||  this.props.errors.passwordincorrect? '' : 'none'}`}}>
+              <img src={alertImg} className='alert-image'/>
+              <span className="red-text">{this.props.errors.password}
+              {this.props.errors.passwordincorrect}</span>
+            </div>
+
           <button
             type="submit"
             className="login-button"

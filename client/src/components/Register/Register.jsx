@@ -13,6 +13,8 @@ import UserService from '../../services/user.services';
 import EmailService from '../../services/email.services';
 
 import backgroundImg from './background.png';
+import alertImg from './alert.png';
+
 // CSS 
 import './css/Register.css';
 
@@ -90,7 +92,6 @@ class Register extends Component {
                     <p className='register-logo'>cosign</p>
                     <p className="register-header">Create your account</p>
                     
-                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.name}
@@ -101,11 +102,15 @@ class Register extends Component {
                             className={classnames("register-input", {
                                 invalid: errors.nameRegister
                             })}
+                            style={{'margin-bottom': `${errors.nameRegister ? '' : '1em'}`}}
                         />
-                        <span className="red-text">{errors.nameRegister}</span>
-                    </div>
+                        <div className='alert-module' style={{'display': `${errors.nameRegister ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">
+                                {errors.nameRegister}
+                            </span>
+                        </div>
 
-                    <div className="register-input-container">
                         <input
                             onChange={this.onChange}
                             value={this.state.email}
@@ -116,11 +121,14 @@ class Register extends Component {
                             className={classnames("register-input", {
                                 invalid: errors.emailRegister
                             })}
+                            style={{'margin-bottom': `${errors.emailRegister ? '' : '1em'}`}}
                         />
-                        <span className="red-text">{errors.emailRegister}</span>
-                    </div>
-
-                    <div className="register-input-container">
+                        <div className='alert-module' style={{'display': `${errors.emailRegister ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">
+                                {errors.emailRegister}
+                            </span>
+                        </div>
                         <input
                             onChange={this.onChange}
                             value={this.state.password}
@@ -131,10 +139,14 @@ class Register extends Component {
                             className={classnames("register-input", {
                                 invalid: errors.passwordRegister
                             })}
+                            style={{'margin-bottom': `${errors.passwordRegister ? '' : '1em'}`}}
                         />
-                        <span className="red-text">{errors.passwordRegister}</span>
-                    </div>
-                    <div className="register-input-container">
+                        <div className='alert-module' style={{'display': `${errors.passwordRegister ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">
+                                {errors.passwordRegister}
+                            </span>
+                        </div>
                         <input
                             onChange={this.onChange}
                             value={this.state.password2}
@@ -145,9 +157,14 @@ class Register extends Component {
                             className={classnames("register-input", {
                                 invalid: errors.password2Register
                             })}
+                            style={{'margin-bottom': `${errors.password2Register ? '' : '1em'}`}}
                         />
-                    <span className="red-text">{errors.password2Register}</span>
-                    </div>
+                        <div className='alert-module' style={{'display': `${errors.password2Register ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">
+                                {errors.password2Register}
+                            </span>
+                        </div>
                     <button
                         type="submit"
                         className="signup-button register-button"
