@@ -32,6 +32,7 @@
 }
 .account-portal-logout-container {
     display:flex;
+    cursor:pointer;
 }
 
 .account-portal-logout-img{
@@ -67,7 +68,7 @@
     display:flex;
     height:95vh;
     width: 100vw;
-    background-color: #eeeeeee7;
+    background-color: white;
     overflow-y: hidden;
     overflow-x:hidden;
 }
@@ -541,6 +542,7 @@
         align-items: center;
     }
     .documents-nav {
+        border:none;
         width: 80%;
         justify-content:space-around;
         align-items:center;
@@ -591,15 +593,22 @@
 }
 
 @media only screen and (max-width: 450px) {
+    .documents-nav {
+        margin:0;
+    }
     .documents-shared-files {
         justify-content:center;
+    }
+
+    .documents-shared-text {
+        margin:0;
     }
 
     .documents-text-expand {
         display:flex;
         align-items:flex-start;
-        justify-content: center;
-        margin-bottom:1em;
+        justify-content: flex-start;
+        margin:0;
 
     }
 }

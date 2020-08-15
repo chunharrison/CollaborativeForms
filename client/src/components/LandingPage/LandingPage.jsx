@@ -99,7 +99,7 @@ class LandingPage extends React.Component {
     handleLogInClick = e => {
         e.preventDefault()
 
-        this.props.history.push("/login")
+        this.props.history.push("/account-portal")
     }
 
     handleLogOutClick = e => {
@@ -125,7 +125,7 @@ class LandingPage extends React.Component {
         e.preventDefault()
 
         if (!this.props.auth.isAuthenticated) {
-            this.props.history.push("/account")
+            this.props.history.push("/login")
         } else {
             const demoRoomCode = nanoid()
             

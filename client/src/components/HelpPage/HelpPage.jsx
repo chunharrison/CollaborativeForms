@@ -2,10 +2,11 @@ import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import classnames from "classnames";
 import axios from "axios";
+import Modal from 'react-bootstrap/Modal';
 
 import { sendMessage, sendErrors } from '../../actions/emailActions';
 
-import SendButton from '../SendButton/SendButton';
+import bugImg from './bug.png';
 
 import './HelpPage.css';
 
@@ -14,11 +15,13 @@ const HelpPage = (props) => {
     const [email, setEmail] = useState(props.auth.user.email);
     const [subject, setSubject] = useState('');
     const [message, setMessage] = useState('');
-    const [submitState, setSubmitState] = useState('Submit');
+    const [loading, setLoading] = useState(false);
+    const [showBugModal, setShowBugModal] = useState(false);
 
     function onSendMessageSubmit(e) {
+        setLoading(true);
+        e.preventDefault();
         props.sendErrors({response: {data:{}}});
-        setSubmitState('Sending...')
         const emailData = {
             emailMessage: email, 
             subjectMessage: subject, 
@@ -27,15 +30,14 @@ const HelpPage = (props) => {
 
         axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/emails/send-message`, emailData)
         .then(res => {
-            setSubmitState('Sent!');
-            setTimeout(function(){ setSubmitState('Submit'); }, 1000);
             setEmail('');
             setSubject('');
             setMessage('');
+            setLoading(false);
+            setShowBugModal(false);
         })
         .catch(err => {
-            setSubmitState('Failed!');
-            setTimeout(function(){ setSubmitState('Submit'); }, 1000);
+            setLoading(false);
             props.sendErrors(err);
         });
     }
@@ -53,8 +55,15 @@ const HelpPage = (props) => {
             <p className='help-subheader'>
                 Help
             </p>
-            <div className="help-form-container">
-                <form className='contact-us-form' noValidate>
+            <div className='help-bug-card' onClick={() => setShowBugModal(true)}>
+                <img className='help-bug-image' src={bugImg}></img>
+                <p className='help-bug-header'>Report a Bug</p>
+                <p className='help-bug-description'>Troubleshoot issues and let us help you out with your problems</p>
+            </div>
+            <Modal className='account-modal-dialog' show={showBugModal} onHide={() => setShowBugModal(false)} size="m">
+                <Modal.Body className='help-modal-body'>
+                <div className="help-form-container">
+                <form className='help-form' noValidate onSubmit={(e) => onSendMessageSubmit(e)}>
                     <div className="contact-us-input-container">
                         <input
                             onChange={onChange}
@@ -62,7 +71,7 @@ const HelpPage = (props) => {
                             error={props.errors.subjectMessage}
                             type="text"
                             id="send-message-subject"
-                            placeholder="Subject"
+                            placeholder="Title"
                             className={classnames("contact-us-input", {
                                 invalid: props.errors.subjectMessage
                             })}
@@ -75,7 +84,7 @@ const HelpPage = (props) => {
                             onChange={onChange}
                             value={message}
                             error={props.errors.messageMessage}
-                            placeholder="Message"
+                            placeholder="Bug Description"
                             id="send-message-message"
                             className={classnames("help-textarea", {
                                 invalid: props.errors.messageMessage
@@ -84,15 +93,16 @@ const HelpPage = (props) => {
                         <span className="red-text">{props.errors.messageMessage}</span>
                     </div> 
 
-                    <SendButton
+                    <button
                         type="submit"
-                        submit={() => onSendMessageSubmit()}
-                        submitState={submitState}
+                        className='help-button'
                     >
-                        Send
-                    </SendButton>
+                        {loading ? <div className='login-spinner'></div> : 'Send'}
+                    </button>
                 </form>
-            </div> 
+            </div>
+                </Modal.Body>
+            </Modal>
         </div>
     )
 }

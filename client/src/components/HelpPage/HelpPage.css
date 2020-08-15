@@ -13,6 +13,43 @@
     src: url('Rubik-Light.ttf');
 }
 
+@font-face {
+    font-family: rubik-bold;
+    src: url('Rubik-Bold.ttf');
+}
+
+.help-bug-image {
+    height:100px;
+    width:100px;
+    margin:1em;
+}
+
+.help-bug-card {
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+    width:250px;
+    padding:1em;
+    margin:1em;
+}
+
+.help-bug-card:hover {
+    background-color:rgb(247, 247, 247);
+}
+
+.help-bug-header {
+    font-size:21px;
+    font-family: rubik-bold;
+    margin-bottom:0.5em;
+}
+
+.help-bug-description {
+    font-size:15px;
+    font-family: karla-regular;
+    text-align:center;
+    color: rgb(143, 143, 143);
+}
 
 .help-container {
     display:flex;
@@ -22,6 +59,43 @@
     overflow:hidden;
     border-radius: 10px;
     padding:2em;
+}
+
+.help-modal-body {
+    height:400px;
+    padding:0;
+}
+
+.help-form-container {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    width:100%;
+    height:100%;
+}
+
+.help-form {
+    width:80%;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+}
+
+.help-button {
+    margin-top:1em;
+	display:flex;
+	justify-content: center;
+	align-items:center;
+	background-color: transparent;
+	border-radius: 5px;
+	border:none;
+	background: #ea9d9d;
+	outline:none;
+	color:white;
+	font-size:15px;
+	font-family: montserrat-medium;
+	width: 150px;
+	height:40px;
 }
 
 .account-header {
@@ -53,10 +127,6 @@
     }
 }
 
-.help-form-container {
-    padding-left:1vw;
-}
-
 .help-textarea {
     background-color: transparent;
     border: 1px solid rgba(0, 0, 0, 0.281);
@@ -70,9 +140,26 @@
     resize: none;
 }
 
+.login-spinner {
+	border: 4px solid #ffffff;
+	border-top: 4px solid #34dba3;
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+	animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
 @media only screen and (max-width: 450px) {
     .help-container {
-        padding:1em;
-        width:90%;
+        justify-content:flex-start;
+    }
+
+    .help-bug-card {
+        align-self:center;
     }
 }

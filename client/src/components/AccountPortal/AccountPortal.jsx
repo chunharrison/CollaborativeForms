@@ -13,9 +13,7 @@ import HelpPage from '../HelpPage/HelpPage';
 import accountsImg from './accounts.png';
 import documentsImg from './documents.png';
 import questionImg from './question.png';
-import backgroundImg from './account-portal-background.png'
 import logoutImg from './logout.png'
-
 
 const AccountPortal = props => {
 
@@ -30,7 +28,7 @@ const AccountPortal = props => {
     return (
         <div className='account-portal'>
             <div className='account-portal-header'>
-                <div className='account-portal-logout-container'>
+                <div className='account-portal-logout-container' onClick={() => props.logoutUser()}>
                     <img src={logoutImg} className='account-portal-logout-img'/>
                     <p className='account-portal-logout-text'>Log out</p>
                 </div>
