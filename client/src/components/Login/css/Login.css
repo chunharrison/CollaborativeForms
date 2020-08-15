@@ -56,8 +56,14 @@
 	padding-left:1.5em;
 	font-size:18px;
 	font-family: montserrat-medium;
-	width: 430px;
-	height:65px;
+	width: 400px;
+	height:60px;
+	margin-bottom:1em;
+}
+
+.alert-module {
+	margin-bottom:0.5em;
+	padding-left:1em;
 }
 
 .login-button {
@@ -72,8 +78,8 @@
 	color:white;
 	font-size:18px;
 	font-family: montserrat-medium;
-	width: 430px;
-	height:65px;
+	width: 400px;
+	height:60px;
 }
 
 .pw-forget {

@@ -8,6 +8,7 @@ import { sendMessage, sendErrors } from '../../actions/emailActions';
 import SendButton from './SendButton';
 
 import backgroundImg from './background.png';
+import alertImg from './alert.png';
 
 const SendMessage = (props) => {
 
@@ -58,7 +59,6 @@ const SendMessage = (props) => {
                     Send us a message
                 </p>
                 <form className='contact-us-form' noValidate>
-                    <div className="contact-us-input-container">
                         <input
                             onChange={onChange}
                             value={email}
@@ -70,10 +70,10 @@ const SendMessage = (props) => {
                                 invalid: props.errors.emailMessage
                             })}
                         />
-                        <span className="red-text">{props.errors.emailMessage}</span>
-                    </div>
-
-                    <div className="contact-us-input-container">
+                        <div className='alert-module' style={{'display': `${props.errors.emailMessage ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">{props.errors.emailMessage}</span>
+                        </div>
                         <input
                             onChange={onChange}
                             value={subject}
@@ -85,10 +85,10 @@ const SendMessage = (props) => {
                                 invalid: props.errors.subjectMessage
                             })}
                         />
-                        <span className="red-text">{props.errors.subjectMessage}</span>
-                    </div>
-
-                    <div className="contact-us-input-container">
+                        <div className='alert-module' style={{'display': `${props.errors.messageMessage ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">{props.errors.subjectMessage}</span>
+                        </div>
                         <textarea
                             onChange={onChange}
                             value={message}
@@ -99,9 +99,10 @@ const SendMessage = (props) => {
                                 invalid: props.errors.messageMessage
                             })}
                         />
-                        <span className="red-text">{props.errors.messageMessage}</span>
-                    </div> 
-
+                        <div className='alert-module' style={{'display': `${props.errors.messageMessage ? '' : 'none'}`}}>
+                            <img src={alertImg} className='alert-image'/>
+                            <span className="red-text">{props.errors.messageMessage}</span>
+                        </div>
                     <SendButton
                         type="submit"
                         submit={() => onSendMessageSubmit()}

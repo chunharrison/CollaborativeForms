@@ -122,6 +122,20 @@
 	height:50px;
 }
 
+.alert-module {
+    align-self:flex-start;
+    padding-left:1em;
+}
+.alert-image {
+    height: 15px;
+    filter: invert(17%) sepia(88%) saturate(6756%) hue-rotate(359deg) brightness(106%) contrast(119%);
+}
+
+.red-text {
+    padding-left:0.5em;
+    color:red;
+}
+
 @media only screen and (max-width: 450px) {
     .contact-us-form-container {
         width: 80%;

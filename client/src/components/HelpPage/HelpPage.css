@@ -129,7 +129,7 @@
 
 .help-textarea {
     background-color: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.281);
+	border: 1px solid #ea9d9d;
     border-radius: 5px;
     outline: none;
     margin-top: 10px;
