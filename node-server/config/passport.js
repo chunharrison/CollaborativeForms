@@ -5,6 +5,8 @@ const User = mongoose.model("users");
 const keys = require("../config/keys");
 const opts = {};
 
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = keys.secretOrKey;
 
@@ -21,4 +23,16 @@ module.exports = passport => {
         .catch(err => console.log(err));
     })
   );
+
+  passport.use(new GoogleStrategy({
+    clientID: '745408821328-1r0vrlno3soanl3358lq45qjb8rab7k3.apps.googleusercontent.com',
+    clientSecret: 'wgmVTTV2ZjWgFxvCrn24n8Nb',
+    callbackURL: "http://cosign.pro/auth/google/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+       User.findOrCreate({ googleId: profile.id }, function (err, user) {
+         return done(err, user);
+       });
+  }
+));
 };
