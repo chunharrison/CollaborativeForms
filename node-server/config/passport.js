@@ -25,8 +25,8 @@ module.exports = passport => {
   );
 
   passport.use(new GoogleStrategy({
-    clientID: '745408821328-1r0vrlno3soanl3358lq45qjb8rab7k3.apps.googleusercontent.com',
-    clientSecret: 'wgmVTTV2ZjWgFxvCrn24n8Nb',
+    clientID: '',
+    clientSecret: '',
     callbackURL: "http://cosign.pro/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, done) {
