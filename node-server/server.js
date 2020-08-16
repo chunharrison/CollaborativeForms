@@ -245,6 +245,16 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
     })
 });
 
+app.get('/auth/google',
+  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+
+app.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    function(req, res) {
+        res.redirect('/');
+    }
+);
+
 //Bind socket.io socket to http server
 const io = socketio(http);
 

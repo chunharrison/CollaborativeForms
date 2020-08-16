@@ -88,6 +88,7 @@ class Register extends Component {
 
     return (
             <div className="register-container">
+                <a href="/auth/google">Sign In with Google</a>
                 <form noValidate onSubmit={this.onSubmit} id='register' className="register-form">
                     <p className='register-logo'>cosign</p>
                     <p className="register-header">Create your account</p>
