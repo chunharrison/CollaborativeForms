@@ -74,7 +74,7 @@ module.exports = passport => {
       if (err) return done(err)
 
       // there is no email address associated with the account
-      if (profile.emails === undefined) {
+      if (profile.emails === undefined || profile.emails.length === 0) {
         console.log('facebook login error')
         return done(err, {error: "no email"})
       }
