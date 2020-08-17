@@ -206,6 +206,7 @@ class Register extends Component {
                         <span class="button-label">Continue with Google</span>
                     </div>
                     </a>
+                    <a href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/facebook`}>Continue with Facebook</a>
                 </div>
             </div>
         );

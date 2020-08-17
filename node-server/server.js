@@ -271,12 +271,49 @@ app.get("/auth/google/callback", passport.authenticate("google", { failureRedire
                 //     success: true,
                 //     token: "Bearer " + token
                 // });
-                res.redirect("http://localhost:3000/google-login-callback?token=" + token);
+                res.redirect("http://localhost:3000/login-callback?token=" + token);
 
             }
         );
     }
 );
+
+app.get('/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }));
+
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
+    // successRedirect: '/account-portal', 
+    failureRedirect: '/login' }), 
+    function(req, res) {
+        if (req.user.error === 'no email') {
+            console.log('aha')
+            res.redirect("http://localhost:3000/facebook-email-error");
+        }
+        console.log('req.user:', req.user)
+        //   var token = req.user.token;
+        // TODO: HARRISON
+        // check if we need the user.token that we receive after logging into google
+
+        // Create JWT Payload
+        const payload = {
+            id: req.user.googleId,
+            name: req.user.name,
+            email: req.user.email,
+        };
+        // Sign token
+        jwt.sign(
+            payload,
+            process.env.JWT_PRIVATE_KEY,
+            { expiresIn: '24h' },
+            (err, token) => {
+                // res.json({
+                //     success: true,
+                //     token: "Bearer " + token
+                // });
+                res.redirect("http://localhost:3000/login-callback?token=" + token);
+
+            }
+        );
+    });
 
 //Bind socket.io socket to http server
 const io = socketio(http);

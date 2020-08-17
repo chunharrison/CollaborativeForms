@@ -5,7 +5,7 @@ import queryString from 'query-string';
 
 import { setJwtToken } from '../../actions/authActions'
 
-const GoogleLoginCallback = props => {
+const LoginCallback = props => {
     useEffect(() => {
         if (!props.auth.isAuthenticated) {
             const token = '' + queryString.parse(props.location.search).token
@@ -15,7 +15,15 @@ const GoogleLoginCallback = props => {
         props.history.push('/account-portal')
     },[])
 
-    return(<div>a yes</div>)
+    return(
+        <div className="loader-wrapper">
+            <span className="circle circle-1"></span>
+            <span className="circle circle-2"></span>
+            <span className="circle circle-3"></span>
+            <span className="circle circle-4"></span>
+            <span className="circle circle-5"></span>
+            <span className="circle circle-6"></span>
+        </div>)
 }
 
 const mapStateToProps = state => ({
@@ -25,4 +33,4 @@ const mapStateToProps = state => ({
 
 export default connect(mapStateToProps, {
     setJwtToken
-})(GoogleLoginCallback)
+})(LoginCallback)
