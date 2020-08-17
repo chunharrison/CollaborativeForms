@@ -48,6 +48,7 @@ app.use(
     })
 );
 app.use(bodyParser.json());
+app.use(express.static("client/build"));
 // DB Config
 const roomsdb = require("./config/keys").mongoURI;
 // Connect to MongoDB
@@ -245,13 +246,35 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
     })
 });
 
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+app.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
-app.get('/auth/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/login' }),
+app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/", session: false }),
     function(req, res) {
-        res.redirect('/');
+        console.log('req.user:', req.user)
+        //   var token = req.user.token;
+        // TODO: HARRISON
+        // check if we need the user.token that we receive after logging into google
+
+        // Create JWT Payload
+        const payload = {
+            id: req.user.googleId,
+            name: req.user.name,
+            email: req.user.email,
+        };
+        // Sign token
+        jwt.sign(
+            payload,
+            process.env.JWT_PRIVATE_KEY,
+            { expiresIn: '24h' },
+            (err, token) => {
+                // res.json({
+                //     success: true,
+                //     token: "Bearer " + token
+                // });
+                res.redirect("http://localhost:3000/google-login-callback?token=" + token);
+
+            }
+        );
     }
 );
 

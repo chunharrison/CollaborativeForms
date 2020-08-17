@@ -12,7 +12,22 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true
+  },
+  provider: {
+    type: String,
+    default: 'Cosign'
+  },
+  googleId: {
+    type: String,
+    default: ''
+  },
+  facebookId: {
+    type: String,
+    default: ''
+  },
+  linkedinId: {
+    type: String,
+    default: ''
   },
   date: {
     type: Date,
