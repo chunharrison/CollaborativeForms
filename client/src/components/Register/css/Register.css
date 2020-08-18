@@ -15,10 +15,15 @@
 	flex-direction:column;
 	justify-content:flex-end;
 	align-items:center;
-	min-height:800px;
+	min-height:700px;
 	max-width:100%;
 	overflow-y:auto;
 	overflow-x:hidden;
+}
+
+.callback-container {
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .register-form {
@@ -33,6 +38,18 @@
 	font-size:30px;
 	font-family: montserrat-medium;
 	color: rgb(94, 94, 94);
+}
+
+.register-logo.callback-message-welcome {
+	margin-bottom: 4rem;
+}
+
+.register-logo.callback-message-verify {
+	margin-bottom: 1rem;
+}
+
+.callback-message{
+	color: black !important;
 }
 
 .register-header {
