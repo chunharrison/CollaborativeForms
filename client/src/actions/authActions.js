@@ -59,6 +59,28 @@ export const loginUser = userData => dispatch => {
     );
 };
 
+export const setJwtToken = tokenRaw => dispatch => {
+    const token = "Bearer " + tokenRaw
+    // Set token to localStorage
+    localStorage.setItem("jwtToken", token);
+    // Set token to Auth header
+    setAuthToken(token);
+    // Decode token to get user data
+    const decoded = jwt_decode(token);
+    // Set current user
+    dispatch(setCurrentUser(decoded));
+
+    // reset login errors (incase they played around withit )
+    dispatch({
+        type: GET_ERRORS,
+        payload: {
+            email: '',
+            emailnotfound: '',
+            password: ''
+        }
+    })
+}
+
 // Set logged in user
 export const setCurrentUser = decoded => {
     return {

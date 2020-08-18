@@ -23,6 +23,8 @@ import ForgotPassword from './ForgotPassword/ForgotPassword';
 import ResetPassword from "./ResetPassword/ResetPassword";
 import AccountPortal from "./AccountPortal/AccountPortal";
 import Test from "./test/test";
+import LoginCallback from "./LoginCallback/LoginCallback";
+import FacebookEmailError from "./LoginCallback/FacebookEmailError";
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";
 // import Dashboard from "./components/dashboard/Dashboard";
@@ -59,7 +61,9 @@ function App() {
           <Route exact path='/' component={LandingPage}/>
           <Route path='/collab' component={CollabPage}/>
           <Route exact path='/login' component={Login} />
-          <Route exact path='/register' component={Register} />
+          <Switch>
+            <Route exact path='/register' component={Register} />
+          </Switch>
           <Switch>
             <PrivateRoute exact path='/account-portal' component={AccountPortal}/>
           </Switch>
@@ -71,6 +75,8 @@ function App() {
           <Route path='/contact-us' component={ContactUs}/>
           <Route path='/verify' component={VerifyEmail}/>
           <Route path='/test' component={Test}/>
+          <Route path='/login-callback' component={LoginCallback}/>
+          <Route path='/facebook-email-error' component={FacebookEmailError}/>
 
           {/* ERROR PAGES */}
           <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
