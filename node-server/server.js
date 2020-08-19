@@ -63,6 +63,9 @@ mongoose
 
 // Passport middleware
 app.use(passport.initialize());
+// app.use(passport.session());
+var session = require('express-session');
+app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET }));
 // Passport config
 require("./config/passport")(passport);
 // Routes
@@ -248,7 +251,7 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
 
 app.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
-app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/", session: false }),
+app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "http://localhost:3000/register", session: false }),
     function(req, res) {
         console.log('req.user:', req.user)
         //   var token = req.user.token;
@@ -282,7 +285,7 @@ app.get('/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }
 
 app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
     // successRedirect: '/account-portal', 
-    failureRedirect: '/login' }), 
+    failureRedirect: 'http://localhost:3000/register' }), 
     function(req, res) {
         if (req.user.error === 'no email') {
             console.log('aha')
@@ -295,7 +298,7 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
 
         // Create JWT Payload
         const payload = {
-            id: req.user.googleId,
+            id: req.user.facebookId,
             name: req.user.name,
             email: req.user.email,
         };
@@ -313,7 +316,37 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
 
             }
         );
-    });
+    }
+);
+
+app.get('/auth/linkedin', passport.authenticate('linkedin'));
+  
+app.get('/auth/linkedin/callback', passport.authenticate('linkedin', { failureRedirect: 'http://localhost:3000/' }),
+function(req, res) {
+    console.log('req.user:', req.user)
+
+    // Create JWT Payload
+    const payload = {
+        id: req.user.linkedinId,
+        name: req.user.name,
+        email: req.user.email,
+    };
+    // Sign token
+    jwt.sign(
+        payload,
+        process.env.JWT_PRIVATE_KEY,
+        { expiresIn: '24h' },
+        (err, token) => {
+            // res.json({
+            //     success: true,
+            //     token: "Bearer " + token
+            // });
+            res.redirect("http://localhost:3000/login-callback?token=" + token);
+
+        }
+    );
+}
+);
 
 //Bind socket.io socket to http server
 const io = socketio(http);

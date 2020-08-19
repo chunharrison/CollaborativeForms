@@ -19,15 +19,15 @@ const UserSchema = new Schema({
   },
   googleId: {
     type: String,
-    default: ''
+    default: null
   },
   facebookId: {
     type: String,
-    default: ''
+    default: null
   },
   linkedinId: {
     type: String,
-    default: ''
+    default: null
   },
   date: {
     type: Date,

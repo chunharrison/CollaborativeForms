@@ -7,6 +7,7 @@ const opts = {};
 
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
+var LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = keys.secretOrKey;
@@ -87,6 +88,36 @@ module.exports = passport => {
           name: profile.displayName,
           email: profile.emails[0].value ,
           facebookId: profile.id,
+          provider: profile.provider
+        })
+        newUser.save().then(() => {
+          return done(err, user)
+        })
+      }
+    });
+  }
+  ));// passport.use
+
+  passport.use(new LinkedInStrategy({
+    clientID: process.env.LINKEDIN_API_KEY,
+    clientSecret: process.env.LINKEDIN_SECRET_KEY,
+    callbackURL: "http://localhost:5000/auth/linkedin/callback",
+    scope: ['r_emailaddress', 'r_liteprofile'],
+    // state: true
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile)
+    User.findOne({ linkedinId: profile.id }, function(err, user) {
+      console.log('err:', err)
+      if (err) return done(err)
+
+      if (user !== null) {
+        return done(err, user);
+      } else {
+        newUser = new User({
+          name: profile.displayName,
+          email: profile.emails[0].value ,
+          linkedinId: profile.id,
           provider: profile.provider
         })
         newUser.save().then(() => {
