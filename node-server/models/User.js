@@ -29,6 +29,26 @@ const UserSchema = new Schema({
     type: String,
     default: null
   },
+  customerId: {
+    type: String,
+    required: true
+  },
+  subscription: {
+    type: Object,
+    required: false,
+  },
+  product: {
+    type: Object,
+    required:true,
+  },
+  latestInvoice: {
+    type: Object,
+    required:false,
+  },
+  expire: {
+    type: String,
+    required: false,
+  },
   date: {
     type: Date,
     default: Date.now
