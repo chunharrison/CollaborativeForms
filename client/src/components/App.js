@@ -35,7 +35,7 @@ import {loadStripe} from '@stripe/stripe-js';
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
-const stripePromise = loadStripe("pk_test_51GvWBpLYbeGzRup8svVklcXSA2Fl6KRMZCGyxsPHsqeQKWRfyhHoXyO5UY8LQIuTFzAFaFSZPOQKMpkIbIfonc5H00OTZNR8Ob");
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_API_KEY);
 
 // import PrivateRoute from "./components/private-route/PrivateRoute";
 // import Dashboard from "./components/dashboard/Dashboard";

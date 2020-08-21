@@ -35,12 +35,23 @@ jobs:
             echo S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_REGION=${{ secrets.S3_BUCKET_REGION }} | sudo tee -a /var/www/cosign.pro/backend/.env
             echo S3_BUCKET_SECRET_ACCESS_KEY=${{ secrets.S3_BUCKET_SECRET_ACCESS_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo STRIPE_PUBLIC_API_KEY=${{ secrets.STRIPE_PUBLIC_API_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo FACEBOOK_APP_ID=${{ secrets.FACEBOOK_APP_ID }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo FACEBOOK_APP_SECRET=${{ secrets.FACEBOOK_APP_SECRET }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo LINKEDIN_API_KEY=${{ secrets.LINKEDIN_API_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo LINKEDIN_SECRET_KEY=${{ secrets.LINKEDIN_SECRET_KEY }} | sudo tee -a /var/www/cosign.pro/backend/.env
+            echo EXPRESS_SESSION_SECRET=${{ secrets.EXPRESS_SESSION_SECRET }} | sudo tee -a /var/www/cosign.pro/backend/.env
             sudo npm install --unsafe-perm
             cd /var/www/cosign.pro/CollaborativeForms/client
             sudo npm install --unsafe-perm
             sudo touch /var/www/cosign.pro/CollaborativeForms/client/.env.production
             echo REACT_APP_BACKEND_ADDRESS=https://cosign.pro | sudo tee -a /var/www/cosign.pro/CollaborativeForms/client/.env.production
             echo REACT_APP_FRONTEND_ADDRESS=https://cosign.pro | sudo tee -a /var/www/cosign.pro/CollaborativeForms/client/.env.production
+            echo REACT_APP_STRIPE_PUBLIC_API_KEY=${{ secrets.STRIPE_PUBLIC_API_KEY }} | sudo tee -a /var/www/cosign.pro/CollaborativeForms/client/.env.production
             sudo npm run build --prefix /var/www/cosign.pro/CollaborativeForms/client/
             sudo rsync -av --delete /var/www/cosign.pro/CollaborativeForms/client/build/ /var/www/cosign.pro/html
             pm2 reload server
