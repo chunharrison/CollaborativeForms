@@ -313,9 +313,9 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
 
 app.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
-app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "http://localhost:3000/register", session: false }),
+app.get("/auth/google/callback", passport.authenticate("google", 
+{ failureRedirect: `${process.env.FRONTEND_ADDRESS}/`, session: false }),
     function(req, res) {
-        console.log('req.user:', req.user)
         //   var token = req.user.token;
         // TODO: HARRISON
         // check if we need the user.token that we receive after logging into google
@@ -336,7 +336,7 @@ app.get("/auth/google/callback", passport.authenticate("google", { failureRedire
                 //     success: true,
                 //     token: "Bearer " + token
                 // });
-                res.redirect("http://localhost:3000/login-callback?token=" + token);
+                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
 
             }
         );
@@ -347,13 +347,12 @@ app.get('/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }
 
 app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
     // successRedirect: '/account-portal', 
-    failureRedirect: 'http://localhost:3000/register' }), 
+    failureRedirect: `${process.env.FRONTEND_ADDRESS}/` }), 
     function(req, res) {
         if (req.user.error === 'no email') {
             console.log('aha')
-            res.redirect("http://localhost:3000/facebook-email-error");
+            res.redirect(`${process.env.FRONTEND_ADDRESS}/facebook-email-error`);
         }
-        console.log('req.user:', req.user)
         //   var token = req.user.token;
         // TODO: HARRISON
         // check if we need the user.token that we receive after logging into google
@@ -374,7 +373,7 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
                 //     success: true,
                 //     token: "Bearer " + token
                 // });
-                res.redirect("http://localhost:3000/login-callback?token=" + token);
+                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
 
             }
         );
@@ -383,9 +382,11 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
 
 app.get('/auth/linkedin', passport.authenticate('linkedin'));
   
-app.get('/auth/linkedin/callback', passport.authenticate('linkedin', { failureRedirect: 'http://localhost:3000/' }),
-function(req, res) {
-    console.log('req.user:', req.user)
+app.get('/auth/linkedin/callback', 
+    passport.authenticate('linkedin', {
+        failureRedirect: `${process.env.FRONTEND_ADDRESS}/` 
+    }),
+    function(req, res) {
 
     // Create JWT Payload
     const payload = {
@@ -403,7 +404,8 @@ function(req, res) {
             //     success: true,
             //     token: "Bearer " + token
             // });
-            res.redirect("http://localhost:3000/login-callback?token=" + token);
+            // console.log(`${process.env.FRONTEND_ADDRESS}login-callback?token=` + token)
+            res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
 
         }
     );

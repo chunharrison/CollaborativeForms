@@ -15,7 +15,7 @@ const SubscriptionPlans = props => {
                             Free
                         </h1>
                         <p className="subscription-about">
-                            Free trial for people who want to try the product before purchasing.
+                            Free.
                         </p>
                         {/* <hr/> */}
                         <div className="subscription-price-container">
