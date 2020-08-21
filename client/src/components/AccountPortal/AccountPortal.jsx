@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 //Libraries
 import { connect } from 'react-redux';
 // import PropTypes from "prop-types";
@@ -17,13 +17,24 @@ import logoutImg from './logout.png'
 
 const AccountPortal = props => {
 
-    const [activeButton, setActiveButton] = useState('documents');
+    const [activeButton, setActiveButton] = useState('');
 
     function onLogoClick(e) {
         e.preventDefault()
 
         props.history.push("/")
     }
+
+    useEffect(() => {
+        if (props.location.state) {
+            setActiveButton(props.location.state.page)
+        } else if (localStorage.getItem('page')) {
+            setActiveButton(localStorage.getItem('page'));
+        } else {
+            setActiveButton('documents');
+        }
+
+    }, [])
 
     return (
         <div className='account-portal'>

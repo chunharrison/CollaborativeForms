@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 //Libraries
 import { connect } from 'react-redux';
 // import PropTypes from "prop-types";
@@ -20,6 +20,10 @@ const DocumentsPage = props => {
     function handleExpandOnClick() {
         setInfiniteMode(!infiniteMode)
     }
+
+    useEffect(() => {
+        localStorage.setItem('page', 'documents');
+    }, [])
 
     return (
         <div className='documents-container'>

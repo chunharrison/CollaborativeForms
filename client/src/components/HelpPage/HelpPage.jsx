@@ -1,4 +1,4 @@
-import React, { useState } from 'react' 
+import React, { useState, useEffect } from 'react' 
 import { connect } from 'react-redux'
 import classnames from "classnames";
 import axios from "axios";
@@ -49,6 +49,11 @@ const HelpPage = (props) => {
             setMessage(e.target.value)
         }
     }
+
+    useEffect(() => {
+        localStorage.setItem('page', 'help');
+
+    })
 
     return (
         <div className={`help-container fade-in-bottom ${Object.keys(props.errors).length !== 0 ? 'contact-expanded' : ''}`}>

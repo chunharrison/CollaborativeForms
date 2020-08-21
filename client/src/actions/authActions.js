@@ -100,6 +100,8 @@ export const setUserLoading = () => {
 export const logoutUser = () => dispatch => {
     // Remove token from local storage
     localStorage.removeItem("jwtToken");
+    localStorage.removeItem("latestInvoiceId");
+    localStorage.removeItem("latestInvoicePaymentIntentStatus");
 
     // Remove auth header for future requests
     setAuthToken(false);

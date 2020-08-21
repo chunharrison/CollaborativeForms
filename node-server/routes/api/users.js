@@ -11,6 +11,8 @@ const validateLoginInput = require("../../validation/login");
 const validateEmailInput = require("../../validation/email");
 const validatePasswordInput = require("../../validation/password");
 
+const stripe = require('stripe')('sk_test_51GvWBpLYbeGzRup8Q98ZFHouZrj9XDH6YgMw6LzWabnzri69jUimj8CFd5YdxHViSm4fNJQRFXp8fKD2PhQPoV2S00UX9o0gdg');
+
 // Load User model
 const User = require("../../models/User");
 const EmailVeriftication = require("../../models/EmailVerification")
@@ -94,15 +96,22 @@ router.post("/create-email-verification-entry", (req, res) => {
   });
 })
 
-router.post('/verify-email', (req, res) => {
-  const {key} = req.body
+router.post('/verify-email', async (req, res) => {
+  const {key} = req.body;
+  const customer = await stripe.customers.create({
+    email: req.body.email,
+  });
+  
   EmailVeriftication.findOneAndDelete({key: req.body.key})
     .then(verificationEntry => {
       if (verificationEntry) {
+
         const newUser = new User({
           name: verificationEntry.name,
           email: verificationEntry.email,
           password: verificationEntry.password,
+          customerId: customer.id,
+          product: 'free',
         });
         newUser
             .save()
@@ -190,6 +199,7 @@ router.post("/login", (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
+          customerId: user.customerId,
         };
         // Sign token
         jwt.sign(
