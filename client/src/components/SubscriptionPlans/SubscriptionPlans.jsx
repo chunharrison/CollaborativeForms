@@ -30,11 +30,7 @@ const SubscriptionPlans = props => {
                             </div>
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>3 person per room limit</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Free for 7 days</p>
+                                <p>2 person per room limit</p>
                             </div>
                         </div>
 
