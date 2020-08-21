@@ -23,6 +23,41 @@ const guests = require("./routes/api/guests")
 const room = require("./routes/api/room")
 const emails = require("./routes/api/emails")
 const demo = require("./routes/api/demo")
+const payments = require("./routes/api/payments")
+const products = require("./routes/api/products")
+
+const Product = require("./models/Product");
+const User = require("./models/User");
+
+const stripe = require('stripe')(`${process.env.STRIPE_API_KEY}`);
+
+//update product db in case there is a change in product lineup
+async function updateProducts() {
+    const products = await stripe.products.list({
+        limit: 3,
+    });
+      products.data.forEach(product => 
+          Product.findOneAndUpdate({ productId: product.id }, { productId: product.id, productName: product.name, price: product.metadata.price, priceId: product.metadata.priceId })
+          .then(result => {
+              if (result === null) {
+                const newProduct = new Product({
+                    productId: product.id,
+                    productName: product.name,
+                    price: product.metadata.price,
+                    priceId: product.metadata.priceId,
+                    docCount: product.metadata.docCount,
+                    guestCount: product.metadata.guestCount,
+                });
+
+                newProduct.save()
+                    .then(res => console.log(res))
+                    .catch(err => console.log(err));
+              }
+          })
+      )
+}
+
+updateProducts();
 
 // API JEW AUTHENTICATION
 const jwt = require("jsonwebtoken");
@@ -47,7 +82,14 @@ app.use(
         extended: false
     })
 );
-app.use(bodyParser.json());
+app.use((req, res, next) => {
+    if (req.originalUrl === '/api/payments/stripe-webhook') {
+      next();
+    } else {
+      bodyParser.json()(req, res, next);
+    }
+});
+app.use(express.static("client/build"));
 // DB Config
 const roomsdb = require("./config/keys").mongoURI;
 // Connect to MongoDB
@@ -62,14 +104,19 @@ mongoose
 
 // Passport middleware
 app.use(passport.initialize());
+// app.use(passport.session());
+var session = require('express-session');
+app.use(session({ secret: process.env.EXPRESS_SESSION_SECRET }));
 // Passport config
 require("./config/passport")(passport);
 // Routes
 app.use("/api/users", users);
-app.use("/api/guests", guests)
-app.use("/api/room", room)
-app.use("/api/emails", emails)
-app.use("/api/demo", demo)
+app.use("/api/guests", guests);
+app.use("/api/room", room);
+app.use("/api/emails", emails);
+app.use("/api/demo", demo);
+app.use("/api/payments", payments);
+app.use("/api/products", products);
 
 // Initialize connection once
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, database) {
@@ -144,13 +191,32 @@ app.get('/api/get-spaces-left', (req, res) => {
     })
 })
 
-app.post('/api/create-room', checkToken, (req,res)=>{
-    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+app.post('/api/create-room', checkToken, async (req,res)=>{
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, async (err, authorizedData) => {
         if (err) {
             //If error send Forbidden (403)
             console.log('ERROR: Could not connect to the protected route');
             res.sendStatus(403);
         } else {
+            const user = await User.findOne({'id': req.query.userId});
+
+            let timestamp = Math.floor(new Date().getTime() / 1000);
+            let product = user.product;
+            let docCount = 1;
+            let guestCount = 1;
+
+            if (user.subscription && user.expire && user.expire > timestamp) {
+                product = await Product.findOne({productId: user.subscription.plan.product})
+            }
+
+            if (product !== 'free' && user.expire && user.expire > timestamp) {
+                docCount = product.docCount;
+                guestCount = product.guestCount;
+            }
+            const rooms = await db.collection("rooms").find({'host.id': user.id, 'demo': {$exists: false}}).toArray();
+            if (rooms.length >= docCount) {
+                return res.status('400').send({message: 'You have reached your document limit'})
+            }
             // Both Key and ContentType are defined in the client side.
             // Key refers to the remote name of the file.
             // ContentType refers to the MIME content type, in this case image/jpeg
@@ -164,7 +230,7 @@ app.post('/api/create-room', checkToken, (req,res)=>{
                 highlights: {}, 
                 host: {id: req.body.userId, name: req.body.userName},
                 guests: {},
-                numMaxGuests: 3, 
+                numMaxGuests: guestCount, 
                 downloadOption: 'Both',
                 pilotModeActivated: false,
                 invitationCode: ''
@@ -244,6 +310,107 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
         }
     })
 });
+
+app.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
+
+app.get("/auth/google/callback", passport.authenticate("google", 
+{ failureRedirect: `${process.env.FRONTEND_ADDRESS}/`, session: false }),
+    function(req, res) {
+        //   var token = req.user.token;
+        // TODO: HARRISON
+        // check if we need the user.token that we receive after logging into google
+
+        // Create JWT Payload
+        const payload = {
+            id: req.user.googleId,
+            name: req.user.name,
+            email: req.user.email,
+        };
+        // Sign token
+        jwt.sign(
+            payload,
+            process.env.JWT_PRIVATE_KEY,
+            { expiresIn: '24h' },
+            (err, token) => {
+                // res.json({
+                //     success: true,
+                //     token: "Bearer " + token
+                // });
+                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+
+            }
+        );
+    }
+);
+
+app.get('/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }));
+
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
+    // successRedirect: '/account-portal', 
+    failureRedirect: `${process.env.FRONTEND_ADDRESS}/` }), 
+    function(req, res) {
+        if (req.user.error === 'no email') {
+            console.log('aha')
+            res.redirect(`${process.env.FRONTEND_ADDRESS}/facebook-email-error`);
+        }
+        //   var token = req.user.token;
+        // TODO: HARRISON
+        // check if we need the user.token that we receive after logging into google
+
+        // Create JWT Payload
+        const payload = {
+            id: req.user.facebookId,
+            name: req.user.name,
+            email: req.user.email,
+        };
+        // Sign token
+        jwt.sign(
+            payload,
+            process.env.JWT_PRIVATE_KEY,
+            { expiresIn: '24h' },
+            (err, token) => {
+                // res.json({
+                //     success: true,
+                //     token: "Bearer " + token
+                // });
+                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+
+            }
+        );
+    }
+);
+
+app.get('/auth/linkedin', passport.authenticate('linkedin'));
+  
+app.get('/auth/linkedin/callback', 
+    passport.authenticate('linkedin', {
+        failureRedirect: `${process.env.FRONTEND_ADDRESS}/` 
+    }),
+    function(req, res) {
+
+    // Create JWT Payload
+    const payload = {
+        id: req.user.linkedinId,
+        name: req.user.name,
+        email: req.user.email,
+    };
+    // Sign token
+    jwt.sign(
+        payload,
+        process.env.JWT_PRIVATE_KEY,
+        { expiresIn: '24h' },
+        (err, token) => {
+            // res.json({
+            //     success: true,
+            //     token: "Bearer " + token
+            // });
+            // console.log(`${process.env.FRONTEND_ADDRESS}login-callback?token=` + token)
+            res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+
+        }
+    );
+}
+);
 
 //Bind socket.io socket to http server
 const io = socketio(http);

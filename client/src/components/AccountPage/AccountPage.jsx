@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 //Libraries
 import { connect } from 'react-redux';
 import axios from 'axios';
+import Modal from 'react-bootstrap/Modal';
 
 import { logoutUser } from "../../actions/authActions";
 
@@ -9,17 +11,122 @@ import { logoutUser } from "../../actions/authActions";
 import './AccountPage.css';
 
 const AccountPage = props => {
+    const history = useHistory();
     const [password, setPassword] = useState(null);
     const [confirmedPassword, setConfirmedPassword] = useState(null);
     const [oldPassword, setOldPassword] = useState(null);
-    const [email, setEmail] = useState('');
     const [edit, setEdit] = useState(false);
     const [message, setMessage] = useState(false);
-    
+    const [card, setCard] = useState(null);
+    const [userProduct, setUserProduct] = useState(null);
+    const [products, setProducts] = useState(null);
+    const [subscription, setSubscription] = useState(null);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+
+    async function getSubscription() {
+        let options = {
+            params: {
+                customerId: props.auth.user.customerId
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+                'Authorization': localStorage.getItem("jwtToken")
+            },
+        };
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/payments/retrieve-subscription`, options).then((response) => {
+            if (response.data === '') {
+                setSubscription('none')
+            } else {
+                setSubscription(response.data);
+            }
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    async function getUserProduct() {
+        let options = {
+            params: {
+                customerId: props.auth.user.customerId
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+                'Authorization': localStorage.getItem("jwtToken")
+            },
+        };
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/products/retrieve-user-product`, options).then((response) => {
+            setUserProduct(response.data);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    async function getProducts() {
+        let options = {
+            params: {
+                customerId: props.auth.user.customerId
+            },
+            headers: {
+                'Access-Control-Allow-Credentials': true,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': '*',
+                'Authorization': localStorage.getItem("jwtToken")
+            },
+        };
+        axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/products/retrieve-products`, options).then((response) => {
+          setProducts(response.data);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    function getCustomerPaymentMethod(paymentMethodId) {
+        return axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/payments/retrieve-customer-payment-method`,
+        {
+            customerId: props.auth.user.customerId,
+        },
+        )
+        .then((response) => {
+            setCard(response.data.card) ;
+        });
+    }
+
+    function cancelSubscription() {
+        setUserProduct(null);
+        setProducts(null);
+        setSubscription(null);
+        setShowCancelModal(false);
+        axios.post(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/payments/cancel-subscription`,
+            {
+              customerId: props.auth.user.customerId,
+            },
+          )
+        .then((response) => {
+            console.log(response.data);
+            setSubscription(response.data);
+            getUserProduct();
+            getProducts();    
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    };
+      
+
     function submitPassword() {
         axios
             .post(
-            '/api/users/change-password',
+            `${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/change-password`,
             {
                 userId: props.auth.user.id, 
                 password: password,
@@ -41,7 +148,68 @@ const AccountPage = props => {
                     }            
                 }
             })
-        }
+    }
+
+    useEffect(() => {
+        localStorage.setItem('page', 'account');
+        getUserProduct();
+        getProducts();
+        getSubscription();
+        getCustomerPaymentMethod();
+    }, [])
+
+    let availableProducts = null;
+
+    if (products && userProduct) {
+        availableProducts = products.map(function(item, i){
+            return  item.productName === userProduct.name && subscription && subscription.status === 'active' ? null : 
+                    <div className='available-plan-container'>
+                        <div className='available-plan'>
+                            <div className='available-plan-color'>
+                                <p className='plan-name'>{item.productName}</p>
+                            </div>
+                            <button className='plan-button' onClick={() => {userProduct === 'free' || (subscription && (subscription.status === 'canceled' || subscription.status === 'incomplete')) ? history.push('/payment', {product: item}) : history.push('/payment/change', {newProduct: item, oldProduct: userProduct})}}>
+                                Select
+                            </button>
+                        </div>
+                    </div>
+          })
+    }
+
+    let currentPlan = null;
+
+    if (userProduct && subscription && subscription.status !== 'active') {
+        currentPlan = <div className='current-plan-container'>
+        <p className='current-plan-header'>Current Plan</p>
+        <div className='current-plan'>
+            <div className='current-plan-color'>
+                <p className='plan-name'>Free</p>
+            </div>
+            <p className='current-plan-description'>Access to the demo page</p>
+        </div>
+        </div>
+
+    } else if (userProduct && subscription && subscription.status === 'active' && card) {
+        currentPlan = <div className='current-plan-container'>
+                            <p className='current-plan-header'>Current Plan</p>
+                            <div className='current-plan'>
+                                <div className='current-plan-color'>
+                                    <p className='plan-name'>{userProduct ? userProduct.name : ''}</p>
+                                </div>
+                                <div className='account-payment-container'>
+                                    <button className='current-plan-button' onClick={() => setShowCancelModal(true)}>
+                                        Cancel
+                                    </button>
+                                    <div className='account-payment-details'>
+                                        <p className='payment-form-header'>Payment</p>
+                                        <p className='payment-form-card'>{card.brand.toUpperCase()} ending in {card.last4}</p>
+                                        <p className='payment-form-subheader'>Expires {card.exp_month}/{card.exp_year}</p>                            
+                                    </div>    
+                                    <p className='account-payment-update-button' onClick={() => history.push('/payment/update-payment')}>Update</p>
+                                </div>
+                            </div>
+                        </div>
+    }
 
     return (
         <div className='account-container fade-in-bottom'>
@@ -81,8 +249,26 @@ const AccountPage = props => {
                 null}
             </div>
             <div className='account-plan'>
-                <p className='account-subheader'>Your Plan</p>
+                <p className='account-subheader'>Available Plans</p>
+                {!products || !userProduct || !subscription ? <div className='account-spinner'></div> : 
+                <div>
+                    {currentPlan}
+                    {availableProducts}
+                </div>}
             </div>
+            <Modal className='account-modal-dialog' show={showCancelModal} onHide={() => setShowCancelModal(false)} size="m">
+                <Modal.Body className='payment-modal-body'>
+                    <p className='payment-cancel-header'>Are you sure you want to cancel your current plan?</p>
+                    <div>
+                        <button className='cancel-plan-button-no' onClick={() => setShowCancelModal(false)}>
+                            No
+                        </button>
+                        <button className='cancel-plan-button-yes' onClick={() => cancelSubscription()}>
+                            Yes
+                        </button>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 

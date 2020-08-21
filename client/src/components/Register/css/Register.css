@@ -15,10 +15,15 @@
 	flex-direction:column;
 	justify-content:flex-end;
 	align-items:center;
-	min-height:800px;
+	min-height:700px;
 	max-width:100%;
 	overflow-y:auto;
 	overflow-x:hidden;
+}
+
+.callback-container {
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .register-form {
@@ -34,6 +39,20 @@
 	font-family: montserrat-medium;
 	color: rgb(94, 94, 94);
 }
+
+.register-logo.callback-message-welcome {
+	color: black !important;
+	font-size: 45px;
+	margin-bottom: 4rem;
+}
+
+.register-logo.callback-message-verify {
+	margin-bottom: 1.5rem;
+}
+
+/* .callback-message{
+	color: black !important;
+} */
 
 .register-header {
 	font-size: 40px;
@@ -54,10 +73,10 @@
 	border: 1px solid #ea9d9d;
 	outline:none;
 	padding-left:1.5em;
-	font-size:18px;
+	font-size:16px;
 	font-family: montserrat-medium;
-	width: 400px;
-	height:60px;
+	width: 350px;
+	height:50px;
 	margin-bottom:0.5em;
 }
 
@@ -71,18 +90,18 @@
 	background: #ea9d9d;
 	outline:none;
 	color:white;
-	font-size:18px;
+	font-size:15px;
 	font-family: montserrat-medium;
-	width: 400px;
-	height:60px;
+	width: 350px;
+	height:50px;
 }
 
 .login-redirect {
     color: black;
 	font-size: 16px;
 	text-decoration: none;
-	margin-top:2em;
-	margin-bottom:1.5em;
+	margin-top:1.5em;
+	margin-bottom:.5em;
 }
 
 .login-redirect-highlight {
@@ -138,4 +157,10 @@
 		height:50px;
 	}
 
+}
+
+.social-media-buttons {
+	position: absolute;
+	top: 25vh;
+	right: 25vh;
 }

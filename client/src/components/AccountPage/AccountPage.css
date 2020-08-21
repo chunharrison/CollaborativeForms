@@ -13,6 +13,10 @@
     src: url('Rubik-Light.ttf');
 }
 
+@font-face {
+    font-family: rubik-medium;
+    src: url('Rubik-Medium.ttf');
+}
 
 .account-container {
     display:flex;
@@ -20,6 +24,22 @@
     height:100%;
     width:100%;
     padding:2em;
+    overflow:auto;
+}
+
+.account-container::-webkit-scrollbar-track {
+    border-radius: 8px;
+    background-color: transparent;
+  }
+  
+.account-container::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+.account-container::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background-color: rgb(173, 173, 173);
 }
 
 .account-subheader {
@@ -90,6 +110,18 @@
     user-select: none; 
 }
 
+.account-payment-update-button {
+    font-size:16px;
+    color:#679cff;
+    text-align: center;
+    cursor:pointer;
+    user-select: none; 
+    margin-top:auto;
+    margin-bottom:auto;
+    margin-right:2em;
+    margin-left:-13vw;
+}
+
 .account-submit-button {
     align-self: flex-start;
     border:none;
@@ -152,6 +184,179 @@
     100% {
         opacity: 1;
     }
+}
+
+.current-plan-container {
+    margin:1em;
+    width:70%;
+    height:40vh;
+    display:flex;
+    flex-direction:column;
+}
+
+.available-plan-container {
+    margin:1em;
+    width:70%;
+    height:40vh;
+    display:flex;
+    flex-direction:column;
+}
+
+.current-plan-header {
+    padding-top:0.5em;
+    padding-left:2vw;
+    font-size:20px;
+    width:100%;
+    height:40px;
+    color:white;
+    background-color:#ff5555;
+    border-radius:5px 5px 0 0;
+}
+
+.current-plan {
+    border-left: 2px solid #ff6767;
+    border-right: 2px solid #ff6767;
+    border-bottom: 2px solid #ff6767;
+    border-radius:0 0 5px 5px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.available-plan {
+    border-left: 1px solid #aaaaaa;
+    border-right: 1px solid #aaaaaa;
+    border-bottom: 1px solid #aaaaaa;
+    border-radius:5px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.current-plan-color {
+    height:50%;
+    background-color:#ff6767;
+    display:flex;
+    align-items:center;
+}
+
+.available-plan-color {
+    height:50%;
+    background-color:#67a4ff;
+    display:flex;
+    align-items:center;
+    border-radius: 5px 5px 0 0;
+}
+
+.current-plan-description {
+    margin-top:auto;
+    margin-bottom:auto;
+    font-family: karla-regular;
+    margin-left:3vw;
+    font-size:20px;
+
+}
+
+.plan-name {
+    font-family: rubik-medium;
+    font-size:60px;
+    color:white;
+    margin-left:3vw;
+}
+
+.current-plan-button {
+    font-size:20px;
+    border: 2px solid #ff6767;
+    color:rgb(82, 82, 82);
+    background-color:transparent;
+    border-radius:50px;
+    width:150px;
+    height:60px;
+    margin-top:auto;
+    margin-bottom:1em;
+    margin-left:1em;
+}
+
+.cancel-plan-button-no {
+    font-size:15px;
+    border: 2px solid #ff6767;
+    background-color:transparent;
+    color:black;
+    border-radius:50px;
+    width:100px;
+    height:40px;
+    margin-top:auto;
+    margin-bottom:1em;
+    margin-left:1em;
+}
+
+.payment-cancel-header {
+    font-size:25px;
+    margin:1em;
+    margin-bottom:2em;
+}
+
+.cancel-plan-button-yes {
+    font-size:15px;
+    border: 2px solid #ff6767;
+    background-color:#ff6767;
+    color:white;
+    border-radius:50px;
+    width:100px;
+    height:40px;
+    margin-top:auto;
+    margin-bottom:1em;
+    margin-left:1em;
+}
+
+.plan-button {
+    font-size:20px;
+    border: 2px solid #3482db;
+    color:rgb(82, 82, 82);
+    background-color:transparent;
+    border-radius:50px;
+    width:150px;
+    height:60px;
+    margin-top:auto;
+    margin-bottom:1em;
+    margin-left:1em;
+}
+
+.plan-button:hover {
+    transform: scale(1.05);
+}
+
+.current-plan-button:hover {
+    transform: scale(1.05);
+}
+
+.account-spinner {
+	border: 2px solid #ffffff;
+	border-top: 2px solid #3482db;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+    animation: spin 0.7s linear infinite;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:2em;
+    
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+.account-payment-container {
+    display:flex;
+    justify-content:space-between;
+    margin-top:auto;
+}
+
+.account-payment-details {
+    margin:1em;
+    margin-right:2em;
 }
 
 @media only screen and (max-width: 1020px) {

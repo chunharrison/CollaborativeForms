@@ -108,7 +108,84 @@ class Login extends Component {
           <p type='button' onClick={() => {this.props.history.push("/forgot")}} className="pw-forget">Forgot password?</p>
           <p type='button'className='join-now'>New to Cosign? <span className='join-highlight' onClick={() => {this.props.history.push("/register")}}>Join now</span></p>    
         </form>
+        {/* <div className="seperator"><b>or</b></div> */}
+        {/* <div className="social-icon">
+          <button type="button"><i className="fa fa-twitter"></i></button>
+          <button type="button"><i className="fa fa-facebook"></i></button>
+      </div> */}
+      <div className="after-post">
+      <div class="social-share-holder">
+        <ul class="social-share">		
+          <li>
+            <a
+              href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/google`} className="google">
+              <svg 
+                viewBox="0 0 533.5 544.3" 
+                xmlns="http://www.w3.org/2000/svg">
+                  <path d="M533.5 278.4c0-18.5-1.5-37.1-4.7-55.3H272.1v104.8h147c-6.1 33.8-25.7 63.7-54.4 82.7v68h87.7c51.5-47.4 81.1-117.4 81.1-200.2z"/>
+                  <path d="M272.1 544.3c73.4 0 135.3-24.1 180.4-65.7l-87.7-68c-24.4 16.6-55.9 26-92.6 26-71 0-131.2-47.9-152.8-112.3H28.9v70.1c46.2 91.9 140.3 149.9 243.2 149.9z"/>
+                  <path d="M119.3 324.3c-11.4-33.8-11.4-70.4 0-104.2V150H28.9c-38.6 76.9-38.6 167.5 0 244.4l90.4-70.1z" />
+                  <path d="M272.1 107.7c38.8-.6 76.3 14 104.4 40.8l77.7-77.7C405 24.6 339.7-.8 272.1 0 169.2 0 75.1 58 28.9 150l90.4 70.1c21.5-64.5 81.8-112.4 152.8-112.4z" />
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a
+              href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/facebook`} className="facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+            </a>
+          </li>
+              
+          <li>
+            <a
+            href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/linkedin`} className="linkedin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg>              </a>
+          </li>	
+        </ul>
+      </div>
+      </div>
+        {/* <div class="login-box">
+          <a href="#" class="social-button" id="google-connect"> <span> </span></a>
+          <a href="#" class="social-button" id="facebook-connect"> <span></span></a>
+          <a href="#" class="social-button" id="linkedin-connect"> <span></span></a>
+        </div> */}
         <img className='login-abstract1' src={backgroundImg}></img>
+
+        {/* <div className="social-media-buttons">
+                    <a 
+                        href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/google`}
+                        onClick={e => this.registerWithGoogle(e)}
+                        class="test-a">
+                        <div>
+                            <span class="test-svgIcon t-popup-svg">
+                                <svg
+                                    class="svgIcon-use"
+                                    width="25"
+                                    height="37"
+                                    viewBox="0 0 25 25">
+                                    <g fill="none" fill-rule="evenodd">
+                                    <path
+                                        d="M20.66 12.693c0-.603-.054-1.182-.155-1.738H12.5v3.287h4.575a3.91 3.91 0 0 1-1.697 2.566v2.133h2.747c1.608-1.48 2.535-3.65 2.535-6.24z"
+                                        fill="#4285F4"/>
+                                    <path
+                                        d="M12.5 21c2.295 0 4.22-.76 5.625-2.06l-2.747-2.132c-.76.51-1.734.81-2.878.81-2.214 0-4.088-1.494-4.756-3.503h-2.84v2.202A8.498 8.498 0 0 0 12.5 21z"
+                                        fill="#34A853"/>
+                                    <path
+                                        d="M7.744 14.115c-.17-.51-.267-1.055-.267-1.615s.097-1.105.267-1.615V8.683h-2.84A8.488 8.488 0 0 0 4 12.5c0 1.372.328 2.67.904 3.817l2.84-2.202z"
+                                        fill="#FBBC05"/>
+                                    <path
+                                        d="M12.5 7.38c1.248 0 2.368.43 3.25 1.272l2.437-2.438C16.715 4.842 14.79 4 12.5 4a8.497 8.497 0 0 0-7.596 4.683l2.84 2.202c.668-2.01 2.542-3.504 4.756-3.504z"
+                                        fill="#EA4335"/>
+                                    </g>
+                                </svg>
+                            </span>
+                        <span class="button-label">Continue with Google</span>
+                    </div>
+                    </a>
+                    <a href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/facebook`}>Continue with Facebook</a>
+                    <a href={`${process.env.REACT_APP_BACKEND_ADDRESS}/auth/linkedin`}>Continue with LinkedIn</a>
+                </div> */}
+
     </div>
       );
     }

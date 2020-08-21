@@ -15,6 +15,7 @@ import { removeFromPDF } from '../../PDFManipulation/RemoveFromPDF';
 //components
 import PDFViewer from '../PDFViewer/PDFViewer';
 
+import errorImg from './error.png'
 import addImg from './add.png';
 import tickImg from './tick.png';
 
@@ -26,6 +27,8 @@ const CreateDocument = props => {
     const [pdfViewer, setPdfViewer] = useState(null);
     const [showPdfModal, setShowPdfModal] = useState(false);
     const [showProgressBar, setShowProgressBar] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [documentError, setDocumentError] = useState(null);
     const [invalidPdfAlertVisible, setInvalidPdfAlertVisible] = useState(false);
 
     //toggle popup
@@ -262,6 +265,11 @@ const CreateDocument = props => {
                 state: {id: props.auth.user.id},
             })
         })
+        .catch(error => {
+            setShowPdfModal(false);
+            setDocumentError(error.response.data.message);
+            setShowErrorModal(true);
+        })
         
     }
 
@@ -301,6 +309,14 @@ const CreateDocument = props => {
             <Alert variant='danger' show={invalidPdfAlertVisible}>
                 Make sure the provided file is a Pdf document.
             </Alert>
+            <Modal className='account-modal-dialog' show={showErrorModal} onHide={() => setShowErrorModal(false)} size="m">
+              <Modal.Body className='payment-modal-body'>
+                <img src={errorImg} className='payment-error-img'/>
+                <p className='payment-error-header'>Ooops!</p>
+                <p className='payment-error-text'>{documentError}</p>
+              </Modal.Body>
+          </Modal>
+
         </div>
     );
 
