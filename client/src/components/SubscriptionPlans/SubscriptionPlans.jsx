@@ -5,6 +5,7 @@ import './SubscriptionPlans.css'
 
 const SubscriptionPlans = props => {
     return(<div className="payment-page-container">
+        <p className='product-logo-subscriptions-page'>cosign</p>
         <div className="background-strip"></div>
         <div className="subscription-cards">
             <div class="subscription-row">
@@ -16,7 +17,7 @@ const SubscriptionPlans = props => {
                         <p className="subscription-about">
                             Free trial for people who want to try the product before purchasing.
                         </p>
-                        <hr/>
+                        {/* <hr/> */}
                         <div className="subscription-price-container">
                             <p className="subscription-price">Free</p>
                         </div>
@@ -29,19 +30,21 @@ const SubscriptionPlans = props => {
                             </div>
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>3 person per room limit</p>
                             </div>
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>Free for 7 days</p>
                             </div>
                         </div>
+
+                        <p className='subscription-button'>Use for Free</p>
                     </div>
                 </div>
 
 
 
-                <div class="subscription-column">
+                <div id="column-basic-plan" class="subscription-column">
                     <div class="subscription-card">
                         <h1 className="subscription-title">
                             Basic
@@ -49,7 +52,7 @@ const SubscriptionPlans = props => {
                         <p id="about-basic" className="subscription-about">
                             Basic Use.
                         </p>
-                        <hr id="hr-basic"/>
+                        {/* <hr id="hr-basic"/> */}
                         <div className="subscription-price-container">
                             <p className="subscription-price">$5</p>
                             <p className="payment-frequency">/monthly</p>
@@ -58,21 +61,17 @@ const SubscriptionPlans = props => {
                         <div className="subscription-perks-container">
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>Host 5 documents at a time</p>
                             </div>
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>5 person per room limit</p>
                             </div>
                         </div>
+
+                        <p className='subscription-button'>Subscribe to Basic</p>
                     </div>
                 </div>
-
-
                 
                 <div class="subscription-column">
                     <div class="subscription-card">
@@ -82,7 +81,7 @@ const SubscriptionPlans = props => {
                         <p id="about-pro" className="subscription-about">
                             Pro gamers.
                         </p>
-                        <hr id="hr-pro"/>
+                        {/* <hr id="hr-pro"/> */}
                         <div className="subscription-price-container">
                             <p className="subscription-price">$10</p>
                             <p className="payment-frequency">/monthly</p>
@@ -91,17 +90,15 @@ const SubscriptionPlans = props => {
                         <div className="subscription-perks-container">
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>Host 10 document at a time</p>
                             </div>
                             <div className="subscription-perk">
                                 <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                                <p>10 person per room limit</p>
                             </div>
                         </div>
+
+                        <p className='subscription-button'>Subscribe to Pro</p>
                     </div>
                 </div>
             </div>

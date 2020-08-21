@@ -11,8 +11,16 @@
 	overflow-x:hidden;
 }
 
+.product-logo-subscriptions-page {
+    margin-bottom: 3rem;
+    font-size: 50px;
+    font-family: montserrat-medium;
+    color: rgb(94, 94, 94);
+}
+
 .background-strip {
     position: absolute !important;
+    margin-top: 3rem;
     /* margin-top: 25vh; */
     height: 50vh;
     width: 100%;
@@ -23,11 +31,21 @@
 .subscription-column {
     float: left;
     /* width: 25%; */
-    padding: 0 10px;
+    /* padding: 0 10px; */
   }
 
   /* Remove extra left and right margins, due to padding in columns */
-.subscription-row {margin: 0 -5px;}
+.subscription-row {
+    /* margin: 0 -5px; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+#column-basic-plan {
+    border-right-style: solid;
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: #CDCDCD;
+}
 
 /* Clear floats after the columns */
 .subscription-row:after {
@@ -42,7 +60,6 @@
 
 /* Style the counter cards */
 .subscription-card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* this adds the "card" effect */
     padding: 16px;
     text-align: center;
     background-color: #f1f1f1;
@@ -65,14 +82,17 @@
 
 .subscription-about {
     margin-top: 15px;
-    
+    margin-right: 3rem;
+    margin-left: 3rem;
+    margin-bottom: 2rem;
+
     /* text-align: left; */
     color: grey;
 }
 
-#about-basic, #about-pro{
+/* #about-basic, #about-pro{
     margin-bottom: 2rem;
-}
+} */
 
 /* .subscription-card hr{
 } */
@@ -109,6 +129,22 @@
 .subscription-perk img {
     height: 2rem;
     margin-right: 1rem;
+}
+
+.subscription-button {
+    font-family: roboto-light;
+    font-size: 1vw;
+    color: white;
+    padding-left:3.5vw;
+    padding-right:3.5vw;
+    padding-top:1.1vw;
+    padding-bottom: 1.1vw;
+    margin-top:1.5em;
+    margin-left: 3rem;
+    margin-right:  3rem;
+    background-color: #e66069;
+    border-radius:40px;
+    cursor: pointer;
 }
 
 
