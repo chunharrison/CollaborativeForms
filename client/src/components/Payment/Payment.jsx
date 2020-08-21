@@ -60,8 +60,9 @@ const CheckoutForm = props => {
               props.history.push("/account-portal");
             }
           })
-          .catch(error =>
-            console.log(error))
+          .catch(error => {
+            return error;
+          })
         }
         setDataLoaded(true);
       })
