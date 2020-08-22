@@ -97,6 +97,7 @@ router.post("/create-email-verification-entry", (req, res) => {
 
 router.post('/verify-email', async (req, res) => {
   const {key} = req.body;
+
   const customer = await stripe.customers.create({
     email: req.body.email,
   });
@@ -104,19 +105,25 @@ router.post('/verify-email', async (req, res) => {
   EmailVeriftication.findOneAndDelete({key: req.body.key})
     .then(verificationEntry => {
       if (verificationEntry) {
-
-        const newUser = new User({
-          name: verificationEntry.name,
+        stripe.customers.create({
           email: verificationEntry.email,
-          password: verificationEntry.password,
-          customerId: customer.id,
-          product: 'free',
-        });
-        newUser
-            .save()
-            .then(user => res.send('Email Verified'))
-            .catch(err => console.log(err));
-      } 
+        }).then(customer => {
+            const newUser = new User({
+              name: verificationEntry.name,
+              email: verificationEntry.email,
+              password: verificationEntry.password,
+              customerId: customer.id,
+              product: 'free',
+            });
+            newUser
+                .save()
+                .then(user => res.send('Email Verified'))
+                .catch(err => console.log(err));
+        })
+        .catch(err => {
+          res.status(400)
+        })  
+      }
     })
     .catch(err => {
       res.status(400)
