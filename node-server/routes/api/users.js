@@ -97,10 +97,6 @@ router.post("/create-email-verification-entry", (req, res) => {
 
 router.post('/verify-email', async (req, res) => {
   const {key} = req.body;
-
-  const customer = await stripe.customers.create({
-    email: req.body.email,
-  });
   
   EmailVeriftication.findOneAndDelete({key: req.body.key})
     .then(verificationEntry => {

@@ -43,8 +43,7 @@ router.post('/stripe-webhook', bodyParser.raw({ type: 'application/json' }), asy
           process.env.STRIPE_WEBHOOK_SECRET
         );
       } catch (err) {
-        console.log(err);
-        console.log(`⚠️  Webhook signature verification failed.`);
+        console.log(`⚠️  Webhook signature verification failed. This could also happen if a header came in that we are not listening so wtv`);
         console.log(
           `⚠️  Check the env file and enter the correct webhook secret.`
         );
@@ -58,7 +57,6 @@ router.post('/stripe-webhook', bodyParser.raw({ type: 'application/json' }), asy
       // Review important events for Billing webhooks
       // https://stripe.com/docs/billing/webhooks
       // Remove comment to see the various objects sent for this sample
-      console.log(event.type);
       switch (event.type) {
         case 'invoice.paid':
           // Used to provision services after the trial has ended.
