@@ -214,6 +214,7 @@ app.post('/api/create-room', checkToken, async (req,res)=>{
                 guestCount = product.guestCount;
             }
             const rooms = await db.collection("rooms").find({'host.id': user.id, 'demo': {$exists: false}}).toArray();
+            console.log(user.id)
             console.log(rooms)
             console.log(rooms.length)
             console.log(docCount)
@@ -353,7 +354,6 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
     failureRedirect: `${process.env.FRONTEND_ADDRESS}/` }), 
     function(req, res) {
         if (req.user.error === 'no email') {
-            console.log('aha')
             res.redirect(`${process.env.FRONTEND_ADDRESS}/facebook-email-error`);
         }
         //   var token = req.user.token;
