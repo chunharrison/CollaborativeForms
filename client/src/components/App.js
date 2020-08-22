@@ -91,6 +91,8 @@ function App() {
             <Route path='/login-callback' component={LoginCallback}/>
             <Route path='/facebook-email-error' component={FacebookEmailError}/>
             <Route path='/subscriptions' component={SubscriptionPlans}/>
+
+            {/* <Route path='/auth/google' component={} */}
             {/* ERROR PAGES */}
             <Route path='/invalid-room-code' component={InvalidRoomCodePage}/>
           </Router>
