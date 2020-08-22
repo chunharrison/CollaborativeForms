@@ -214,6 +214,9 @@ app.post('/api/create-room', checkToken, async (req,res)=>{
                 guestCount = product.guestCount;
             }
             const rooms = await db.collection("rooms").find({'host.id': user.id, 'demo': {$exists: false}}).toArray();
+            console.log(rooms)
+            console.log(rooms.length)
+            console.log(docCount)
             if (rooms.length >= docCount) {
                 return res.status('400').send({message: 'You have reached your document limit'})
             }
