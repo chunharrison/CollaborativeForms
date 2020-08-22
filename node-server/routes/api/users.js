@@ -97,7 +97,6 @@ router.post("/create-email-verification-entry", (req, res) => {
 
 router.post('/verify-email', async (req, res) => {
   const {key} = req.body;
-  console.log(stripe);
   const customer = await stripe.customers.create({
     email: req.body.email,
   });
@@ -128,7 +127,6 @@ router.post('/verify-email', async (req, res) => {
 // @desc Register user
 // @access Public
 router.post("/register", (req, res) => {
-  console.log(stripe);
   EmailVeriftication.findOne({ key: req.body.key })
     .then(userInfo => {
       if (userInfo) {
