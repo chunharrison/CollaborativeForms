@@ -12,7 +12,6 @@ const validateEmailInput = require("../../validation/email");
 const validatePasswordInput = require("../../validation/password");
 
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
-
 // Load User model
 const User = require("../../models/User");
 const EmailVeriftication = require("../../models/EmailVerification")
@@ -98,6 +97,7 @@ router.post("/create-email-verification-entry", (req, res) => {
 
 router.post('/verify-email', async (req, res) => {
   const {key} = req.body;
+  console.log(stripe);
   const customer = await stripe.customers.create({
     email: req.body.email,
   });
