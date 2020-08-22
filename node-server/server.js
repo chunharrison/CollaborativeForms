@@ -311,9 +311,9 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
     })
 });
 
-app.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
+app.get("/api/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
-app.get("/auth/google/callback", passport.authenticate("google", 
+app.get("/api/auth/google/callback", passport.authenticate("google", 
 { failureRedirect: `${process.env.FRONTEND_ADDRESS}/`, session: false }),
     function(req, res) {
         //   var token = req.user.token;
@@ -325,6 +325,7 @@ app.get("/auth/google/callback", passport.authenticate("google",
             id: req.user.googleId,
             name: req.user.name,
             email: req.user.email,
+            customerId: req.user.customerId
         };
         // Sign token
         jwt.sign(
@@ -343,9 +344,9 @@ app.get("/auth/google/callback", passport.authenticate("google",
     }
 );
 
-app.get('/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }));
+app.get('/api/auth/facebook', passport.authenticate('facebook', { scope: ["email"] }));
 
-app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
+app.get('/api/auth/facebook/callback', passport.authenticate('facebook', { 
     // successRedirect: '/account-portal', 
     failureRedirect: `${process.env.FRONTEND_ADDRESS}/` }), 
     function(req, res) {
@@ -361,6 +362,7 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
             id: req.user.facebookId,
             name: req.user.name,
             email: req.user.email,
+            customerId: req.user.customerId
         };
         // Sign token
         jwt.sign(
@@ -379,9 +381,9 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', {
     }
 );
 
-app.get('/auth/linkedin', passport.authenticate('linkedin'));
+app.get('/api/auth/linkedin', passport.authenticate('linkedin'));
   
-app.get('/auth/linkedin/callback', 
+app.get('/api/auth/linkedin/callback', 
     passport.authenticate('linkedin', {
         failureRedirect: `${process.env.FRONTEND_ADDRESS}/` 
     }),
@@ -392,6 +394,7 @@ app.get('/auth/linkedin/callback',
         id: req.user.linkedinId,
         name: req.user.name,
         email: req.user.email,
+        customerId: req.user.customerId
     };
     // Sign token
     jwt.sign(
