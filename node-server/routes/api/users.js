@@ -12,7 +12,6 @@ const validateEmailInput = require("../../validation/email");
 const validatePasswordInput = require("../../validation/password");
 
 const stripe = require('stripe')(process.env.STRIPE_API_KEY);
-console.log(stripe);
 // Load User model
 const User = require("../../models/User");
 const EmailVeriftication = require("../../models/EmailVerification")
