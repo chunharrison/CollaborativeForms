@@ -198,8 +198,7 @@ app.post('/api/create-room', checkToken, async (req,res)=>{
             console.log('ERROR: Could not connect to the protected route');
             res.sendStatus(403);
         } else {
-            const user = await User.findOne({'id': req.query.userId});
-
+            const user = await User.findOne({'_id': req.body.userId});
             let timestamp = Math.floor(new Date().getTime() / 1000);
             let product = user.product;
             let docCount = 1;
@@ -214,10 +213,7 @@ app.post('/api/create-room', checkToken, async (req,res)=>{
                 guestCount = product.guestCount;
             }
             const rooms = await db.collection("rooms").find({'host.id': user.id, 'demo': {$exists: false}}).toArray();
-            console.log(user.id)
-            console.log(rooms)
-            console.log(rooms.length)
-            console.log(docCount)
+
             if (rooms.length >= docCount) {
                 return res.status('400').send({message: 'You have reached your document limit'})
             }
