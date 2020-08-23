@@ -94,15 +94,15 @@ const ChangePlan = props => {
         <div className='payment-container'>
             <p className='payment-logo' onClick={() => props.history.push("/account-portal")}>cosign</p>
             <div className='payment-plan-selection'>
-                <div className='payment-plan-choice' style={{'border': `${activePlan === 'prod_HqHsxFNVeKnvmm' ? '1px solid #ea9d9d' : ''}`}}>
+                <div className='payment-plan-choice'>
                     <p className='payment-product-plan-header'>Current Plan</p>
                     <p className='payment-product-name'>{props.location.state.oldProduct.name}</p>
-                    <p className='payment-product-price' style={{'color' : `${activePlan === 'prod_HqHsxFNVeKnvmm' ? '#e76a6a' : ''}`}}>${props.location.state.oldProduct.metadata.price}</p>
+                    <p className='payment-product-price' >${props.location.state.oldProduct.metadata.price}</p>
                     <p className='payment-product-text'>Per month</p>
                     <p className='payment-product-text'>Billed monthly</p>
                 </div>
                 <div className='payment-arrow'></div>
-                <div className='payment-plan-new-choice' style={{'border': `1px solid #ea9d9d`}}>
+                <div className='payment-plan-new-choice'>
                     <p className='payment-product-new-plan-header'>New Plan</p>
                     <p className='payment-product-new-name'>{props.location.state.newProduct.productName}</p>
                     <p className='payment-product-new-price'>${props.location.state.newProduct.price}</p>

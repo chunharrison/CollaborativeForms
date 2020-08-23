@@ -3,6 +3,8 @@ import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import axios from 'axios';
 import Modal from 'react-bootstrap/Modal';
 
+import PaymentCards from  './PaymentCards';
+
 import { connect } from 'react-redux';
 
 import CardSection from './CardSection';
@@ -14,8 +16,9 @@ const CheckoutForm = props => {
     const stripe = useStripe();
     const elements = useElements();
 
-    const [activePlan, setActivePlan] = useState('prod_HqHsxFNVeKnvmm');
-    const [priceId, setPriceId] = useState('price_1HGbIrLYbeGzRup8choFV77Z');
+    const [activePlan, setActivePlan] = useState('');
+    const [priceId, setPriceId] = useState('');
+    const [products, setProducts] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -57,19 +60,35 @@ const CheckoutForm = props => {
         } else {
           axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/payments/retrieve-subscription`, options).then((res) => {
             if (res.data.status === 'active') {
-              props.history.push("/account-portal");
+              return props.history.push("/account-portal");
             }
+
+            axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/products/retrieve-products`, options)
+            .then((response) => {
+
+              function compare( a, b ) {
+                if ( a.price < b.price ){
+                  return -1;
+                }
+                if ( a.price > b.price ){
+                  return 1;
+                }
+                return 0;
+              }
+              setProducts(response.data.sort( compare ))
+              setDataLoaded(true);
+            })
           })
           .catch(error => {
             return error;
           })
         }
-        setDataLoaded(true);
       })
 
       if (props.location.state) {
         setActivePlan(props.location.state.product.productId)
       }
+
     }, [])
 
     function createSubscription({ customerId, paymentMethodId, priceId }) {
@@ -312,26 +331,19 @@ const CheckoutForm = props => {
     };
 
     return (
+        !dataLoaded ? null :
         <div className='payment-container'>
           <p className='payment-logo' onClick={() => props.history.push("/account-portal")}>cosign</p>
           <div className='payment-plan-selection'>
-            <div className='payment-plan-choice' style={{'border': `${activePlan === 'prod_HqHsxFNVeKnvmm' ? '1px solid #ea9d9d' : ''}`}}>
-              <p className='payment-product-name'>Basic</p>
-              <p className='payment-product-price' style={{'color' : `${activePlan === 'prod_HqHsxFNVeKnvmm' ? '#e76a6a' : ''}`}}>$4.99</p>
-              <p className='payment-product-text'>Per month</p>
-              <p className='payment-product-text'>Billed monthly</p>
-              <button className='payment-product-button' disabled={activePlan === 'prod_HqHsxFNVeKnvmm'} style={{'backgroundColor' : `${activePlan === 'prod_HqHsxFNVeKnvmm' ? '#e76a6a' : ''}`}} onClick={() => setActivePlan('prod_HqHsxFNVeKnvmm')}>{activePlan !== 'prod_HqKrFmF7YOt6D9' ? 'Selected' : 'Select'}</button>
-            </div>
-            <div className='payment-plan-choice' style={{'border': `${activePlan === 'prod_HqKrFmF7YOt6D9' ? '1px solid #ea9d9d' : ''}`}}>
-              <p className='payment-product-name'>Pro</p>
-              <p className='payment-product-price' style={{'color' : `${activePlan === 'prod_HqKrFmF7YOt6D9' ? '#e76a6a' : ''}`}}>$9.99</p>
-              <p className='payment-product-text'>Per month</p>
-              <p className='payment-product-text'>Billed monthly</p>
-              <button className='payment-product-button' disabled={activePlan === 'prod_HqKrFmF7YOt6D9'} style={{'backgroundColor' : `${activePlan === 'prod_HqKrFmF7YOt6D9' ? '#e76a6a' : ''}`}} onClick={() => setActivePlan('prod_HqKrFmF7YOt6D9')}>{activePlan !== 'prod_HqKrFmF7YOt6D9' ? 'Select' : 'Selected'}</button>
-            </div>
+            <PaymentCards
+            products={products}
+            activePlan={activePlan}
+            setActivePlan={setActivePlan}
+            setPriceId={setPriceId}
+            />
           </div>
           <div className='payment-divider'></div>
-          <form onSubmit={handleSubmit}>
+          <form className='payment-form' onSubmit={handleSubmit}>
           <p className='payment-form-header'>Enter your card details</p>
           <p className='payment-form-header'>Your subscription will start now</p>
           <p className='payment-form-subheader'>Total due now {activePlan === 'prod_HqHsxFNVeKnvmm' ? '$4.99' : '$9.99'}</p>
