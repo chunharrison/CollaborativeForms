@@ -69,7 +69,11 @@ const CheckoutForm = props => {
                 return 0;
               }
               setProducts(response.data.sort( compare ))
-              setCurrentProduct(response.data.sort(compare)[0])
+              if (!props.location.state || !props.location.state.product) {
+                setActivePlan(response.data.sort(compare)[0].productId);
+                setPriceId(response.data.sort(compare)[0].priceId);
+                setCurrentProduct(response.data.sort(compare)[0]);
+              }
               setDataLoaded(true);
             })
           })
@@ -80,7 +84,9 @@ const CheckoutForm = props => {
       })
 
       if (props.location.state) {
-        setActivePlan(props.location.state.product.productId)
+        setActivePlan(props.location.state.product.productId);
+        setPriceId(props.location.state.product.priceId);
+        setCurrentProduct(props.location.state.product);
       }
 
     }, [])
@@ -323,6 +329,8 @@ const CheckoutForm = props => {
         }
         }
     };
+
+    console.log(priceId);
 
     return (
         !dataLoaded ? <div className='account-spinner'></div> :
