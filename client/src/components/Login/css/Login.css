@@ -152,270 +152,48 @@
 
 }
 
-/* .seperator {
-	float: left;
-	width: 50%;
-	border-top: 1px solid #ccc;
+/* Social Login */
+
+.social-login-container {
+    display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: row;
 	text-align: center;
-	margin: 50px 0 0;
-  }
-
-  .seperator b {
-	width: 40px;
-	height: 40px;
-	font-size: 16px;
-	text-align: center;
-	line-height: 40px;
-	background: #fff;
-	display: inline-block;
-	border: 1px solid #e0e0e0;
-	border-radius: 50%;
-	position: relative;
-	top: -22px;
-	z-index: 1;
-  } */
-
-  /* .social-icon {
-    width: 100%;
-    font-size: 20px;
-    padding-top: 20px;
-    color: #fff;
-    text-align: center;
-    float: left;
 }
 
-  .social-icon button {
-    font-size: 20px;
-    color: white;
-    height: 50px;
-    width: 50px;
-    background: #45aba6;
-    border-radius: 60%;
-    margin: 0px 10px;
-    border: none;
-    cursor: pointer;
-} */
-/* 
-.login-box {
-    max-width: 480px;
-    text-align: center;
-    letter-spacing: 1px;
-    position: relative;
+.social-login-button {
+
 }
 
-.social-button {
-  box-sizing: border-box;
-  color: rgb(255, 255, 255);
-  cursor: pointer;
-  display: inline-block;
-  height: 30px;
-	line-height: 30px;
-  text-align: left;
-  text-decoration: none;
-  text-transform: uppercase;
-  vertical-align: middle;
-  width: 60%;
-	border-radius: 3px;
-  margin-bottom: 9px;
-  outline: rgb(255, 255, 255) none 0px;
-  padding-left: 15%;
-  transition: all 0.2s cubic-bezier(0.72, 0.01, 0.56, 1) 0s;
-	-webkit-transition: all .3s ease;
-  -moz-transition: all .3s ease;
-  -ms-transition: all .3s ease;
-  -o-transition: all .3s ease;
-  transition: all .3s ease;
+/* a */
+.social-login-link {
+    background: #ea9d9d;
 
-  font-size: 0.85rem;
-}
-
-#facebook-connect {
-  background: rgb(255, 255, 255) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/facebook.svg?sanitize=true') no-repeat scroll 6.5px 4px / 22px 22px padding-box border-box;
-  border: 1px solid rgb(60, 90, 154);
-}
-
-#facebook-connect:hover {
-	border-color: rgb(60, 90, 154);
-	background: rgb(60, 90, 154) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/facebook-white.svg?sanitize=true') no-repeat scroll 6.5px 4px / 22px 22px padding-box border-box;
-	-webkit-transition: all .8s ease-out;
-  -moz-transition: all .3s ease;
-  -ms-transition: all .3s ease;
-  -o-transition: all .3s ease;
-  transition: all .3s ease-out;
-}
-
-#facebook-connect span {
-	box-sizing: border-box;
-  color: rgb(60, 90, 154);
-  cursor: pointer;
-  text-align: center;
-  text-transform: uppercase;
-  border: 0px none rgb(255, 255, 255);
-  outline: rgb(255, 255, 255) none 0px;
-	-webkit-transition: all .3s ease;
-  -moz-transition: all .3s ease;
-  -ms-transition: all .3s ease;
-  -o-transition: all .3s ease;
-  transition: all .3s ease;
-}
-
-#facebook-connect:hover span {
-	color: #FFF;
-	-webkit-transition: all .3s ease;
-  -moz-transition: all .3s ease;
-  -ms-transition: all .3s ease;
-  -o-transition: all .3s ease;
-  transition: all .3s ease;
-}
-
-
-#google-connect {
-	margin-top: 2rem;
-    background: rgb(255, 255, 255) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/google-plus.png') no-repeat scroll 4px -3.5px / 37px 37px padding-box border-box;
-    border: 1px solid rgb(220, 74, 61);
-}
-
-#google-connect:hover {
-	  border-color: rgb(220, 74, 61);
-	  background: rgb(220, 74, 61) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/google-plus-white.png') no-repeat scroll 4px -3.5px / 37px 37px padding-box border-box;
-	  -webkit-transition: all .8s ease-out;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease-out;
-}
-
-#google-connect span {
-	  box-sizing: border-box;
-    color: rgb(220, 74, 61);
-    cursor: pointer;
-    text-align: center;
-    text-transform: uppercase;
-    border: 0px none rgb(220, 74, 61);
-    outline: rgb(255, 255, 255) none 0px;
-	  -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease;
-}
-
-#google-connect:hover span {
-	  color: #FFF;
-	  -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-	transition: all .3s ease;
-	text-decoration: none !important;
-}
-
-#linkedin-connect {
-    background: rgb(255, 255, 255) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/linkedin.svg?sanitize=true') no-repeat scroll 13px 1px / 17px 25px padding-box border-box;
-    border: 1px solid rgb(0, 119, 181);
-}
-
-#linkedin-connect:hover {
-	  border-color: rgb(0, 119, 181);
-	  background: rgb(0, 119, 181) url('https://raw.githubusercontent.com/eswarasai/social-login/master/img/linkedin-white.svg?sanitize=true') no-repeat scroll 13px 1px / 17px 25px padding-box border-box;
-	  -webkit-transition: all .8s ease-out;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease-out;
-}
-
-#linkedin-connect span {
-	  box-sizing: border-box;
-    color: rgb(0, 119, 181);
-    cursor: pointer;
-    text-align: center;
-    text-transform: uppercase;
-    border: 0px none rgb(0, 119, 181);
-    outline: rgb(255, 255, 255) none 0px;
-	  -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease;
-}
-
-#linkedin-connect:hover span {
-	  color: #FFF;
-	  -webkit-transition: all .3s ease;
-    -moz-transition: all .3s ease;
-    -ms-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease;
-} */
-
-.after-post {
-	margin-top: 1rem;
-}
-
-.after-post.register-page {
-	margin-bottom: 1rem;
-}
-
-.after-post .social-share-holder {
-    position: static;
-    max-width: 100%;
-}
-
-/* .social-share-holder {
-    margin: 0;
-    position: absolute;
-    left: -114px;
-    padding-left: 0;
-    max-width: 40px;
-    height: 96%;
-} */
-
-ul.social-share {
-    position: sticky;
-    top: 30px;
-    padding: 0;
-}
-
-li {
-    display: list-item;
-    text-align: -webkit-match-parent;
-}
-
-ul.social-share li {
-    float: left;
-    margin: 0;
-    padding: 0;
-    line-height: 0;
-    overflow: hidden;
-    margin-bottom: 5px;
-}
-
-.after-post .social-share-holder li {
-    margin: 3px;
-}
-
-ul.social-share a {
-    padding: 10px 12px;
+    padding: 1rem 1rem;
     display: block;
     min-width: 20px;
-    text-align: center;
-    line-height: 1.2em;
-    border-radius: 3px 0 0 3px;
-    transition: all .5s ease;
+    border-radius: 3px 3px 3px 3px;
     position: relative;
     z-index: 2;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
-.after-post .social-share-holder a {
-    border-radius: 3px;
+.social-login-link::before {
+    position: absolute;
+    content: ' ';
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 3px 3px 3px 3px;
+    opacity: 0;
+    transition: all .3s ease;
+    z-index: 0;
 }
 
-.after-post .social-share-holder a {
-    border-radius: 3px;
-}
-
-ul.social-share svg {
+.social-login-button svg {
     display: block;
     fill: #fff;
     width: 20px;
@@ -426,58 +204,34 @@ ul.social-share svg {
 	align-self: center;
 }
 
-ul.social-share a {
-	background: #ea9d9d;
-	margin-right: 1rem;
-}
-
-
-.after-post ul.social-share a::before {
-    border-radius: 2px;
-    transform: scale(0);
-}
-
-ul.social-share a::before {
-    position: absolute;
-    content: ' ';
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    border-radius: 3px 0 0 3px;
-    opacity: 0;
-    transition: all .3s ease;
-    transform: translateX(100%);
-    z-index: 0;
-}
-
-ul.social-share a:hover::before svg {
-    fill: #0e1638;
+.social-login-link:hover::before svg {
+    /* fill: #0e1638; */
 }
 
 /* hover */
 
-.after-post ul.social-share a:hover::before {
+.social-login-link:hover::before {
     transform: scale(1);
 }
 
 /* LINK BUTTONS */
 
 /* background: hovered */
-ul.social-share a.google:hover::before {
+.social-login-link#google-login-button:hover::before {
     opacity: 1;
-    /* transform: translateX(0); */
-	background: #DB4437;
+    transform: translateX(0);
+	background: #4285F4
 }
 
-ul.social-share a.facebook:hover::before {
+
+.social-login-link#facebook-login-button:hover::before {
     opacity: 1;
-    /* transform: translateX(0); */
+    transform: translateX(0);
 	background: #3a5799;
 }
 
-ul.social-share a.linkedin:hover::before {
+.social-login-link#linkedin-login-button:hover::before {
     opacity: 1;
-    /* transform: translateX(0); */
+    transform: translateX(0);
 	background: #0274b3;
 }

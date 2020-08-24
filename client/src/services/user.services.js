@@ -9,6 +9,7 @@ class UserService {
     }
 
     verifyEmail(key) {
+        console.log('verifyEmail')
         return axios.post(
             `${process.env.REACT_APP_BACKEND_ADDRESS}/api/users/verify-email`,
             {key: key}

@@ -17,3 +17,23 @@
 	justify-content: center;
 	align-items:center;
 }
+
+.verify-message-container {
+	text-align: center;
+}
+
+.login-register-button {
+	font-family: roboto-light;
+    font-size: .75vw;
+    color: white;
+    padding-left:1.5vw;
+    padding-right:1.5vw;
+    padding-top:0.75vw;
+    padding-bottom: 0.75vw;
+    margin-top:1.5em;
+    margin-left: 3rem;
+    margin-right:  3rem;
+    background-color: #e66069;
+    border-radius:40px;
+    cursor: pointer;
+}
