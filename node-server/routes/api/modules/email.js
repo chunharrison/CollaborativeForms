@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 
 // const verifyEmailURL = (user) => `${}/verify-email/`
 
-const getPasswordResetURL = (user, token) => `http://localhost:3000/reset/${user._id}/${token}`
+const getPasswordResetURL = (user, token) => `${process.env.REACT_APP_BACKEND_ADDRESS}/reset/${user._id}/${token}`
 
 //create email template, this will show up in the email that is sent to the address
 const resetPasswordTemplate = (user, url) => {
