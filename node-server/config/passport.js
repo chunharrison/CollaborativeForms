@@ -38,6 +38,7 @@ module.exports = passport => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        // callbackURL: `${process.env.REACT_APP_BACKEND_ADDRESS}/api/auth/google/callback`
         callbackURL: '/api/auth/google/callback'
       },
 
@@ -73,6 +74,7 @@ module.exports = passport => {
   passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_APP_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
+    // callbackURL: `${process.env.REACT_APP_BACKEND_ADDRESS}/api/auth/facebook/callback`,
     callbackURL: '/api/auth/facebook/callback',
     profileFields: ['id', 'displayName', 'photos', 'emails']
   },
@@ -114,6 +116,7 @@ module.exports = passport => {
   passport.use(new LinkedInStrategy({
     clientID: process.env.LINKEDIN_API_KEY,
     clientSecret: process.env.LINKEDIN_SECRET_KEY,
+    // callbackURL: `${process.env.REACT_APP_BACKEND_ADDRESS}/api/auth/linkedin/callback`,
     callbackURL: '/api/auth/linkedin/callback',
     profileFields: [
       "displayName",
