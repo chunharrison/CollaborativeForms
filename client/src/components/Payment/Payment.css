@@ -278,3 +278,37 @@
 .payment-details {
     margin:1em;
 }
+
+@media only screen and (max-width: 1020px) {
+    .payment-plan-selection{
+        flex-direction:column;
+    }
+
+    .payment-arrow {
+        transform: rotate(135deg) translateY(4px) translateX(-4px);
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+    .payment-details-container {
+        width:90vw;
+    }
+
+    .payment-divider {
+        display:none;
+    }
+
+    .payment-container {
+        min-height:1000px;
+    }
+
+    .payment-form {
+        width:90vw;
+        margin-top:1em;
+    }
+
+    .card-element-container {
+        width:90vw;
+    }
+
+}

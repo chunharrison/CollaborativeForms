@@ -26,12 +26,18 @@
 	margin-bottom: auto;
 }
 
+.register-form-container {
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
 .register-form {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
 	text-align: center;
+	
 }
 
 .register-logo {
@@ -101,7 +107,7 @@
 	font-size: 16px;
 	text-decoration: none;
 	margin-top:1.5em;
-	margin-bottom:.5em;
+	margin-bottom:2em;
 }
 
 .login-redirect-highlight {

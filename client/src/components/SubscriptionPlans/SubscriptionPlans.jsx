@@ -1,9 +1,24 @@
 import React from 'react'
 
 import checkmark from './checkmark.png'
+import tick from './tick.png'
+import x from './x.png'
 import './SubscriptionPlans.css'
 
 const SubscriptionPlans = props => {
+
+    function useForFreeButton(e) {
+        e.preventDefault()
+
+        props.history.push('/account-portal')
+    }
+
+    function onClickButton(e) {
+        e.preventDefault()
+
+        props.history.push('/payment')
+    }
+
     return(<div className="payment-page-container">
         <p className='product-logo-subscriptions-page'>cosign</p>
         <div className="background-strip"></div>
@@ -12,10 +27,10 @@ const SubscriptionPlans = props => {
                 <div class="subscription-column">
                     <div class="subscription-card">
                         <h1 className="subscription-title">
-                            Free
+                            Trial
                         </h1>
                         <p className="subscription-about">
-                            Free.
+                            Try us out!
                         </p>
                         {/* <hr/> */}
                         <div className="subscription-price-container">
@@ -24,17 +39,26 @@ const SubscriptionPlans = props => {
 
 
                         <div className="subscription-perks-container">
-                            <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Host 1 document at a time</p>
+                        <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Host <b clasName="perk-accent">1</b> guest per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>2 person per room limit</p>
+                                <img src={tick}/>
+                                <p>Save <b clasName="perk-accent">1</b> document at a time in user profile</p>
+                                <p></p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={x}/>
+                                <p>Change documents anytime: every <b clasName="perk-accent">48</b> hours</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={x}/>
+                                <p>Pilot Mode</p>
                             </div>
                         </div>
 
-                        <p className='subscription-button'>Use for Free</p>
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Use for Free</p>
                     </div>
                 </div>
 
@@ -43,29 +67,37 @@ const SubscriptionPlans = props => {
                 <div id="column-basic-plan" class="subscription-column">
                     <div class="subscription-card">
                         <h1 className="subscription-title">
-                            Basic
+                            Personal
                         </h1>
                         <p id="about-basic" className="subscription-about">
-                            Basic Use.
+                            Going over study notes with friends.
                         </p>
                         {/* <hr id="hr-basic"/> */}
                         <div className="subscription-price-container">
-                            <p className="subscription-price">$5</p>
+                            <p className="subscription-price">$3.49</p>
                             <p className="payment-frequency">/monthly</p>
                         </div>
 
                         <div className="subscription-perks-container">
-                            <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Host 5 documents at a time</p>
+                        <div className="subscription-perk">
+                            <img src={tick}/>
+                                <p>Host <b clasName="perk-accent">2</b> guests per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>5 person per room limit</p>
+                                <img src={tick}/>
+                                <p>Save <b clasName="perk-accent">10</b> documents at a time in user profile</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={x}/>
+                                <p>Change documents anytime: every <b clasName="perk-accent">24</b> hours</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={x}/>
+                                <p>Pilot Mode</p>
                             </div>
                         </div>
 
-                        <p className='subscription-button'>Subscribe to Basic</p>
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Personal</p>
                     </div>
                 </div>
                 
@@ -75,30 +107,114 @@ const SubscriptionPlans = props => {
                             Pro
                         </h1>
                         <p id="about-pro" className="subscription-about">
-                            Pro gamers.
+                            Signing documents with clients.
                         </p>
                         {/* <hr id="hr-pro"/> */}
                         <div className="subscription-price-container">
-                            <p className="subscription-price">$10</p>
+                            <p className="subscription-price">$9.99</p>
                             <p className="payment-frequency">/monthly</p>
                         </div>
 
                         <div className="subscription-perks-container">
                             <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>Host 10 document at a time</p>
+                                <img src={tick}/>
+                                <p>Host <b clasName="perk-accent">5</b> guests per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={checkmark}/>
-                                <p>10 person per room limit</p>
+                                <img src={tick}/>
+                                <p>Save <b clasName="perk-accent">25</b> document at a time in user profile</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Change documents anytime</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Pilot Mode</p>
                             </div>
                         </div>
 
-                        <p className='subscription-button'>Subscribe to Pro</p>
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Pro</p>
+                    </div>
+                </div>
+
+                <div id="column-business-plan" class="subscription-column">
+                    <div class="subscription-card">
+                        <h1 className="subscription-title">
+                            Business
+                        </h1>
+                        <p className="subscription-about">
+                            Have Business meetings remotely.
+                        </p>
+                        {/* <hr id="hr-pro"/> */}
+                        <div className="subscription-price-container">
+                            <p className="subscription-price">$14.99</p>
+                            <p className="payment-frequency">/monthly</p>
+                        </div>
+
+                        <div className="subscription-perks-container">
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Host <b clasName="perk-accent">10</b> guests per room limit</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Save <b clasName="perk-accent">50</b> document at a time in user profile</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Change documents anytime</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Pilot Mode</p>
+                            </div>
+                        </div>
+
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Business</p>
+                    </div>
+                </div>
+
+            <div class="subscription-column">
+                    <div class="subscription-card">
+                        <h1 className="subscription-title">
+                            Corporate
+                        </h1>
+                        <p className="subscription-about">
+                            Anything.
+                        </p>
+                        {/* <hr id="hr-pro"/> */}
+                        <div className="subscription-price-container">
+                            <p className="subscription-price">$39.99</p>
+                            <p className="payment-frequency">/monthly</p>
+                        </div>
+
+                        <div className="subscription-perks-container">
+                        <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Host <b clasName="perk-accent">20</b> guests per room limit</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Save <b clasName="perk-accent">100</b> document at a time in user profile</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Change documents anytime</p>
+                            </div>
+                            <div className="subscription-perk">
+                                <img src={tick}/>
+                                <p>Pilot Mode</p>
+                            </div>
+                        </div>
+
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Corporate</p>
                     </div>
                 </div>
             </div>
-        </div>
+
+            </div>
+
         {/* <div class="subscription-card">
             <div class="card-components subscription-details">
                 <h1>Free</h1>

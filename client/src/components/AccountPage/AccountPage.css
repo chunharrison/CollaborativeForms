@@ -419,5 +419,21 @@
         margin:0;
     }
     
+    .current-plan-container {
+        width:90%;
+        height:500px;
+    }
+    .available-plan-container {
+        width:90%;
+    }
+
+    .account-payment-container {
+        flex-direction:column-reverse;
+    }
+
+    .account-payment-update-button {
+        margin-left:1em;
+        text-align:left;
+    }
 
 }

@@ -57,6 +57,7 @@ router.post('/stripe-webhook', bodyParser.raw({ type: 'application/json' }), asy
       // Review important events for Billing webhooks
       // https://stripe.com/docs/billing/webhooks
       // Remove comment to see the various objects sent for this sample
+      console.log(event.type)
       switch (event.type) {
         case 'invoice.paid':
           // Used to provision services after the trial has ended.
@@ -66,6 +67,7 @@ router.post('/stripe-webhook', bodyParser.raw({ type: 'application/json' }), asy
             dataObject.id,
             {expand: ['payment_intent']},
           );
+
           User.findOneAndUpdate({ customerId: dataObject.customer }, { expire: dataObject.lines.data[0].period.end, latestInvoice: paidInvoice })
               .catch(err => console.log(err))
             
@@ -200,28 +202,70 @@ router.post('/retry-invoice', checkToken, async (req, res) => {
 
 router.post('/cancel-subscription', checkToken, async (req, res) => {
     // Delete the subscription
-    const user = await User.findOne({ customerId: req.body.customerId });
-    const deletedSubscription = await stripe.subscriptions.del(
-      user.latestInvoice.subscription
-    );
+    try {
+      const user = await User.findOne({ customerId: req.body.customerId });
 
-    const product = await stripe.products.retrieve(
-      deletedSubscription.plan.product
-    );
+      const deletedSubscription = await stripe.subscriptions.del(
+        user.subscription.id
+      );
+      
+      const product = await stripe.products.retrieve(
+        deletedSubscription.plan.product
+      );
+  
+      User.findOneAndUpdate({ customerId: deletedSubscription.customer }, { product: product, subscription: deletedSubscription })
+      .then(user => {
+        res.send(deletedSubscription);
+  
+      })
+      .catch(err => console.log(err))
+  
+    } catch (error) {
+      if (error.raw.code === 'resource_missing') {
+        const subscription = await stripe.subscriptions.list({
+          customer: user.customerId,
+          limit: 1,
+        });
 
-    User.findOneAndUpdate({ customerId: deletedSubscription.customer }, { product: product, subscription: deletedSubscription })
-    .then(user => {
-      res.send(deletedSubscription);
+        if (subscription.data.length === 0) {
+          const canceledSubscription = await stripe.subscriptions.list({
+            customer: user.customerId,
+            status: 'canceled',
+          });
 
-    })
-    .catch(err => console.log(err))
+          User.findOneAndUpdate({ customerId: req.body.customerId }, { product: 'free', subscription: canceledSubscription.data[0] })
+          .then(user => {
+            return res.send(null);
+      
+          })
+          .catch(err => console.log(err))
+        } else {
+          const deletedSubscription = await stripe.subscriptions.del(
+            subscription.data[0].id
+          );
+  
+          const product = await stripe.products.retrieve(
+            deletedSubscription.plan.product
+          );
+            console.log(deletedSubscription)
+          User.findOneAndUpdate({ customerId: deletedSubscription.customer }, { product: product, subscription: deletedSubscription })
+          .then(user => {
+            return res.send(deletedSubscription);
+      
+          })
+          .catch(err => console.log(err))
+  
+          return res.send(deletedSubscription);
+        }
+      }
+    }
     
 });
 
 router.post('/update-subscription', checkToken, async (req, res) => {
   const user = await User.findOne({ customerId: req.body.customerId });
   const subscription = await stripe.subscriptions.retrieve(
-        user.latestInvoice.subscription
+        user.subscription.id
   );
 
   stripe.subscriptions.update(
