@@ -26,7 +26,7 @@ const GuestJoin = (props) => {
 
     useEffect(() => {
         // check to see if the guest is already a user or not
-        if (this.props.auth.isAuthenticated) {
+        if (props.auth.isAuthenticated) {
             // then send them to the collab page
             const isDemoPage = '' + queryString.parse(props.location.search).type
             if (isDemoPage === 'demo') {
