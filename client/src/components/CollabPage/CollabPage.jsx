@@ -504,6 +504,7 @@ class CollabPage extends React.Component {
                 self.props.userSocket.emit('addIn', pageData)
                 self.setState({ toSend: false });
             }
+            fabricCanvas.renderAll();
         });
 
         fabricCanvas.on('object:modified', function (e) {
@@ -515,7 +516,8 @@ class CollabPage extends React.Component {
                 modifiedSignatureObjectJSON: modifiedSignatureObjectJSON
             }
 
-            self.props.userSocket.emit('editIn', pageData)
+            self.props.userSocket.emit('editIn', pageData);
+            fabricCanvas.renderAll();
         });
 
         fabricCanvas.on('object:moving', function (e) {
@@ -572,6 +574,8 @@ class CollabPage extends React.Component {
                 self.props.userSocket.emit("deleteIn", pageData)
                 self.setState({ toSend: false });
             }
+
+            fabricCanvas.renderAll();
 
         });
 
