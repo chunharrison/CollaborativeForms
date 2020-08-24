@@ -58,7 +58,7 @@ const SubscriptionPlans = props => {
                             </div>
                         </div>
 
-                        <p onClick={e => onClickButton(e)} className='subscription-button'>Use for Free</p>
+                        <p onClick={e => useForFreeButton(e)} className='subscription-button'>Use for Free</p>
                     </div>
                 </div>
 
