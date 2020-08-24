@@ -76,6 +76,9 @@ function App() {
             <Route exact path='/register' component={Register} />
             <Switch>
               <PrivateRoute exact path='/account-portal' component={AccountPortal}/>
+              <PrivateRoute exact path='/payment' component={Payment}/>
+              <PrivateRoute exact path='/payment/change' component={ChangePlan}/>
+              <PrivateRoute exact path='/payment/update-payment' component={UpdatePayment}/>
             </Switch>
             <Route path='/component-testing' component={CommentsPanel}/>
             <Route path='/join-room' component={GuestJoin}/>
@@ -84,9 +87,6 @@ function App() {
             <Route path='/demo' component={DemoPage}/>
             <Route path='/contact-us' component={ContactUs}/>
             <Route path='/verify' component={VerifyEmail}/>
-            <Route exact path='/payment' component={Payment}/>
-            <Route exact path='/payment/change' component={ChangePlan}/>
-            <Route exact path='/payment/update-payment' component={UpdatePayment}/>
             <Route path='/test' component={Test}/>
             <Route path='/login-callback' component={LoginCallback}/>
             <Route path='/facebook-email-error' component={FacebookEmailError}/>

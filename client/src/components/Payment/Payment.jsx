@@ -330,8 +330,6 @@ const CheckoutForm = props => {
         }
     };
 
-    console.log(priceId);
-
     return (
         !dataLoaded ? <div className='account-spinner'></div> :
         <div className='payment-container'>
