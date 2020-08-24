@@ -9,7 +9,7 @@ const PaymentCards = props => {
         <p className='payment-product-price' style={{'color' : `${props.activePlan === data.productId ? '#e76a6a' : ''}`}}>${data.price}</p>
         <p className='payment-product-text'>Per month</p>
         <p className='payment-product-text'>Billed monthly</p>
-        <button className='payment-product-button' disabled={props.activePlan === data.productId} style={{'backgroundColor' : `${props.activePlan === data.productId ? '#e76a6a' : ''}`}} onClick={() => {props.setActivePlan(data.productId); props.setPriceId(data.priceId); props.setCurrentProduct(data)}}>{props.activePlan !== data.productId ? 'Selected' : 'Select'}</button>
+        <button className='payment-product-button' disabled={props.activePlan === data.productId} style={{'backgroundColor' : `${props.activePlan === data.productId ? '#e76a6a' : ''}`}} onClick={() => {props.setActivePlan(data.productId); props.setPriceId(data.priceId); props.setCurrentProduct(data)}}>{props.activePlan === data.productId ? 'Selected' : 'Select'}</button>
     </div>
     )
 
