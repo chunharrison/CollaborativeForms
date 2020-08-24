@@ -7,7 +7,7 @@ import './SubscriptionPlans.css'
 
 const SubscriptionPlans = props => {
 
-    function useForFreeButton(e) {
+    function onClickFreeButton(e) {
         e.preventDefault()
 
         props.history.push('/account-portal')
@@ -58,7 +58,7 @@ const SubscriptionPlans = props => {
                             </div>
                         </div>
 
-                        <p onClick={e => useForFreeButton(e)} className='subscription-button'>Use for Free</p>
+                        <p onClick={e => onClickFreeButton(e)} className='subscription-button'>Use for Free</p>
                     </div>
                 </div>
 
