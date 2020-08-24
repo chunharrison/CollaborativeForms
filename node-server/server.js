@@ -314,7 +314,7 @@ app.put('/api/edit-document-name', checkToken, function(req, res) {
 app.get("/api/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 
 app.get("/api/auth/google/callback", passport.authenticate("google", 
-{ failureRedirect: `${process.env.FRONTEND_ADDRESS}/`, session: false }),
+{ failureRedirect: `${process.env.REACT_APP_FRONTEND_ADDRESS}/`, session: false }),
     function(req, res) {
         //   var token = req.user.token;
         // TODO: HARRISON
@@ -337,7 +337,7 @@ app.get("/api/auth/google/callback", passport.authenticate("google",
                 //     success: true,
                 //     token: "Bearer " + token
                 // });
-                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+                res.redirect(`${process.env.REACT_APP_FRONTEND_ADDRESS}/login-callback?token=` + token);
 
             }
         );
@@ -348,10 +348,10 @@ app.get('/api/auth/facebook', passport.authenticate('facebook', { scope: ["email
 
 app.get('/api/auth/facebook/callback', passport.authenticate('facebook', { 
     // successRedirect: '/account-portal', 
-    failureRedirect: `${process.env.FRONTEND_ADDRESS}/` }), 
+    failureRedirect: `${process.env.REACT_APP_FRONTEND_ADDRESS}/` }), 
     function(req, res) {
         if (req.user.error === 'no email') {
-            res.redirect(`${process.env.FRONTEND_ADDRESS}/facebook-email-error`);
+            res.redirect(`${process.env.REACT_APP_FRONTEND_ADDRESS}/facebook-email-error`);
         }
         //   var token = req.user.token;
         // TODO: HARRISON
@@ -374,7 +374,7 @@ app.get('/api/auth/facebook/callback', passport.authenticate('facebook', {
                 //     success: true,
                 //     token: "Bearer " + token
                 // });
-                res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+                res.redirect(`${process.env.REACT_APP_FRONTEND_ADDRESS}/login-callback?token=` + token);
 
             }
         );
@@ -385,7 +385,7 @@ app.get('/api/auth/linkedin', passport.authenticate('linkedin'));
   
 app.get('/api/auth/linkedin/callback', 
     passport.authenticate('linkedin', {
-        failureRedirect: `${process.env.FRONTEND_ADDRESS}/` 
+        failureRedirect: `${process.env.REACT_APP_FRONTEND_ADDRESS}/` 
     }),
     function(req, res) {
 
@@ -406,8 +406,8 @@ app.get('/api/auth/linkedin/callback',
             //     success: true,
             //     token: "Bearer " + token
             // });
-            // console.log(`${process.env.FRONTEND_ADDRESS}login-callback?token=` + token)
-            res.redirect(`${process.env.FRONTEND_ADDRESS}/login-callback?token=` + token);
+            // console.log(`${process.env.REACT_APP_FRONTEND_ADDRESS}login-callback?token=` + token)
+            res.redirect(`${process.env.REACT_APP_FRONTEND_ADDRESS}/login-callback?token=` + token);
 
         }
     );
