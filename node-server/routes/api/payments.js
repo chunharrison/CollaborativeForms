@@ -343,32 +343,6 @@ router.get('/retrieve-expiry', checkToken, async (req,res) => {
     res.send(error))
 })
 
-
-router.post('/retrieve-upcoming-invoice', checkToken, async (req, res) => {
-    const subscription = await stripe.subscriptions.retrieve(
-        req.body.subscriptionId
-    );
-
-    const invoice = await stripe.invoices.retrieveUpcoming({
-        subscription_prorate: true,
-        customer: req.body.customerId,
-        subscription: req.body.subscriptionId,
-        subscription_items: [
-        {
-            id: subscription.items.data[0].id,
-            deleted: true,
-        },
-        {
-          //TODO price id is static
-            // This price ID is the price you want to change the subscription to.
-            price: 'price_H1NlVtpo6ubk0m',
-            deleted: false,
-        },
-        ],
-    });
-    res.send(invoice);
-});
-
 router.post('/retrieve-customer-payment-method', checkToken, async (req, res) => {
   const user = await User.findOne({ customerId: req.body.customerId });
 

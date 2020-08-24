@@ -23,15 +23,8 @@ const CheckoutForm = props => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [paymentError, setPaymentError] = useState(null);
+    const [currentProduct, setCurrentProduct] = useState('');
     const [dataLoaded, setDataLoaded] = useState(false);
-
-    useEffect(() => {
-      if (activePlan === 'prod_HqHsxFNVeKnvmm') {
-        setPriceId('price_1HGbIrLYbeGzRup8choFV77Z')
-      } else if (activePlan === 'prod_HqKrFmF7YOt6D9') {
-        setPriceId('price_1HGeBTLYbeGzRup80YS1RCCi')
-      }
-    }, [activePlan])
 
     useEffect(() => {
         localStorage.removeItem("latestInvoiceId");
@@ -76,6 +69,7 @@ const CheckoutForm = props => {
                 return 0;
               }
               setProducts(response.data.sort( compare ))
+              setCurrentProduct(response.data.sort(compare)[0])
               setDataLoaded(true);
             })
           })
@@ -331,7 +325,7 @@ const CheckoutForm = props => {
     };
 
     return (
-        !dataLoaded ? null :
+        !dataLoaded ? <div className='account-spinner'></div> :
         <div className='payment-container'>
           <p className='payment-logo' onClick={() => props.history.push("/account-portal")}>cosign</p>
           <div className='payment-plan-selection'>
@@ -340,14 +334,15 @@ const CheckoutForm = props => {
             activePlan={activePlan}
             setActivePlan={setActivePlan}
             setPriceId={setPriceId}
+            setCurrentProduct={setCurrentProduct}
             />
           </div>
           <div className='payment-divider'></div>
           <form className='payment-form' onSubmit={handleSubmit}>
           <p className='payment-form-header'>Enter your card details</p>
           <p className='payment-form-header'>Your subscription will start now</p>
-          <p className='payment-form-subheader'>Total due now {activePlan === 'prod_HqHsxFNVeKnvmm' ? '$4.99' : '$9.99'}</p>
-          <p className='payment-form-subheader'>Subscribing to {activePlan === 'prod_HqHsxFNVeKnvmm' ? 'Basic' : 'Pro'}</p>
+          <p className='payment-form-subheader'>Total due now ${currentProduct.price}</p>
+          <p className='payment-form-subheader'>Subscribing to {currentProduct.productName}</p>
             <CardSection />
             <button className='payment-subscribe-button' disabled={!stripe || !dataLoaded}>{loading ? <div className='payment-spinner'></div> : 'Subscribe'}</button>
           </form>
