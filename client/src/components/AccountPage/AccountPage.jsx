@@ -112,7 +112,6 @@ const AccountPage = props => {
             },
           )
         .then((response) => {
-            console.log(response.data);
             setSubscription(response.data);
             getUserProduct();
             getProducts();    
