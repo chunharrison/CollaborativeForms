@@ -662,7 +662,7 @@ class CollabPage extends React.Component {
 
     setZoom(e) {
         this.props.setCurrentZoom(e.value)
-        for (let pageNum = 1; pageNum < this.props.numPages; pageNum++) {
+        for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
             if (document.getElementById(pageNum.toString())) {
                 let fabricElement = document.getElementById(pageNum.toString()).fabric
                 fabricElement.setZoom(e.value)
