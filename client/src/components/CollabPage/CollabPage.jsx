@@ -60,7 +60,8 @@ import {
 
     getRoomCapacity,
     getDownloadOption,
-    updateDownloadOption
+    updateDownloadOption,
+    getProductGuestCapacity
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -205,6 +206,11 @@ class CollabPage extends React.Component {
                             })
             
                         this.props.setGuestID(this.state.guestID)
+                    }
+
+                    // get room capacity if you are the host
+                    else if ( this.props.auth.user.id === this.state.hostID) {
+                        this.props.getProductGuestCapacity(this.props.auth.user.customerId)
                     }
 
                     // SOCKET
@@ -1272,6 +1278,7 @@ export default connect(mapStateToProps, {
     getRoomCapacity,
     getDownloadOption,
     updateDownloadOption,
+    getProductGuestCapacity,
 
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,

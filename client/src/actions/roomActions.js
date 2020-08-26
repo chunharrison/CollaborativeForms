@@ -18,7 +18,8 @@ import {
     SET_ROOM_HOST_ID,
 
     SET_MAX_NUM_GUESTS,
-    SET_DOWNLOAD_OPTION
+    SET_DOWNLOAD_OPTION,
+    GET_PRODUCT_GUEST_CAPACITY
 } from './types'
 
 
@@ -188,4 +189,27 @@ export const updateDownloadOption = newDownloadOption => dispatch => {
         type: SET_DOWNLOAD_OPTION,
         payload: newDownloadOption
     })
+}
+
+export const getProductGuestCapacity = customerId => dispatch => {
+    const options = {
+        params: {
+            customerId: customerId
+        },
+        headers: {
+            'Access-Control-Allow-Credentials': true,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET',
+            'Access-Control-Allow-Headers': '*',
+        },
+    };
+
+    axios.get(`${process.env.REACT_APP_BACKEND_ADDRESS}/api/room/get-product-guest-capacty`, options)
+        .then(res => {
+            // console.log('res.data.guestCapacity', res.data.guestCapacity)
+            dispatch({
+                type: GET_PRODUCT_GUEST_CAPACITY,
+                payload: res.data.guestCapacity
+            })
+        })
 }

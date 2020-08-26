@@ -187,7 +187,7 @@ router.post('/send-verification-email', (req, res) => {
                                             <table border="0" cellspacing="0" cellpadding="0">
                                                 <tr>
                                                     <td align="center" style="border-radius: 3px;" bgcolor="#ea9d9d">
-                                                    <a href=${process.env.REACT_APP_FRONTEND_ADDRESS}/verify/${req.body.key} target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #ea9d9d; display: inline-block;">Confirm Account</a></td>
+                                                    <a href=${process.env.FRONTEND_ADDRESS}/verify/${req.body.key} target="_blank" style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #ea9d9d; display: inline-block;">Confirm Account</a></td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -202,7 +202,7 @@ router.post('/send-verification-email', (req, res) => {
                         </tr> <!-- COPY -->
                         <tr>
                             <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                                <p style="margin: 0;"><a href=${process.env.REACT_APP_FRONTEND_ADDRESS}/verify/${req.body.key} target="_blank" style="color: #ea9d9d;">${process.env.REACT_APP_FRONTEND_ADDRESS}/verify/${req.body.key}</a></p>
+                                <p style="margin: 0;"><a href=${process.env.FRONTEND_ADDRESS}/verify/${req.body.key} target="_blank" style="color: #ea9d9d;">${process.env.FRONTEND_ADDRESS}/verify/${req.body.key}</a></p>
                             </td>
                         </tr>
                         <tr>
@@ -212,7 +212,7 @@ router.post('/send-verification-email', (req, res) => {
                                     <td bgcolor="#ea9d9d" align="center" style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #FFECD1; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
                                         <h2 style="font-size: 20px; font-weight: 400; color: #111111; margin: 0;">Need more help?</h2>
                                         <p style="margin: 0;">
-                                        <a href=${process.env.REACT_APP_FRONTEND_ADDRESS}/contact-us target="_blank" style="color: #666666;">We&rsquo;re here to help you out</a>
+                                        <a href=${process.env.FRONTEND_ADDRESS}/contact-us target="_blank" style="color: #666666;">We&rsquo;re here to help you out</a>
                                         </p>
                                     </td>
                                 </tr>
@@ -239,7 +239,7 @@ router.post('/send-verification-email', (req, res) => {
 
 
         //  `<div> 
-        //         ${process.env.REACT_APP_FRONTEND_ADDRESS}/verify/${req.body.key}
+        //         ${process.env.FRONTEND_ADDRESS}/verify/${req.body.key}
         //         </div>`
     };
 
