@@ -33,6 +33,10 @@
     src: url('Rubik-Medium.ttf');
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: white;
 }
@@ -540,6 +544,7 @@ canvas {
     font-size: 1.3vw;
     margin-top: 8em;
     margin-bottom: 0.5em;
+    cursor:pointer;
 }
 
 .down-arrow {
@@ -826,6 +831,8 @@ canvas {
     background-color: white;
     border-radius:40px;
     box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+    cursor: pointer;
+
 }
 
 .pricing-card-large {
@@ -855,6 +862,7 @@ canvas {
     background-color: white;
     border-radius:40px;
     box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.25);
+    cursor: pointer;
 }
 
 .pricing-card-tier {
@@ -887,7 +895,7 @@ canvas {
 
 .pricing-card-price-value {
     font-family: roboto-bold;
-    font-size:5.5vw;
+    font-size:5vw;
     color: rgba(255, 255, 255, 0.3);
 }
 
@@ -940,7 +948,7 @@ canvas {
 
 .pricing-card-price-value-small {
     font-family: roboto-bold;
-    font-size:5vw;
+    font-size:4.5vw;
     color: rgba(255, 255, 255, 0.3);
 }
 
