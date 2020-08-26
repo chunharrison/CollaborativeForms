@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 // redux
 import { connect } from 'react-redux'
@@ -23,29 +23,65 @@ import Select from 'react-select'
 
 const RoomSettingsWindow = (props) => {
     const [newCapacity, setNewCapacity] = useState(props.room.numMaxGuests)
+    const [capacityOptions, setCapacityOptions] = useState([{ value: 1, label: 1 }])
     const [newDownloadOption, setNewDownloadOption] = useState(props.room.downloadOption)
+
+    useEffect(() => {
+        // console.log('props.room.guestCapacity', props.room.guestCapacity)
+        let newCapacityOptions = []
+        for (let i = 1; i <= props.room.guestCapacity; i++) {
+            newCapacityOptions.push({ value: i, label: i })
+        }
+        setCapacityOptions(newCapacityOptions)
+    }, [props.room.guestCapacity])
+
+    useEffect(() => {
+        // console.log(props.room.numMaxGuests)
+        setNewCapacity(props.room.numMaxGuests)
+    }, [props.room.numMaxGuests])
+
+    useEffect(() => {
+        setNewDownloadOption(props.room.downloadOption)
+    }, [props.room.downloadOption])
+
+    useEffect(() => {
+        const changeCapacityButton = document.getElementById('room-capacity-button');
+        if (newCapacity !== props.room.numMaxGuests && changeCapacityButton !== null) {
+            changeCapacityButton.classList.remove("unchangable")
+        } else if (newCapacity === props.room.numMaxGuests && changeCapacityButton !== null) {
+            changeCapacityButton.classList.add("unchangable")
+        }
+    }, [props.room.numMaxGuests, newCapacity])
+
+    useEffect(() => {
+        const changeDownloadOptionsButton = document.getElementById('download-options-button');
+        if (newDownloadOption !== props.room.downloadOption && changeDownloadOptionsButton !== null) {
+            changeDownloadOptionsButton.classList.remove("unchangable")
+        } else if (newDownloadOption === props.room.downloadOption && changeDownloadOptionsButton !== null) {
+            changeDownloadOptionsButton.classList.add("unchangable")
+        }
+    }, [props.room.downloadOption,newDownloadOption])
 
     function handleMaxNumGuestChangeClick(e) {
         e.preventDefault()
-        props.setMaxNumGuests({
-            roomCode: props.room.roomCode,
-            newCapacity: newCapacity
-        })
+
+        // if (newCapacity !== props.room.numMaxGuests) {
+        //     console.log('handleMaxNumGuestChangeClick')
+            props.setMaxNumGuests({
+                roomCode: props.room.roomCode,
+                newCapacity: newCapacity
+            })
+        // }
     }
 
     function handleDownloadOptionChangeClick(e) {
         e.preventDefault()
-        console.log('handleDownloadOptionChangeClick', props.room.roomCode, newDownloadOption)
-        props.room.userSocket.emit('setDownloadOption', newDownloadOption)
-        props.updateDownloadOption(newDownloadOption)
-    }
 
-    const capacityOptions = [
-        // TODO: harrison
-    ]
-    const capacityDefaultValue = {
-        value: props.room.numMaxGuests,
-        label: props.room.numMaxGuests
+        // if (newDownloadOption !== props.room.downloadOption) {
+        //     console.log('handleDownloadOptionChangeClick')
+            props.room.userSocket.emit('setDownloadOption', newDownloadOption)
+            props.updateDownloadOption(newDownloadOption)
+        // }
     }
 
     function onCapacityChangeHandler(e) {
@@ -94,13 +130,12 @@ const RoomSettingsWindow = (props) => {
                                 <Select
                                     className="settings-modal-dropdown" 
                                     options={capacityOptions} 
-                                    value={{value: newCapacity, label: newCapacity}} 
-                                    defaultValue={capacityDefaultValue}
+                                    value={{value: newCapacity, label: newCapacity}}
                                     onChange={e => onCapacityChangeHandler(e)}
                                 />
                             </Col>
                             <Col className="settings-modal-col">
-                                <button className="settings-change-button" onClick={e => handleMaxNumGuestChangeClick(e)}>Change</button>
+                                <button id="room-capacity-button" className="settings-change-button unchangable" onClick={e => handleMaxNumGuestChangeClick(e)}>Apply</button>
                             </Col>
                         </Row>
                         <Row className="settings-modal-row">
@@ -117,7 +152,7 @@ const RoomSettingsWindow = (props) => {
                             />
                             </Col> 
                             <Col className="settings-modal-col">
-                                <button className="settings-change-button" onClick={e => handleDownloadOptionChangeClick(e)}>Change</button>
+                                <button id="download-options-button" className="settings-change-button unchangable" onClick={e => handleDownloadOptionChangeClick(e)}>Apply</button>
                             </Col>
                         </Row>
                         <Row className="settings-modal-row">
@@ -134,9 +169,10 @@ const RoomSettingsWindow = (props) => {
     )
 }
 
-const mapStateToProps = state => ({
-    room: state.room
-})
+const mapStateToProps = state => {
+    console.log('state', state)
+    return {room: state.room}
+}
 
 export default connect(mapStateToProps, {
     closeRoomSettingsWindow,

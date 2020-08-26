@@ -350,7 +350,7 @@ router.post('/retrieve-customer-payment-method', checkToken, async (req, res) =>
     user.customerId
   );
 
-  if (customer.invoice_settings.default_payment_method) {
+  if (customer.invoice_settings || customer.invoice_settings.default_payment_method) {
     const paymentMethod = await stripe.paymentMethods.retrieve(
       customer.invoice_settings.default_payment_method
     );

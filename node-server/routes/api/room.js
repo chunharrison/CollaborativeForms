@@ -90,7 +90,9 @@ router.get('/get-num-max-guests', (req, res) => {
 
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-        res.send({numMaxGuests: result.numMaxGuests})
+        if (result !== null) {
+            res.send({numMaxGuests: result.numMaxGuests})
+        }
     })
 })
 
@@ -121,7 +123,9 @@ router.get('/get-download-option', (req, res) => {
 
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-        res.send({downloadOption: result.downloadOption})
+        if (result !== null) {
+            res.send({downloadOption: result.downloadOption})
+        }
     })
 })
 
@@ -152,10 +156,13 @@ router.get('/get-room-capacity-status', (req, res) => {
 
     db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
         if (err) throw err;
-        console.log('/get-room-capacity-status', result.numMaxGuests, Object.keys(result.guests).length)
-        const full = result.numMaxGuests <= Object.keys(result.guests).length
-        console.log(full)
-        res.send({roomFull: full})
+        // console.log('/get-room-capacity-status', result.numMaxGuests, Object.keys(result.guests).length)
+
+        if (result !== null) {
+            const full = result.numMaxGuests <= Object.keys(result.guests).length
+            // console.log(full)
+            res.send({roomFull: full})
+        }
     })
 })
 
@@ -163,6 +170,32 @@ router.post('/set-room-invitation-code', checkToken, (req, res) => {
     const {roomCode, invitationCode} = req.body
 
     db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {invitationCode: invitationCode}})
+})
+
+router.get('/get-product-guest-capacty', checkToken, (req, res) => {
+    jwt.verify(req.token, process.env.JWT_PRIVATE_KEY, (err, authorizedData) => {
+        if (err) {
+            //If error send Forbidden (403)
+            console.log('ERROR: Could not connect to the protected route');
+            res.sendStatus(403);
+        } else {
+            const {customerId} = req.query
+
+            db.collection("users").findOne({customerId: customerId}, function(err, result) {
+                if (err) throw err;
+                if (result.product === "free") {
+                    res.send({guestCapacity: 1})
+                } else {
+                    const productId = result.subscription.plan.product
+                    db.collection("products").findOne({productId: productId}, function(err, result) {
+                        if (err) throw err;
+
+                        res.send({guestCapacity: result.guestCount})
+                    })
+                }
+            })
+        }
+    })
 })
 
 

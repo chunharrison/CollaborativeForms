@@ -51,12 +51,14 @@ class LandingPage extends React.Component {
             video2IsLoaded: false,
             video3IsLoaded: false,
             toggleBurger:false,
+            productRef:null,
         }
 
         this.fadeInLeft = this.fadeInLeft.bind(this);
         this.fadeInRight = this.fadeInRight.bind(this);
         this.fadeInBottom = this.fadeInBottom.bind(this);
         this.fadeInBottomSlow = this.fadeInBottomSlow.bind(this);
+        this.learnScroll = this.learnScroll.bind(this);
     }
 
     componentDidMount() {
@@ -64,6 +66,10 @@ class LandingPage extends React.Component {
         setInterval(function(){ 
            self.setState({typeBlink: !self.state.typeBlink}) 
         }, 600);
+    }
+
+    learnScroll() {
+        window.scrollTo(0, this.state.productRef.offsetTop)
     }
 
     fadeInLeft(inView, entry ) {
@@ -228,10 +234,10 @@ class LandingPage extends React.Component {
                     <div className='welcome-button-container'>
                         <p className='welcome-demo-button' onClick={e => {this.handleDemoClick(e)}}>Try our demo</p>
                     </div>
-                    <p className='learn-more'>Learn More</p>
+                    <p className='learn-more' onClick={() => this.learnScroll()}>Learn More</p>
                     <img src={downArrow} className='down-arrow'/>
                 </div>
-                <div className='feature'>
+                <div className='feature' id="feature-one" ref={ (ref) => this.state.productRef=ref}>
                     <InView as="div" className='feature-image-container' onChange={this.fadeInLeft}>
                     <div className="feature-image">
                             <img
@@ -330,7 +336,7 @@ class LandingPage extends React.Component {
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency-small'>$</p>
                                         <p className='pricing-card-price-value-small'>0</p>
-                                        <p className='pricing-card-price-recurrence-small'>for a week</p>
+                                        <p className='pricing-card-price-recurrence-small'>per month</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
@@ -338,13 +344,13 @@ class LandingPage extends React.Component {
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
-                                        <p className='pricing-card-perk-description-small'>3 person per room limit</p>
+                                        <p className='pricing-card-perk-description-small'>Host 1 guest at a time</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
-                                        <p className='pricing-card-perk-description-small'>Free for 7 days</p>
+                                        <p className='pricing-card-perk-description-small'>Change documents every 48 hours</p>
                                     </div>
-                                    <p className='pricing-card-button-small'>
+                                    <p className='pricing-card-button-small' onClick={() => this.props.history.push('/subscriptions')}>
                                         Choose
                                     </p>
                                 </div>
@@ -352,22 +358,22 @@ class LandingPage extends React.Component {
                             </InView>
                             <InView as="div" className='pricing-card' onChange={this.fadeInBottomSlow}>
                                 <div className='pricing-card-large'>
-                                    <p className='pricing-card-tier'>Basic</p>
+                                    <p className='pricing-card-tier'>Personal</p>
                                     <div className='pricing-card-underline'></div>
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency'>$</p>
-                                        <p className='pricing-card-price-value'>5</p>
+                                        <p className='pricing-card-price-value'>3.49</p>
                                         <p className='pricing-card-price-recurrence'>monthly</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick' src={tick} />
-                                        <p className='pricing-card-perk-description'>Host 5 documents at a time</p>
+                                        <p className='pricing-card-perk-description'>Host 10 documents at a time</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick' src={tick} />
-                                        <p className='pricing-card-perk-description'>5 person per room limit</p>
+                                        <p className='pricing-card-perk-description'>Host 2 guest at a time</p>
                                     </div>
-                                    <p className='pricing-card-button-large'>
+                                    <p className='pricing-card-button-large' onClick={() => this.props.history.push('/subscriptions')}>
                                         Choose
                                     </p>
                                 </div>
@@ -378,18 +384,18 @@ class LandingPage extends React.Component {
                                     <div className='pricing-card-underline-small'></div>
                                     <div className='pricing-card-price-container'>
                                         <p className='pricing-card-price-currency-small'>$</p>
-                                        <p className='pricing-card-price-value-small'>10</p>
+                                        <p className='pricing-card-price-value-small'>8.99</p>
                                         <p className='pricing-card-price-recurrence-small'>monthly</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={tick} />
-                                        <p className='pricing-card-perk-description-small'>Host 10 documents at a time</p>
+                                        <p className='pricing-card-perk-description-small'>Host 25 documents at a time</p>
                                     </div>
                                     <div className='pricing-card-perk'>
                                         <img className='pricing-card-perk-tick-small' src={plus} />
-                                        <p className='pricing-card-perk-description-small'>10 person per room limit</p>
+                                        <p className='pricing-card-perk-description-small'>Host 10 guest at a time</p>
                                     </div>
-                                    <p className='pricing-card-button-small'>
+                                    <p className='pricing-card-button-small' onClick={() => this.props.history.push('/subscriptions')}>
                                         Choose
                                     </p>
                                 </div>

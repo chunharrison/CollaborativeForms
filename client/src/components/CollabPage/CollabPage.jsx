@@ -60,7 +60,8 @@ import {
 
     getRoomCapacity,
     getDownloadOption,
-    updateDownloadOption
+    updateDownloadOption,
+    getProductGuestCapacity
 } from '../../actions/roomActions'
 import { setCurrentZoom,
     setToolMode,
@@ -205,6 +206,11 @@ class CollabPage extends React.Component {
                             })
             
                         this.props.setGuestID(this.state.guestID)
+                    }
+
+                    // get room capacity if you are the host
+                    else if ( this.props.auth.user.id === this.state.hostID) {
+                        this.props.getProductGuestCapacity(this.props.auth.user.customerId)
                     }
 
                     // SOCKET
@@ -628,6 +634,13 @@ class CollabPage extends React.Component {
     handleSelection(e) {
         let tempValue = rb.extractSelectedBlock(window, document);
         if (typeof tempValue !== 'undefined' && tempValue !== null && this.state.selectedArea !== tempValue && this.props.toolMode === 'highlighter') {
+            let self = this;
+            tempValue.dimensions.forEach(function (dimension, i) {
+                tempValue.dimensions[i].m_x = dimension.m_x / self.props.currentZoom;
+                tempValue.dimensions[i].m_y = dimension.m_y / self.props.currentZoom;
+                tempValue.dimensions[i].m_width = dimension.m_width / self.props.currentZoom;
+                tempValue.dimensions[i].m_height = dimension.m_height / self.props.currentZoom;
+            })
             this.setState({selectedArea: tempValue}, () => {
                 if (typeof this.state.selectedArea.rangeCache.m_cac.classList !== 'undefined' && this.state.selectedArea.rangeCache.m_cac.classList.contains('react-pdf__Page__textContent')) {
                     let key = this.state.selectedArea.rangeCache.m_cac.parentNode.getAttribute('data-page-number');
@@ -662,7 +675,7 @@ class CollabPage extends React.Component {
 
     setZoom(e) {
         this.props.setCurrentZoom(e.value)
-        for (let pageNum = 1; pageNum < this.props.numPages; pageNum++) {
+        for (let pageNum = 1; pageNum <= this.props.numPages; pageNum++) {
             if (document.getElementById(pageNum.toString())) {
                 let fabricElement = document.getElementById(pageNum.toString()).fabric
                 fabricElement.setZoom(e.value)
@@ -1265,6 +1278,7 @@ export default connect(mapStateToProps, {
     getRoomCapacity,
     getDownloadOption,
     updateDownloadOption,
+    getProductGuestCapacity,
 
     setCanvasContainerRef,
     setRenderFabricCanvasFunc,

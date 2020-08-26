@@ -11,8 +11,14 @@ const SinglePage = (props) => {
     const [height, setHeight] = useState(200);
 
     useEffect(() => {
-        if (typeof document.getElementsByClassName(`pdf-${props.index + 1}`)[0] !== 'undefined') {
-            setTimeout(function(){ setPagePicture(document.getElementsByClassName(`pdf-${props.index + 1}`)[0].firstChild.toDataURL('image/jpeg', 0.3)); }, 500);
+        if (document.getElementsByClassName(`pdf-${props.index + 1}`)[0] !== undefined) {
+            setTimeout(function(){ 
+                // const mariosScrewUp = document.getElementsByClassName(`pdf-${props.index + 1}`)[0]
+                // if (mariosScrewUp !== undefined && mariosScrewUp !== null) {
+                //     setPagePicture(mariosScrewUp.firstChild.toDataURL('image/jpeg', 0.3)); 
+                // }
+                setPagePicture(document.getElementsByClassName(`pdf-${props.index + 1}`)[0].firstChild.toDataURL('image/jpeg', 0.3)); 
+            }, 500);
             if (props.pageDimensions[props.index].width < props.pageDimensions[props.index].height) {
                 setHeight(200);
                 setWidth(props.pageDimensions[props.index].width / props.pageDimensions[props.index].height * 200);

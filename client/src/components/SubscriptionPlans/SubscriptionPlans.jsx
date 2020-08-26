@@ -1,8 +1,7 @@
 import React from 'react'
 
-import checkmark from './checkmark.png'
 import tick from './tick.png'
-import x from './x.png'
+import close from './close.png'
 import './SubscriptionPlans.css'
 
 const SubscriptionPlans = props => {
@@ -22,6 +21,8 @@ const SubscriptionPlans = props => {
     return(<div className="payment-page-container">
         <p className='product-logo-subscriptions-page'>cosign</p>
         <div className="background-strip"></div>
+        <p className='subscription-header'>Flexible plans for your needs</p>
+        <p className='subscription-subheader'>Choose your plan and start working on your PDF documents</p>
         <div className="subscription-cards">
             <div class="subscription-row">
                 <div class="subscription-column">
@@ -37,28 +38,28 @@ const SubscriptionPlans = props => {
                             <p className="subscription-price">Free</p>
                         </div>
 
+                        <p onClick={e => onClickFreeButton(e)} className='subscription-button'>Use for Free</p>
 
                         <div className="subscription-perks-container">
                         <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Host <b clasName="perk-accent">1</b> guest per room limit</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Host <b clasName="perk-accent">1</b> guest per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Save <b clasName="perk-accent">1</b> document at a time in user profile</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Save <b clasName="perk-accent">1</b> document at a time in user profile</p>
                                 <p></p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={x}/>
-                                <p>Change documents anytime: every <b clasName="perk-accent">48</b> hours</p>
+                                <img className="close-mark" src={close}/>
+                                <p className='subscription-perk-text'>Change documents anytime: every <b clasName="perk-accent">48</b> hours</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={x}/>
-                                <p>Pilot Mode</p>
+                                <img className="close-mark" src={close}/>
+                                <p className='subscription-perk-text'>Pilot Mode</p>
                             </div>
                         </div>
 
-                        <p onClick={e => onClickFreeButton(e)} className='subscription-button'>Use for Free</p>
                     </div>
                 </div>
 
@@ -72,32 +73,31 @@ const SubscriptionPlans = props => {
                         <p id="about-basic" className="subscription-about">
                             Going over study notes with friends.
                         </p>
-                        {/* <hr id="hr-basic"/> */}
+                        
                         <div className="subscription-price-container">
                             <p className="subscription-price">$3.49</p>
                             <p className="payment-frequency">/monthly</p>
                         </div>
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Personal</p>
 
                         <div className="subscription-perks-container">
                         <div className="subscription-perk">
-                            <img src={tick}/>
-                                <p>Host <b clasName="perk-accent">2</b> guests per room limit</p>
+                            <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Host <b clasName="perk-accent">2</b> guests per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Save <b clasName="perk-accent">10</b> documents at a time in user profile</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Save <b clasName="perk-accent">10</b> documents at a time in user profile</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={x}/>
-                                <p>Change documents anytime: every <b clasName="perk-accent">24</b> hours</p>
+                                <img className="close-mark" src={close}/>
+                                <p className='subscription-perk-text'>Change documents anytime: every <b clasName="perk-accent">24</b> hours</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={x}/>
-                                <p>Pilot Mode</p>
+                                <img className="close-mark" src={close}/>
+                                <p className='subscription-perk-text'>Pilot Mode</p>
                             </div>
                         </div>
-
-                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Personal</p>
                     </div>
                 </div>
                 
@@ -111,30 +111,29 @@ const SubscriptionPlans = props => {
                         </p>
                         {/* <hr id="hr-pro"/> */}
                         <div className="subscription-price-container">
-                            <p className="subscription-price">$9.99</p>
+                            <p className="subscription-price">$8.99</p>
                             <p className="payment-frequency">/monthly</p>
                         </div>
+                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Pro</p>
 
                         <div className="subscription-perks-container">
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Host <b clasName="perk-accent">5</b> guests per room limit</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Host <b clasName="perk-accent">5</b> guests per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Save <b clasName="perk-accent">25</b> document at a time in user profile</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Save <b clasName="perk-accent">25</b> document at a time in user profile</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Change documents anytime</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Change documents anytime</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Pilot Mode</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Pilot Mode</p>
                             </div>
                         </div>
-
-                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Pro</p>
                     </div>
                 </div>
 
@@ -151,64 +150,27 @@ const SubscriptionPlans = props => {
                             <p className="subscription-price">$14.99</p>
                             <p className="payment-frequency">/monthly</p>
                         </div>
-
-                        <div className="subscription-perks-container">
-                            <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Host <b clasName="perk-accent">10</b> guests per room limit</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Save <b clasName="perk-accent">50</b> document at a time in user profile</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Change documents anytime</p>
-                            </div>
-                            <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Pilot Mode</p>
-                            </div>
-                        </div>
-
                         <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Business</p>
-                    </div>
-                </div>
-
-            <div class="subscription-column">
-                    <div class="subscription-card">
-                        <h1 className="subscription-title">
-                            Corporate
-                        </h1>
-                        <p className="subscription-about">
-                            Anything.
-                        </p>
-                        {/* <hr id="hr-pro"/> */}
-                        <div className="subscription-price-container">
-                            <p className="subscription-price">$39.99</p>
-                            <p className="payment-frequency">/monthly</p>
-                        </div>
 
                         <div className="subscription-perks-container">
-                        <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Host <b clasName="perk-accent">20</b> guests per room limit</p>
+                            <div className="subscription-perk">
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Host <b clasName="perk-accent">10</b> guests per room limit</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Save <b clasName="perk-accent">100</b> document at a time in user profile</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Save <b clasName="perk-accent">50</b> document at a time in user profile</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Change documents anytime</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Change documents anytime</p>
                             </div>
                             <div className="subscription-perk">
-                                <img src={tick}/>
-                                <p>Pilot Mode</p>
+                                <img className="tick-mark" src={tick}/>
+                                <p className='subscription-perk-text'>Pilot Mode</p>
                             </div>
                         </div>
 
-                        <p onClick={e => onClickButton(e)} className='subscription-button'>Subscribe to Corporate</p>
                     </div>
                 </div>
             </div>
