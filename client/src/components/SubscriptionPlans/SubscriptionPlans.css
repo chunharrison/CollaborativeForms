@@ -40,8 +40,14 @@
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
-#column-basic-plan, #column-business-plan {
+#column-basic-plan {
     border-right-style: solid;
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: #CDCDCD;
+}
+
+#column-business-plan {
     border-left-style: solid;
     border-width: 1px;
     border-color: #CDCDCD;
@@ -132,12 +138,20 @@
 }
 
 .subscription-perk img {
-    height: 1vw;
+    height: 0.75vw;
     margin-right: 1rem;
 }
 
 .subscription-perk b {
     font-weight: 1000 !important;
+}
+
+.subscription-perk img.tick-mark {
+    filter: invert(80%) sepia(45%) saturate(486%) hue-rotate(62deg) brightness(91%) contrast(90%);
+}
+
+.subscription-perk img.close-mark {
+    filter: invert(36%) sepia(100%) saturate(6675%) hue-rotate(8deg) brightness(104%) contrast(109%);
 }
 
 .subscription-button {

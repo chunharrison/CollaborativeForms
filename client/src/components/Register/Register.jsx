@@ -103,7 +103,7 @@ class Register extends Component {
                     :
                     <div className="register-form-container">
                     <form noValidate onSubmit={this.onSubmit} id='register' className="register-form">
-                        <p className='register-logo'>cosign</p>
+                        <p className='register-logo' onClick={e => this.handleGoBackButtonClick(e)}>cosign</p>
                         <p className="register-header">Create your account</p>
                         
                             <input
