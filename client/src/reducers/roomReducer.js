@@ -14,6 +14,7 @@ import {
     OPEN_ROOM_SETTINGS_WINDOW,
     CLOSE_ROOM_SETTINGS_WINDOW,
     SET_ROOM_HOST_ID,
+    GET_PRODUCT_GUEST_CAPACITY,
 
     SET_MAX_NUM_GUESTS,
     SET_DOWNLOAD_OPTION
@@ -34,8 +35,9 @@ const initialState = {
     hostID: '',
 
     // options
-    numMaxGuests: 3,
-    downloadOption: 'Both'
+    numMaxGuests: 1,
+    downloadOption: 'Both',
+    guestCapacity: 1,
 }
 
 export default function(state = initialState, action) {
@@ -140,6 +142,12 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 downloadOption: action.payload
+            }
+
+        case GET_PRODUCT_GUEST_CAPACITY:
+            return {
+                ...state,
+                guestCapacity: action.payload
             }
 
         default:

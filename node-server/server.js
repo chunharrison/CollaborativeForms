@@ -37,7 +37,14 @@ async function updateProducts() {
         limit: 3,
     });
       products.data.forEach(product => 
-          Product.findOneAndUpdate({ productId: product.id }, { productId: product.id, productName: product.name, price: product.metadata.price, priceId: product.metadata.priceId })
+          Product.findOneAndUpdate({ productId: product.id }, { 
+              productId: product.id, 
+              productName: product.name, 
+              price: product.metadata.price, 
+              priceId: product.metadata.priceId, 
+              docCount: product.metadata.docCount, 
+              guestCount: product.metadata.guestCount 
+            })
           .then(result => {
               if (result === null) {
                 const newProduct = new Product({
@@ -322,7 +329,7 @@ app.get("/api/auth/google/callback", passport.authenticate("google",
 
         // Create JWT Payload
         const payload = {
-            id: req.user.googleId,
+            id: req.user._id,
             name: req.user.name,
             email: req.user.email,
             customerId: req.user.customerId
@@ -359,7 +366,7 @@ app.get('/api/auth/facebook/callback', passport.authenticate('facebook', {
 
         // Create JWT Payload
         const payload = {
-            id: req.user.facebookId,
+            id: req.user._id,
             name: req.user.name,
             email: req.user.email,
             customerId: req.user.customerId
@@ -391,7 +398,7 @@ app.get('/api/auth/linkedin/callback',
 
     // Create JWT Payload
     const payload = {
-        id: req.user.linkedinId,
+        id: req.user._id,
         name: req.user.name,
         email: req.user.email,
         customerId: req.user.customerId
@@ -474,14 +481,16 @@ io.on('connection', (socket)=>{
                 if (err) throw err;
 
                 // the list of signatures for that page from the database (encrypted)
-                let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
-                let decryptedSignatureObjectList = []
-                if (currentPageSignatures !== null) {
-                    // decryption
-                    let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
-                    decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                if (result !== null) {
+                    let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
+                    let decryptedSignatureObjectList = []
+                    if (currentPageSignatures !== null) {
+                        // decryption
+                        let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+                        decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                    }
+                    callback(decryptedSignatureObjectList);
                 }
-                callback(decryptedSignatureObjectList);
             })
         })
 
@@ -489,13 +498,15 @@ io.on('connection', (socket)=>{
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
 
-                let currentPageHighlights = {};
+                if (result !== null) {
+                    let currentPageHighlights = {};
 
-                if (result.highlights[pageNum]) {
-                    currentPageHighlights = result.highlights[pageNum];
-
+                    if (result.highlights[pageNum]) {
+                        currentPageHighlights = result.highlights[pageNum];
+    
+                    }
+                    callback(currentPageHighlights);
                 }
-                callback(currentPageHighlights);
             })
         })
 
@@ -505,26 +516,28 @@ io.on('connection', (socket)=>{
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
 
-                // the list of signatures for that page from the database (encrypted)
-                let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
-                let decryptedSignatureObjectList = []
-                if (currentPageSignatures !== null) {
-                    // decrypt
-                    let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
-                    decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                if (result !== null) {
+                    // the list of signatures for that page from the database (encrypted)
+                    let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
+                    let decryptedSignatureObjectList = []
+                    if (currentPageSignatures !== null) {
+                        // decrypt
+                        let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+                        decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                    }
+
+                    // add the new signature to the list
+                    decryptedSignatureObjectList.push(newSignatureObjectJSON);
+
+                    // encrypt the list again before updating the database
+                    let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
+                    // update the database
+                    result.signatures[pageNum.toString()] = encrypted;
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
+
+                    // emit the changes to other users in the room
+                    socket.to(roomCode).emit('addOut', pageData)
                 }
-                
-                // add the new signature to the list
-                decryptedSignatureObjectList.push(newSignatureObjectJSON);
-
-                // encrypt the list again before updating the database
-                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
-                // update the database
-                result.signatures[pageNum.toString()] = encrypted;
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
-
-                // emit the changes to other users in the room
-                socket.to(roomCode).emit('addOut', pageData)
             })
         })
 
@@ -534,33 +547,35 @@ io.on('connection', (socket)=>{
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
 
-                // the list of signatures for that page from the database (encrypted)
-                let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
-                let decryptedSignatureObjectList = []
-                if (currentPageSignatures !== null) {
-                    // decrypt
-                    let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
-                    decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                }
-
-                // remove the old signature from the list (before the modification)
-                decryptedSignatureObjectList.forEach(function(currentSignatureObjectJSON) {
-                    if (modifiedSignatureObjectJSON.id === currentSignatureObjectJSON.id) {
-                        decryptedSignatureObjectList.splice( decryptedSignatureObjectList.indexOf(currentSignatureObjectJSON), 1 );
+                if (result !== null) {
+                    // the list of signatures for that page from the database (encrypted)
+                    let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
+                    let decryptedSignatureObjectList = []
+                    if (currentPageSignatures !== null) {
+                        // decrypt
+                        let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+                        decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                     }
-                })
 
-                // add the new signature to the list (after the modification)
-                decryptedSignatureObjectList.push(modifiedSignatureObjectJSON);
+                    // remove the old signature from the list (before the modification)
+                    decryptedSignatureObjectList.forEach(function(currentSignatureObjectJSON) {
+                        if (modifiedSignatureObjectJSON.id === currentSignatureObjectJSON.id) {
+                            decryptedSignatureObjectList.splice( decryptedSignatureObjectList.indexOf(currentSignatureObjectJSON), 1 );
+                        }
+                    })
 
-                // encrypt the list again before updating the database
-                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
-                // update the database
-                result.signatures[pageNum.toString()] = encrypted
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
+                    // add the new signature to the list (after the modification)
+                    decryptedSignatureObjectList.push(modifiedSignatureObjectJSON);
 
-                // emit the changes to other users in the room
-                socket.to(roomCode).emit('editOut', pageData)
+                    // encrypt the list again before updating the database
+                    let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
+                    // update the database
+                    result.signatures[pageNum.toString()] = encrypted
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
+
+                    // emit the changes to other users in the room
+                    socket.to(roomCode).emit('editOut', pageData)
+                }
             })
         })
 
@@ -571,63 +586,74 @@ io.on('connection', (socket)=>{
             db.collection("rooms").findOne({roomCode: roomCode}, function(err, result) {
                 if (err) throw err;
 
-                // the list of signatures for that page from the database (encrypted)
-                let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
-                let decryptedSignatureObjectList = []
-                if (currentPageSignatures !== null) {
-                    // decrypt
-                    let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
-                    decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                }
-
-                // remove the old signature from the list (before the modification)
-                decryptedSignatureObjectList.forEach(function(currentSignatureObjectJSON) {
-                    if (removedSignatureObjectJSON.id === currentSignatureObjectJSON.id) {
-                        decryptedSignatureObjectList.splice( decryptedSignatureObjectList.indexOf(currentSignatureObjectJSON), 1 );
+                if (result !== null) {
+                    // the list of signatures for that page from the database (encrypted)
+                    let currentPageSignatures = get(result.signatures, pageNum.toString(), null)
+                    let decryptedSignatureObjectList = []
+                    if (currentPageSignatures !== null) {
+                        // decrypt
+                        let bytes  = CryptoJS.AES.decrypt(currentPageSignatures, process.env.ENCRYPT_KEY);
+                        decryptedSignatureObjectList = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                     }
-                })
 
-                // encrypt the list again before updating the database
-                let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
-                // update the database
-                result.signatures[pageNum.toString()] = encrypted
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
+                    // remove the old signature from the list (before the modification)
+                    decryptedSignatureObjectList.forEach(function(currentSignatureObjectJSON) {
+                        if (removedSignatureObjectJSON.id === currentSignatureObjectJSON.id) {
+                            decryptedSignatureObjectList.splice( decryptedSignatureObjectList.indexOf(currentSignatureObjectJSON), 1 );
+                        }
+                    })
 
-                // emit the changes to other users in the room
-                socket.to(roomCode).emit('deleteOut', pageData)
+                    // encrypt the list again before updating the database
+                    let encrypted = CryptoJS.AES.encrypt(JSON.stringify(decryptedSignatureObjectList), process.env.ENCRYPT_KEY).toString();
+                    // update the database
+                    result.signatures[pageNum.toString()] = encrypted
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {signatures: result.signatures}})
+
+                    // emit the changes to other users in the room
+                    socket.to(roomCode).emit('deleteOut', pageData)
+                }
             })
         })
 
         socket.on("highlightIn", (pageData) => {
             db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
-                let highlights = result.highlights;
-                let highlight = pageData.highlight;
-                highlights[pageData.pageNum] = {...highlights[pageData.pageNum], [pageData.id]: highlight};
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
-                    socket.to(roomCode).emit('highlightOut', {pageNum: pageData.pageNum, id: pageData.id, values: highlights[pageData.pageNum], text: pageData.highlight[1]})
-                })        
+
+                if (result !== null) {
+                    let highlights = result.highlights;
+                    let highlight = pageData.highlight;
+                    highlights[pageData.pageNum] = {...highlights[pageData.pageNum], [pageData.id]: highlight};
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                        socket.to(roomCode).emit('highlightOut', {pageNum: pageData.pageNum, id: pageData.id, values: highlights[pageData.pageNum], text: pageData.highlight[1]})
+                    })        
+                }
             })
         })
 
         socket.on("commentIn", (pageData) => {
             db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
-                let highlights = result.highlights;
-                let comment = pageData.comment;
-                highlights[pageData.pageNum][pageData.id][2] = comment;
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
-                    socket.to(roomCode).emit('commentOut', pageData)
-                })        
+
+                if (result !== null) {
+                    let highlights = result.highlights;
+                    let comment = pageData.comment;
+                    highlights[pageData.pageNum][pageData.id][2] = comment;
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                        socket.to(roomCode).emit('commentOut', pageData)
+                    })        
+                }
             })
         })
 
         socket.on("commentDelete", (pageData) => {
-            db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
-                let highlights = result.highlights;
-                delete highlights[pageData.pageNum][pageData.id];
-                db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
-                    socket.to(roomCode).emit('commentDeleteOut', pageData)
-                })        
-            })
+
+            if (result !== null) {
+                db.collection("rooms").findOne({ roomCode: roomCode }, function(err, result) {
+                    let highlights = result.highlights;
+                    delete highlights[pageData.pageNum][pageData.id];
+                    db.collection("rooms").updateOne({ roomCode: roomCode}, {$set: {highlights: highlights}}, function(err,result) {
+                        socket.to(roomCode).emit('commentDeleteOut', pageData)
+                    })        
+                })
+            }
         })
 
         // Pilot Mode //////////////////////////////////////////////////
