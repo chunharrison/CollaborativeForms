@@ -41,6 +41,7 @@
 }
 
 .register-logo {
+	cursor: pointer;
 	font-size:30px;
 	font-family: montserrat-medium;
 	color: rgb(94, 94, 94);

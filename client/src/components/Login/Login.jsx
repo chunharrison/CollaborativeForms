@@ -58,6 +58,12 @@ class Login extends Component {
     }
   }
 
+  handleGoBackButtonClick = (e) => {
+    e.preventDefault()
+
+    this.props.history.push('/')
+}
+
   render() {
 
     const { errors } = this.state;
@@ -65,7 +71,7 @@ class Login extends Component {
     return (
     <div className='login-container'>
         <form noValidate onSubmit={this.onSubmit} className="signin-form" id='login'>
-          <p className='login-logo'>cosign</p>
+          <p className='login-logo' onClick={e => this.handleGoBackButtonClick(e)}>cosign</p>
           <p className="login-header">Welcome Back</p>
             <input
               onChange={this.onChange}
