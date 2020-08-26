@@ -922,9 +922,14 @@ body {
 }
 
 .settings-change-button {
-    background: rgb(28, 184, 65);
+    background: #0066cc;
     /* border-color: rgb(28, 184, 65); */
 }
+
+/* .settings-change-button.unchangable {
+    background: grey;
+    opacity: 0.2;
+} */
 
 .settings-exit-button {
     background: rgb(202, 60, 60);
