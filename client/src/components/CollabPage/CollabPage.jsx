@@ -628,6 +628,13 @@ class CollabPage extends React.Component {
     handleSelection(e) {
         let tempValue = rb.extractSelectedBlock(window, document);
         if (typeof tempValue !== 'undefined' && tempValue !== null && this.state.selectedArea !== tempValue && this.props.toolMode === 'highlighter') {
+            let self = this;
+            tempValue.dimensions.forEach(function (dimension, i) {
+                tempValue.dimensions[i].m_x = dimension.m_x / self.props.currentZoom;
+                tempValue.dimensions[i].m_y = dimension.m_y / self.props.currentZoom;
+                tempValue.dimensions[i].m_width = dimension.m_width / self.props.currentZoom;
+                tempValue.dimensions[i].m_height = dimension.m_height / self.props.currentZoom;
+            })
             this.setState({selectedArea: tempValue}, () => {
                 if (typeof this.state.selectedArea.rangeCache.m_cac.classList !== 'undefined' && this.state.selectedArea.rangeCache.m_cac.classList.contains('react-pdf__Page__textContent')) {
                     let key = this.state.selectedArea.rangeCache.m_cac.parentNode.getAttribute('data-page-number');
