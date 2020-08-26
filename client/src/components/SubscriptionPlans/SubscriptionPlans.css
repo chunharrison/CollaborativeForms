@@ -1,43 +1,54 @@
 .payment-page-container {
-    height:100vh;
-	width:100vw;
 	display:flex;
 	flex-direction:column;
-	justify-content:center;
+	justify-content:flex-start;
 	align-items:center;
-	min-height:700px;
-	max-width:100%;
 	overflow-y:auto;
-	overflow-x:hidden;
+    overflow-x:hidden;
+    padding-top:5vw;
+    padding-bottom:5vw;
 }
 
 .product-logo-subscriptions-page {
     margin-bottom: 3rem;
-    font-size: 50px;
+    font-size: 5vw;
     font-family: montserrat-medium;
     color: rgb(94, 94, 94);
 }
 
 .background-strip {
     position: absolute !important;
-    margin-top: 3rem;
+    top:45%;
     /* margin-top: 25vh; */
-    height: 50vh;
+    height: 30vw;
     width: 100%;
-    background: #ea9d9d;
+    background: #cf4d4d;
+    z-index:-1;
+}
+
+.subscription-header {
+    font-family:opensans-semibold;
+    font-size:2.6vw;
+    margin-bottom:2vw;
+}
+
+.subscription-subheader {
+    font-family:opensans-regular;
+    font-size:1.4vw;
+    color:gray;
+    margin-bottom:3vw;
 }
 
 /* Float four columns side by side */
 .subscription-column {
-    float: left;
-    /* width: 25%; */
-    /* padding: 0 10px; */
-  }
+    width:25%;
+}
 
   /* Remove extra left and right margins, due to padding in columns */
 .subscription-row {
     /* margin: 0 -5px; */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    display:flex;
+    width:80vw;
 }
 
 #column-basic-plan {
@@ -62,16 +73,23 @@
 
 .subscription-cards {
     z-index: 2;
+    border-radius:10px;
+    overflow:hidden;
+    -webkit-box-shadow: 0px 0px 61px -4px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px 0px 61px -4px rgba(0,0,0,0.3);
+    box-shadow: 0px 0px 61px -4px rgba(0,0,0,0.3);
+        background-color:white;
 }
 
 /* Style the counter cards */
 .subscription-card {
-    padding: 16px;
     text-align: center;
-    background-color: #f1f1f1;
-    width: 17vw;
-    height: 60vh;
-
+    background-color: white;
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items:center;
+    
 
   /* position: absolute !important; */
   /* width: 80vw;
@@ -81,19 +99,17 @@
 }
 
 .subscription-title {
-    margin-top: 30px;
-    font-size: 40px;
+    margin-top: 1em;
+    font-size: 2vw;
 	/* font-family: montserrat-medium; */
 }
 
 .subscription-about {
-    margin-top: 15px;
-    margin-right: 3rem;
-    margin-left: 3rem;
-    margin-bottom: 2rem;
-
-    /* text-align: left; */
+    width:80%;
+    margin-top:1.5em;
+    font-size:1.1vw;
     color: grey;
+    height:4vw;
 }
 
 /* #about-basic, #about-pro{
@@ -107,11 +123,16 @@
     margin-bottom: 2rem;
 }
 
-.subscription-price-container, .subscription-perk {
+.subscription-price-container {
     display:flex;
-    flex-direction: row;
-    justify-content:center;
-	align-items:center;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items:flex-start;
+    height:4vw;
+}
+
+.subscription-perk {
+
 }
 
 /* #hr-basic, #hr-pro {
@@ -119,27 +140,38 @@
 } */
 
 .subscription-price {
-    font-size: 55px;
+    font-size: 3vw;
 }
 
 .payment-frequency {
     color: grey;
-    margin-left: 1rem;
+    font-size:1.2vw;
     margin-top: 1rem;
 }
 
 .subscription-perks-container {
-    margin-top: 10vh;
-    margin-bottom: 10vh;
+    margin-top: 2vw;
+    margin-bottom: 2vw;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    margin-left:5%;
 }
 
 .subscription-perk {
-    margin-bottom: 1rem;
+    display:flex;
+    margin:1vw;
+}
+
+.subscription-perk-text {
+    text-align:left;
+    font-size:1.2vw;
+    margin-left:1vw;
+    font-family: opensans-regular;
 }
 
 .subscription-perk img {
-    height: 0.75vw;
-    margin-right: 1rem;
+    height: 0.8vw;
 }
 
 .subscription-perk b {
@@ -156,17 +188,14 @@
 
 .subscription-button {
     font-family: roboto-light;
-    font-size: .75vw;
     color: white;
-    padding-left:1.5vw;
-    padding-right:1.5vw;
-    padding-top:0.75vw;
-    padding-bottom: 0.75vw;
     margin-top:1.5em;
-    margin-left: 3rem;
-    margin-right:  3rem;
+    height:3vw;
+    width:15vw;
+    line-height:3vw;
+    font-size:1vw;
     background-color: #e66069;
-    border-radius:40px;
+    border-radius:15px;
     cursor: pointer;
 }
 
