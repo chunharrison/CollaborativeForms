@@ -137,7 +137,6 @@ router.post('/create-subscription', checkToken, async (req, res) => {
             customer: req.body.customerId,
         });
     } catch (error) {
-      console.log(error.message);
         return res.status('402').send({ message: error.message });
     }
     // Change the default invoice settings on the customer to the new payment method
@@ -189,7 +188,6 @@ router.post('/retry-invoice', checkToken, async (req, res) => {
         });
     } catch (error) {
         // in case card_decline error
-        console.log(error.message)
         return res.status('402').send({message: error.message });
     }
 
@@ -247,7 +245,6 @@ router.post('/cancel-subscription', checkToken, async (req, res) => {
           const product = await stripe.products.retrieve(
             deletedSubscription.plan.product
           );
-            console.log(deletedSubscription)
           User.findOneAndUpdate({ customerId: deletedSubscription.customer }, { product: product, subscription: deletedSubscription })
           .then(user => {
             return res.send(deletedSubscription);
@@ -297,7 +294,6 @@ router.post('/update-subscription', checkToken, async (req, res) => {
     })
   })
   .catch(error => {
-    console.log(error.raw.code);
     // Create the subscription
     stripe.subscriptions.create({
       customer: req.body.customerId,
@@ -344,22 +340,26 @@ router.get('/retrieve-expiry', checkToken, async (req,res) => {
 })
 
 router.post('/retrieve-customer-payment-method', checkToken, async (req, res) => {
-  const user = await User.findOne({ customerId: req.body.customerId });
+  try {
+    const user = await User.findOne({ customerId: req.body.customerId });
 
-  const customer = await stripe.customers.retrieve(
-    user.customerId
-  );
-
-  if (customer.invoice_settings && customer.invoice_settings.default_payment_method) {
-    const paymentMethod = await stripe.paymentMethods.retrieve(
-      customer.invoice_settings.default_payment_method
+    const customer = await stripe.customers.retrieve(
+      user.customerId
     );
-
-    res.send(paymentMethod)
-  } else {
-    res.send(null);
+  
+    if (customer.invoice_settings && customer.invoice_settings.default_payment_method) {
+      const paymentMethod = await stripe.paymentMethods.retrieve(
+        customer.invoice_settings.default_payment_method
+      );
+  
+      res.send(paymentMethod)
+    } else {
+      res.send(null);
+    }
+  
+  } catch (error) {
+    res.status('400').send({message: error.message})
   }
-
 });
 
 router.post('/update-customer-payment-method', checkToken, async (req, res) => {

@@ -189,7 +189,7 @@
 .current-plan-container {
     margin:1em;
     width:70%;
-    height:40vh;
+    height:450px;
     display:flex;
     flex-direction:column;
 }
@@ -197,7 +197,7 @@
 .available-plan-container {
     margin:1em;
     width:70%;
-    height:40vh;
+    height:450px;
     display:flex;
     flex-direction:column;
 }
@@ -249,8 +249,7 @@
 }
 
 .current-plan-description {
-    margin-top:auto;
-    margin-bottom:auto;
+    margin-top:1em;
     font-family: karla-regular;
     margin-left:3vw;
     font-size:20px;

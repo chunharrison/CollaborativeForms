@@ -167,6 +167,8 @@ const AccountPage = props => {
                             <div className='available-plan-color'>
                                 <p className='plan-name'>{item.productName}</p>
                             </div>
+                            <p className='current-plan-description'>Save {item.docCount} documents at a time on your profile</p>
+                            <p className='current-plan-description'>Host {item.guestCount} guests at a time on a document</p>
                             <button className='plan-button' onClick={() => {userProduct === 'free' || (subscription && (subscription.status === 'canceled' || subscription.status === 'incomplete')) ? history.push('/payment', {product: item}) : history.push('/payment/change', {newProduct: item, oldProduct: userProduct})}}>
                                 Select
                             </button>
@@ -184,7 +186,8 @@ const AccountPage = props => {
             <div className='current-plan-color'>
                 <p className='plan-name'>Free</p>
             </div>
-            <p className='current-plan-description'>Access to the demo page</p>
+            <p className='current-plan-description'>Save 1 document at a time on your profile</p>
+            <p className='current-plan-description'>Host 1 guest at a time</p>
         </div>
         </div>
 
